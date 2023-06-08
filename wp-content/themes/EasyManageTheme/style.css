@@ -86,7 +86,8 @@ a {
 	display: none;
 }
 
-input:focus {
+input:focus,
+select:focus {
 	outline: none;
 }
 .fja {
@@ -249,7 +250,8 @@ footer {
 	font-weight: 500;
 	pointer-events: none;
 }
-.input-con input {
+.input-con input,
+.input-con select {
 	position: absolute;
 	top: 0;
 	left: 0;
