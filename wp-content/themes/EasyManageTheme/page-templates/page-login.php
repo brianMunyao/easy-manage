@@ -17,28 +17,13 @@ if (isset($_POST['login'])) {
 
 ?>
 
-<div class="login-page">
+<div class="form-container">
     <form action="" method="post">
         <div class="form">
             <h2>Login</h2>
 
-            <div class="input-con">
-                <div>
-                    <label for="email">Email</label>
-                    <input type="text" name="email" id="email" placeholder="Enter your email address">
-                </div>
-                <p class="form-error color-danger"><?php //error here
-                                                    ?></p>
-            </div>
-
-            <div class="input-con">
-                <div>
-                    <label for="password">Password</label>
-                    <input type="password" name="password" id="password" placeholder="Enter your password">
-                </div>
-                <p class="form-error color-danger"><?php //error here
-                                                    ?></p>
-            </div>
+            <?php echo do_shortcode('[input_con name="email" label="Email Address" error="" placeholder="Enter your email address" input_type="email"]') ?>
+            <?php echo do_shortcode('[input_con name="password" label="Password" error="" placeholder="Enter your email password" input_type="password"]') ?>
 
             <button type="submit" class="app-btn primary-btn" name="login">Login</button>
         </div>

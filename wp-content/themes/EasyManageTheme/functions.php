@@ -41,3 +41,27 @@ function search_bar_shortcode($attrs)
 }
 
 add_shortcode('search_bar', 'search_bar_shortcode');
+
+function input_con_shortcode($attrs)
+{
+    $att = shortcode_atts([
+        'name' => '',
+        'label' => '',
+        'value' => '',
+        'placeholder' => '',
+        'error' => '',
+        'input_type' => 'text'
+    ], $attrs);
+
+    return '
+    <div class="input-con">
+        <div>
+            <label for="' . $att['name'] . '">' . $att['label'] . '</label>
+            <input type="' . $att['input_type'] . '" name="' . $att['name'] . '" id="' . $att['name'] . '" placeholder="' . $att['placeholder'] . '" value="' . $att['value'] . '">
+        </div>
+        <p class="form-error color-danger">' . $att['error'] . '</p>
+    </div>
+    ';
+}
+
+add_shortcode('input_con', 'input_con_shortcode');
