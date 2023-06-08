@@ -6,6 +6,8 @@
  */
 get_header() ?>
 
-Create Program Manager
+<div class="app-padding create-program-manager-page">
+
+</div>
 
 <?php get_footer() ?>
