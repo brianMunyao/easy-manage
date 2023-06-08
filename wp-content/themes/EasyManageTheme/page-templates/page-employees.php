@@ -19,7 +19,7 @@ get_header() ?>
             <form action="" method="get">
                 <?php echo do_shortcode('[search_bar placeholder="search"]') ?>
             </form>
-            <button class="app-btn secondary-btn"><ion-icon name='add'></ion-icon> Add Program Manager</button>
+            <a href="<?php echo site_url('/employees/create-program-manager'); ?>"><button class="app-btn secondary-btn"><ion-icon name='add'></ion-icon> Add Program Manager</button></a>
         </div>
     </div>
     <?php
@@ -58,7 +58,7 @@ get_header() ?>
                 <td style="width:150px"><?php echo $employee->email ?></td>
                 <td style="width:80px;"><?php echo $employee->status ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                 <td style="width:100px" class="actions">
-                    <a href="<? echo site_url('/update-program-manager?id=1') ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
+                    <a href="<?php echo site_url('/employees/update-program-manager?id=1') ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
                     <span class="list-actions">
                         <ion-icon name='ellipsis-horizontal'></ion-icon>
 

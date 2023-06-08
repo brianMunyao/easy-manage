@@ -23,7 +23,7 @@ get_header() ?>
                 <?php echo do_shortcode('[input_con name="email" label="Email Address" error="" placeholder="Enter their email address" input_type="email"]') ?>
                 <?php echo do_shortcode('[input_con name="password" label="Password" error="" placeholder="Enter their email password" input_type="password"]') ?>
 
-                <button type="submit" class="app-btn primary-btn" name="login">Login</button>
+                <button type="submit" class="app-btn primary-btn" name="create-pm">Create</button>
             </div>
         </form>
     </div>
