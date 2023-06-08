@@ -55,10 +55,8 @@ function input_con_shortcode($attrs)
 
     return '
     <div class="input-con">
-        <div>
-            <label for="' . $att['name'] . '">' . $att['label'] . '</label>
-            <input type="' . $att['input_type'] . '" name="' . $att['name'] . '" id="' . $att['name'] . '" placeholder="' . $att['placeholder'] . '" value="' . $att['value'] . '">
-        </div>
+        <label for="' . $att['name'] . '">' . $att['label'] . '</label>
+        <input type="' . $att['input_type'] . '" name="' . $att['name'] . '" id="' . $att['name'] . '" placeholder="' . $att['placeholder'] . '" value="' . $att['value'] . '">
         <p class="form-error color-danger">' . $att['error'] . '</p>
     </div>
     ';

@@ -2,7 +2,7 @@
 
 /**
  * 
- * Template Name: Update Trainer Page Template
+ * Template Name: Update Program Page Template
  */
 get_header() ?>
 
@@ -10,14 +10,14 @@ get_header() ?>
     <div class="nav-pages-links">
         <ion-icon name='home-outline'></ion-icon>
         <a href='<?php echo home_url() ?>'>Home</a>
-        <a href='<?php echo site_url('/trainers') ?>'>/ Trainers</a>
-        <span>/ Update Trainer</span>
+        <a href='<?php echo site_url('/programs') ?>'>/ Programs</a>
+        <span>/ Update Program</span>
     </div>
 
     <div class="form-container">
         <form action="" method="post">
             <div class="form">
-                <h2>Update Trainer</h2>
+                <h2>Update Program</h2>
 
                 <?php echo do_shortcode('[input_con name="fullname" label="Fullname" error="" placeholder="Enter their fullname"]') ?>
                 <?php echo do_shortcode('[input_con name="email" label="Email Address" error="" placeholder="Enter their email address" input_type="email"]') ?>
