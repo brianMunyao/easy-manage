@@ -28,15 +28,6 @@ get_header() ?>
     <?php
     // TODO: change this for trainer to see their own trainees
     $available_assignees = get_users(['role' => 'trainee']);
-    var_dump($available_assignees);
-
-    // $assignees = [];
-
-    // $available_assignees = [
-    //     ["name" => 'Drew Barrymore'],
-    //     ["name" => 'Barry'],
-    // ];
-
     ?>
 
 
