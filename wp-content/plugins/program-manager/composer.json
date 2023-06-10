@@ -1,0 +1,16 @@
+{
+	"name": "brian/program-manager",
+	"description": "Plugin to manage training programs",
+	"autoload": {
+		"psr-4": {
+			"Inc\\": "inc/"
+		}
+	},
+	"authors": [
+		{
+			"name": "brianMunyao",
+			"email": "brianmunyao6@gmail.com"
+		}
+	],
+	"require": {}
+}
