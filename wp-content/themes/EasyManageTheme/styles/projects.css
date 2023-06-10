@@ -1,0 +1,212 @@
+:root {
+	--primary: #076b84;
+	--primaryHover: #0c5b6e;
+	--primaryActive: #114855;
+	--primaryLight: #0887a7;
+	--primaryLighter: #0cc0ed;
+
+	--secondary: #f5b321;
+	--secondaryHover: #d49509;
+
+	--blue: #007bff;
+	--info: #17a2b8;
+	--success: #28a745;
+	--warning: #ffc107;
+	--danger: #dc3545;
+}
+.create-project-page .assignee-list,
+.update-project-page .assignee-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 7px;
+}
+.create-project-page .assignee,
+.update-project-page .assignee {
+	background: rgb(245, 245, 245);
+	color: grey;
+	padding: 7px 10px;
+	border-radius: 10px;
+	width: fit-content;
+	font-size: 13.5px;
+	display: flex;
+	align-items: center;
+}
+.create-project-page .unassigned,
+.update-project-page .unassigned {
+	background: rgb(245, 245, 245);
+	color: grey;
+}
+.create-project-page .assigned,
+.update-project-page .assigned {
+	background: rgba(7, 107, 132, 0.1);
+	color: var(--primary);
+	font-weight: 500;
+}
+
+.create-project-page .assigned span,
+.update-project-page .assigned span {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px;
+	margin-left: 5px;
+	border-radius: 20px;
+	background: #dc354621;
+	color: #dc35467d;
+	cursor: pointer;
+	transition: all 0.2s linear;
+}
+
+.create-project-page .assigned span:hover,
+.update-project-page .assigned span:hover {
+	background: #dc354644;
+	color: var(--danger);
+}
+.projects-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, 250px);
+	grid-auto-rows: auto;
+	padding: 20px 10px 50px;
+	gap: 20px;
+}
+.projects-list .project {
+	background: #dbf6fd;
+	padding: 17px;
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.projects-list .project .project-title {
+	font-weight: 600;
+	font-size: 17px;
+	line-height: 25px;
+	letter-spacing: 0.2px;
+}
+.projects-list .project .project-category {
+	background: #076b8444;
+	width: fit-content;
+	padding: 4px 10px;
+	font-size: 14px;
+	font-weight: 500;
+	border-radius: 30px;
+	border: 1px solid rgba(7, 107, 132, 0.7);
+}
+.projects-list .project-progress-con {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.projects-list .project-progress-con .project-progress {
+	background: #fff;
+	flex: 1;
+	height: 10px;
+	width: 100%;
+	border: 1px solid #95e5f9;
+	border-radius: 10px;
+}
+.projects-list .project-progress-con .project-progress > div {
+	background: #076b84;
+	border-radius: 10px;
+	height: 100%;
+}
+.projects-list .project-progress-con .project-progress + div {
+	color: var(--primary);
+	font-weight: 600;
+	font-size: 15px;
+}
+
+.projects-list .project-assignees {
+	display: flex;
+	gap: 5px;
+}
+.projects-list .project-bottom-con {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-top: 10px;
+}
+.projects-list .project-bottom-con .separator {
+	background: #076b8453;
+}
+
+.projects-list .project-bottom {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.projects-list .project-bottom .project-due {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 14px;
+}
+
+.empty-list {
+	padding: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: grey;
+	border: 1px solid rgb(245, 245, 245);
+}
+.s-project-info {
+	display: flex;
+	flex-direction: column;
+	gap: 7px;
+	margin: 25px 0 40px;
+}
+.s-project-title {
+	font-weight: 700;
+	font-size: 20px;
+	margin-bottom: 20px;
+}
+.s-project-details {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	height: 30px;
+}
+.s-project-details > span {
+	font-weight: 600;
+	width: 90px;
+}
+
+.s-project-details > div {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: rgb(77, 77, 77);
+}
+
+.s-project-details .s-links {
+	font-size: 14.5px;
+	font-weight: 500;
+	gap: 10px;
+}
+
+/*
+* Tasks Styles
+*/
+
+.task {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 5px 10px;
+	height: 60px;
+	border: 1px solid rgb(223, 223, 223);
+}
+
+.task .task-name {
+	flex: 1;
+}
+.task .task-options {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.task .task-options * {
+	font-size: 14.5px;
+}

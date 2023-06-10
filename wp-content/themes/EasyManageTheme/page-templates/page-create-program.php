@@ -6,7 +6,7 @@
  */
 get_header() ?>
 
-<div class="app-padding create-trainer-page">
+<div class="app-padding create-program-page">
     <div class="nav-pages-links">
         <ion-icon name='home-outline'></ion-icon>
         <a href='<?php echo home_url() ?>'>Home</a>

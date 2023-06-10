@@ -13,7 +13,7 @@ get_header() ?>
     </div>
 
     <div class="table-heading">
-        <h4>Company Employees</h4>
+        <h3>Company Employees</h3>
 
         <div>
             <form action="" method="get">
