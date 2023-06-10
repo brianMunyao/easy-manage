@@ -1,4 +1,15 @@
 <?php
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+
+    $project = get_single_project($id);
+} else {
+    wp_redirect(site_url('/projects'));
+}
+
+
+if (isset($_POST['update-project'])) {
+}
 
 /**
  * 
@@ -15,13 +26,16 @@ get_header() ?>
     </div>
 
     <?php
+    // TODO: change this for trainer to see their own trainees
+    $available_assignees = get_users(['role' => 'trainee']);
+    var_dump($available_assignees);
 
-    $assignees = ['Drew Barrymore', 'Drew', 'Drew Barrymore', 'Drew Barrymore'];
+    // $assignees = [];
 
-    $available_assignees = [
-        ["name" => 'Drew Barrymore'],
-        ["name" => 'Barry'],
-    ];
+    // $available_assignees = [
+    //     ["name" => 'Drew Barrymore'],
+    //     ["name" => 'Barry'],
+    // ];
 
     ?>
 
@@ -31,19 +45,20 @@ get_header() ?>
             <div class="form">
                 <h2>Update Project</h2>
 
-                <?php echo do_shortcode('[input_con name="name" label="Project Name" error="" placeholder="Enter the project name"]') ?>
-                <?php echo do_shortcode('[input_con name="category" label="Project Category" error="" placeholder="E.g. Mobile App, Web App"]') ?>
-                <?php echo do_shortcode('[input_con name="description" label="Project Description" error="" placeholder="Briefly explain the projcet expectations" input_type="textarea"]') ?>
-                <?php echo do_shortcode('[input_con name="duedate" label="Project Due Date" error="" input_type="date"]') ?>
+                <?php echo do_shortcode('[input_con value="' . $project->project_name . '" name="name" label="Project Name" error="" placeholder="Enter the project name"]') ?>
+                <?php echo do_shortcode('[input_con value="' . $project->project_category . '" name="category" label="Project Category" error="" placeholder="E.g. Mobile App, Web App"]') ?>
+                <?php echo do_shortcode('[input_con value="' . $project->project_description . '" name="description" label="Project Description" error="" placeholder="Briefly explain the projcet expectations" input_type="textarea"]') ?>
+                <?php echo do_shortcode('[input_con value="' . $project->project_due_date . '" name="duedate" label="Project Due Date" error="" input_type="date"]') ?>
 
                 <div class="input-con">
                     <label for="">Assignee(s)</label>
                     <div class="assignee-list">
                         <?php
+                        $assignees = json_decode($project->project_assignees);
                         if (count($assignees) > 0) {
-                            foreach ($assignees as $assignee) {
+                            foreach ($assignees as $assignee_id) {
                         ?>
-                                <div class="assignee assigned"><?php echo $assignee ?> <span><ion-icon name='close'></ion-icon></span></div>
+                                <div class="assignee assigned"><?php echo get_user_by('ID', $assignee_id)->user_login ?> <span><ion-icon name='close'></ion-icon></span></div>
                             <?php
                             }
                         } else {
@@ -63,14 +78,14 @@ get_header() ?>
                         foreach ($available_assignees as $assignee) {
                             $assignee = (object)$assignee;
                         ?>
-                            <option value="<?php echo $assignee->name ?>"><?php echo $assignee->name ?></option>
+                            <option value="<?php echo $assignee->name ?>"><?php echo $assignee->user_login ?></option>
                         <?php
                         }
                         ?>
                     </select>
                 </div>
 
-                <button type="submit" class="app-btn primary-btn" name="create-project">Create</button>
+                <button type="submit" class="app-btn primary-btn" name="update-project">Create</button>
             </div>
         </form>
     </div>

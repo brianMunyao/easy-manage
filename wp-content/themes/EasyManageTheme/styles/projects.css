@@ -210,3 +210,14 @@
 .task .task-options * {
 	font-size: 14.5px;
 }
+.add-task-modal .modal-inner,
+.update-task-modal .modal-inner {
+	width: 300px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+.add-task-modal button,
+.update-task-modal button {
+	width: 100%;
+}

@@ -117,7 +117,7 @@ select:focus {
 .btn-text {
 	background: none;
 	border: none;
-	font-size: initial;
+	font-size: inherit;
 }
 
 button {
@@ -217,7 +217,6 @@ table td {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: 15px;
 	height: 40px;
 }
 .modal-inner .modal-top ion-icon {
@@ -293,6 +292,18 @@ footer {
 .form-container h2 {
 	margin-bottom: 20px;
 	text-align: center;
+}
+.error-page {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 20px;
+}
+.error-page img {
+	width: 240px;
+	height: auto;
 }
 
 /***** Login Page *****/

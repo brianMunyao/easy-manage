@@ -108,6 +108,23 @@ function is_user_admin_custom()
 {
     return get_user_role() == 'administrator';
 }
+function is_user_p_manager()
+{
+    return get_user_role() == 'program_manager';
+}
+function is_user_trainer()
+{
+    return get_user_role() == 'trainer';
+}
+function is_user_trainee()
+{
+    return get_user_role() == 'trainee';
+}
+
+function format_date($date)
+{
+    return date('jS F Y', strtotime($date));;
+}
 
 
 /**
@@ -115,33 +132,6 @@ function is_user_admin_custom()
  * Rest API functions
  */
 
-global $projects;
-$projects = [
-    (object)[
-        'id' => 1,
-        'name' => 'Project A',
-        'category' => 'Web App',
-        'progress' => 80,
-        'due_date' => '2023-07-15',
-        'done' => 0
-    ],
-    (object)[
-        'id' => 2,
-        'name' => 'Project B',
-        'category' => 'Mobile App',
-        'progress' => 100,
-        'due_date' => '2023-08-31',
-        'done' => 1
-    ],
-    (object)[
-        'id' => 3,
-        'name' => 'Project C',
-        'category' => 'Desktop App',
-        'progress' => 20,
-        'due_date' => '2023-06-30',
-        'done' => 0
-    ]
-];
 
 $tasks = [
     (object)[
@@ -180,32 +170,38 @@ $tasks = [
 
 function get_projects()
 {
-    global $projects;
-
-    return $projects;
+    $res = wp_remote_get("http://localhost:3000/projects", [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $projects = wp_remote_retrieve_body($res);
+    return json_decode($projects);
 }
 
 function get_single_project($id)
 {
-    global $projects;
+    $res = wp_remote_get("http://localhost:3000/projects?project_id=" . $id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $projects = wp_remote_retrieve_body($res);
+    $projects = json_decode($projects);
 
-    $filtered_projects = array_filter($projects, function ($project) use ($id) {
-        return $project->id == $id;
-    });
-
-    $matched_project = reset($filtered_projects);
-
-    if ($matched_project) {
-        return $matched_project;
-    }
-    return false;
+    $project = reset($projects);
+    return $project;
 }
 
 function get_tasks($id)
 {
-    global $tasks;
+    $res = wp_remote_get("http://localhost:3000/tasks", [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $tasks = wp_remote_retrieve_body($res);
+    $tasks = json_decode($tasks);
+
     $filtered_tasks = array_filter($tasks, function ($task) use ($id) {
-        return $task->project_id == $id;
+        return $task->task_project_id == $id;
     });
 
     return $filtered_tasks;
@@ -213,16 +209,36 @@ function get_tasks($id)
 
 function get_single_task($id)
 {
-    global $tasks;
+    $res = wp_remote_get("http://localhost:3000/tasks?task_id=" . $id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $tasks = wp_remote_retrieve_body($res);
+    $tasks = json_decode($tasks);
 
-    $filtered_tasks = array_filter($tasks, function ($project) use ($id) {
-        return $project->id == $id;
-    });
+    $task = reset($tasks);
+    return $task;
+}
 
-    $matched_project = reset($filtered_tasks);
+function calculate_completion_percentage($arr1, $arr2)
+{
+    $res = "100% 0%";
+    if (count($arr2) > 0) {
 
-    if ($matched_project) {
-        return $matched_project;
+        $ongoing_percentage = (count($arr1) / count(array_merge($arr1, $arr2))) * 100;
+        $completed_percentage = 100 - $ongoing_percentage;
+
+        $res  = "{$ongoing_percentage}% {$completed_percentage}%";
     }
-    return false;
+    return $res;
+}
+
+function calculate_percentage($completed, $total)
+{
+    $res = "0%";
+    if (count($total) > 0) {
+        $percentage = (count($completed) / count($total)) * 100;
+        $res = ceil($percentage) . "%";
+    }
+    return $res;
 }

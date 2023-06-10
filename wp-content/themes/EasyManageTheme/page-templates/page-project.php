@@ -7,10 +7,10 @@ if (isset($_GET['id'])) {
     $tasks = get_tasks($id);
 
     $ongoing = array_filter($tasks, function ($task) {
-        return $task->done == 0;
+        return $task->task_done == 0;
     });
     $completed = array_filter($tasks, function ($task) {
-        return $task->done == 1;
+        return $task->task_done == 1;
     });
 
 
@@ -28,6 +28,19 @@ if (isset($_GET['id'])) {
  */
 get_header() ?>
 
+<?php
+if (isset($_POST['delete-project'])) {
+}
+
+if (isset($_POST['add-task'])) {
+}
+
+if (isset($_POST['update-task'])) {
+}
+
+if (isset($_POST['delete-task'])) {
+}
+?>
 
 <script>
     const setUpdateID = (id) => {
@@ -109,11 +122,11 @@ get_header() ?>
         <ion-icon name='home-outline'></ion-icon>
         <a href='<?php echo home_url() ?>'>Home</a>
         <a href='<?php echo site_url('/projects') ?>'>/ Projects</a>
-        <span>/ <?php echo $project->name ?></span>
+        <span>/ <?php echo $project->project_name ?></span>
     </div>
 
     <div class="s-project-info">
-        <div class="s-project-title"><?php echo $project->name ?></div>
+        <div class="s-project-title"><?php echo $project->project_name ?></div>
         <div class="s-project-details">
             <span>Assignees:</span>
             <div>
@@ -124,21 +137,21 @@ get_header() ?>
         <div class="s-project-details">
             <span>Deadline:</span>
             <div>
-                18th June 2022
+                <?php echo format_date($project->project_due_date) ?>
             </div>
         </div>
         <div class="s-project-details">
             <span>Category:</span>
             <div>
-                Web App
+                <?php echo $project->project_category ?>
             </div>
         </div>
         <div class="s-project-details">
             <span>Actions:</span>
             <div class="s-links">
-                <span class="color-success icon-text-link"><ion-icon name='checkmark-circle-outline'></ion-icon> Mark As Complete</span>
-                <span class="color-blue icon-text-link"><ion-icon name='create-outline'></ion-icon> Update</span>
-                <span class="color-danger icon-text-link"><ion-icon name='trash-outline'></ion-icon> Delete</span>
+                <button class="btn-text color-success icon-text-link"><ion-icon name='checkmark-circle-outline'></ion-icon>Mark As Complete</button>
+                <a href="<?php echo site_url('/projects/update-project?id=') . $project->project_id ?>" class="color-blue icon-text-link"><ion-icon name='create-outline'></ion-icon>Update</a>
+                <button class="btn-text color-danger icon-text-link" name="delete-project"><ion-icon name='trash-outline'></ion-icon>Delete</button>
             </div>
         </div>
     </div>
@@ -166,15 +179,15 @@ get_header() ?>
             ?>
                 <div class="task">
                     <form action="" method="post">
-                        <input type="hidden" name="id" value="<?php echo $task->id ?>">
+                        <input type="hidden" name="id" value="<?php echo $task->task_id ?>">
                         <button name="check-task" type="submit" class="btn-text"><ion-icon name="square-outline" style="color:grey"></ion-icon></button>
                     </form>
-                    <p class="task-name"><?php echo $task->name ?></p>
+                    <p class="task-name"><?php echo $task->task_name ?></p>
 
                     <div class="task-options">
-                        <button class="btn-text color-blue icon-text-link update-task-btn" onclick="setUpdateID(<?php echo $task->id ?>)"><ion-icon name='create-outline'></ion-icon> Update</button>
+                        <button class="btn-text color-blue icon-text-link update-task-btn" onclick="setUpdateID(<?php echo $task->task_id ?>)"><ion-icon name='create-outline'></ion-icon> Update</button>
                         <form action="" method="post">
-                            <input type="hidden" name="ids" value="<?php echo $task->id ?>">
+                            <input type="hidden" name="id" value="<?php echo $task->task_id ?>">
                             <button name="delete-task" type="submit" class="btn-text color-danger icon-text-link"><ion-icon name='trash-outline'></ion-icon> Delete</butt>
                         </form>
                     </div>
@@ -200,15 +213,15 @@ get_header() ?>
             ?>
                 <div class="task">
                     <form action="" method="post">
-                        <input type="hidden" name="id" value="<?php echo $task->id ?>">
+                        <input type="hidden" name="id" value="<?php echo $task->task_id ?>">
                         <button name="check-task" type="submit" class="btn-text"><ion-icon name="checkbox" style="color:grey"></ion-icon></button>
                     </form>
-                    <p class="task-name"><?php echo $task->name ?></p>
+                    <p class="task-name"><?php echo $task->task_name ?></p>
 
                     <div class="task-options">
-                        <button class="btn-text color-blue icon-text-link update-task-btn" onclick="setUpdateID(<?php echo $task->id ?>)"><ion-icon name='create-outline'></ion-icon> Update</button>
+                        <button class="btn-text color-blue icon-text-link update-task-btn" onclick="setUpdateID(<?php echo $task->task_id ?>)"><ion-icon name='create-outline'></ion-icon> Update</button>
                         <form action="" method="post">
-                            <input type="hidden" name="id" value="<?php echo $task->id ?>">
+                            <input type="hidden" name="id" value="<?php echo $task->task_id ?>">
                             <button name="delete-task" type="submit" class="btn-text color-danger icon-text-link"><ion-icon name='trash-outline'></ion-icon> Delete</butt>
                         </form>
                     </div>
@@ -220,41 +233,49 @@ get_header() ?>
     <?php } ?>
 </div>
 
-<div class="modal add-task-modal">
-    <div class="modal-inner">
-        <div class="modal-top">
-            <h3>Add Task</h3>
-            <ion-icon name='close-circle-outline' class="add-task-close"></ion-icon>
-        </div>
+<form action="" method="post">
+    <div class="modal add-task-modal">
+        <div class="modal-inner">
+            <div class="modal-top">
+                <h3>Add Task</h3>
+                <ion-icon name='close-circle-outline' class="add-task-close"></ion-icon>
+            </div>
 
-        <div class="modal-contact">
-            <p>This is the modal content.</p>
+            <div class="modal-content">
+                <?php echo do_shortcode('[input_con name="task" label="Task name" error="" placeholder="Enter the task"]') ?>
+            </div>
+
+            <button type="submit" class="app-btn primary-btn">Add</button>
         </div>
     </div>
-</div>
+</form>
 
-
-<div class="modal update-task-modal">
-    <div class="modal-inner">
-        <div class="modal-top">
-            <h3>Update Task</h3>
-            <ion-icon name='close-circle-outline' class="update-task-close"></ion-icon>
-        </div>
-        <?php
-        if (isset($opened_task)) {
-
-        ?>
-            <div class="modal-contact">
-                <p>This is the modal content to update <?php var_dump($opened_task) ?> .</p>
+<form action="" method="post">
+    <div class="modal update-task-modal">
+        <div class="modal-inner">
+            <div class="modal-top">
+                <h3>Update Task</h3>
+                <ion-icon name='close-circle-outline' class="update-task-close"></ion-icon>
             </div>
-        <?php } else {
-            echo
-            "<script>
+            <?php
+            if (isset($opened_task)) {
+
+            ?>
+                <div class="modal-content">
+                    <input type="hidden" name="id" value="<?php echo $opened_task->task_id ?>">
+                    <?php echo do_shortcode('[input_con name="task" label="Task name" error="" placeholder="Enter the task" value="' . $opened_task->task_name . '"]') ?>
+                </div>
+
+                <button type="submit" class="app-btn primary-btn" name="update-task">Update</button>
+            <?php } else {
+                echo
+                "<script>
                 window.localStorage.setItem('updateTaskOpened', null);
             </script>";
-        }
-        ?>
+            }
+            ?>
+        </div>
     </div>
-</div>
+</form>
 
 <?php get_footer() ?>
