@@ -6,11 +6,15 @@
 
 namespace Inc;
 
+use Inc\Pages\RoleManager;
+
 class Init
 {
     public static function get_services()
     {
-        return [];
+        return [
+            RoleManager::class
+        ];
     }
 
 
