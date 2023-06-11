@@ -1,3 +1,5 @@
+<?php if (isset($_POST['logout'])) wp_logout(); ?>
+
 <!DOCTYPE html>
 <html lang="en">
 

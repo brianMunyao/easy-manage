@@ -98,6 +98,12 @@ function dash_card_shortcode($attrs)
 add_shortcode('dash_card', 'dash_card_shortcode');
 
 
+/**
+ * Generates a user menu based on the given menu items and highlights the active menu item.
+ *
+ * @param array $menu_items An array of menu items to be displayed in the user menu.
+ * @return void
+ */
 function get_user_menu($menu_items)
 {
     $current_url = get_permalink();
@@ -214,7 +220,9 @@ function calculate_percentage($completed, $total)
 
 /**
  * 
+ * 
  * Validation Functions
+ * 
  */
 
 function validate_email_custom($email)
@@ -253,6 +261,7 @@ function validate_fullname_custom($fullname)
  * 
  * 
  * Rest API functions
+ * 
  * 
  */
 
@@ -317,11 +326,34 @@ function get_employees()
     $employees = wp_remote_retrieve_body($res);
     return json_decode($employees);
 }
+function get_single_employee($id)
+{
+    $res = wp_remote_get("http://localhost:3000/employees/" . $id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $employees = wp_remote_retrieve_body($res);
+    return json_decode($employees);
+}
 
 function create_employee($user)
 {
     $res = wp_remote_post("http://localhost:3000/employees", [
         'method' => 'POST',
+        'data_format' => 'body',
+        'body' => $user
+        // 'body' => json_encode($user), //TODO: return to json_encode
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
+function update_employee($user)
+{
+    $res = wp_remote_post("http://localhost:3000/employees/" . $user['id'], [
+        'method' => 'PUT',
         'data_format' => 'body',
         'body' => $user
         // 'body' => json_encode($user), //TODO: return to json_encode
