@@ -1,4 +1,8 @@
 <?php
+if (!is_user_trainer() && !is_user_p_manager()) {
+    wp_redirect(home_url());
+}
+
 
 /**
  * 
@@ -14,41 +18,64 @@ get_header() ?>
     </div>
 
     <div class="table-heading">
-        <h4>Programs</h4>
+        <div class="table-heading-top">
+            <h4>Programs</h4>
 
-        <div>
-            <form action="" method="get">
-                <?php echo do_shortcode('[search_bar placeholder="Search"]') ?>
-            </form>
-            <a href="<?php echo site_url('/programs/create-program'); ?>"><button class="app-btn secondary-btn"><ion-icon name='add'></ion-icon> Add Program</button></a>
+            <div>
+                <!-- <form action="" method="get">
+                    <?php // echo do_shortcode('[search_bar placeholder="search"]') 
+                    ?>
+                </form> -->
+                <a href="<?php echo site_url('/programs/create-program'); ?>"><button class="app-btn secondary-btn"><ion-icon name='add'></ion-icon> Add Program</button></a>
+            </div>
+        </div>
+        <div class="table-heading-bottom">
+            <!-- <form action="" method="get">
+                <?php // echo do_shortcode('[search_bar placeholder="search"]') 
+                ?>
+            </form> -->
         </div>
     </div>
 
 
     <?php
-    $programs = [
-        ['name' => 'Angular Training', 'description' => 'Learn modern web development with TypeScript and Angular.', 'logo' => 'https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/21_Angular_logo_logos-1024.png'],
-        ['name' => 'WordPress Training', 'description' => 'Build dynamic websites with ease using WordPress platform.', 'logo' => 'https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/382_Wordpress_logo-1024.png']
-    ];
+    $programs = get_programs(get_current_user_id());
     ?>
-    <div class="table-h">
-        Active Programs (<?php echo count($programs) ?>)
-    </div>
+
     <div class="programs-list">
         <?php
         foreach ($programs as $program) {
-            $program = (object)$program;
         ?>
             <div class="program">
+                <div class="program-top">
+                    <img src="<?php echo $program->program_logo ?>" alt="logo">
+
+                    <span class="list-actions">
+                        <ion-icon name='ellipsis-horizontal'></ion-icon>
+
+                        <div class="more-actions">
+                            <a href="<?php echo site_url('/programs/update-program?id=') . $program->id ?>" class="color-info"><ion-icon name='power'></ion-icon>Update</a>
+                            </form>
+                            <section class="separator"></section>
+                            <form action="" method="post">
+                                <input type="hidden" name="id" value="<?php echo $program->id ?>">
+                                <button type="submit" name="delete-program" class="btn-text color-danger"><ion-icon name="trash-outline"></ion-icon>Delete</button>
+                            </form>
+                        </div>
+                    </span>
+                </div>
                 <div>
-                    <img src="<?php echo $program->logo ?>" alt="logo">
-                    <p class="program-title"><?php echo $program->name ?></p>
-                    <p class="program-description"><?php echo $program->description ?></p>
+                    <p class="program-title"><?php echo $program->program_name ?></p>
+                    <p class="program-description"><?php echo $program->program_description ?></p>
                 </div>
                 <section class="separator"></section>
                 <div class="program-more">
                     <div>
-                        <div>Trainer:</div> John D
+                        <div>Trainer:</div>
+                        <?php
+                        $user = get_single_employee($program->program_assigned_to);
+                        echo $user->fullname ?? '--';
+                        ?>
                     </div>
                     <div>
                         <div>Trainees:</div> 8

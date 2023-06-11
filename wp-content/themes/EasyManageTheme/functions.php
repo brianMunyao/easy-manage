@@ -386,6 +386,32 @@ function get_single_program($id)
     $program = wp_remote_retrieve_body($res);
     return json_decode($program);
 }
+function create_program($program)
+{
+    $res = wp_remote_post("http://localhost:3000/programs", [
+        'method' => 'POST',
+        'data_format' => 'body',
+        'body' => $program
+        // 'body' => json_encode($user), //TODO: return to json_encode
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+function update_program($program)
+{
+    $res = wp_remote_post("http://localhost:3000/programs/" . $program['id'], [
+        'method' => 'PUT',
+        'data_format' => 'body',
+        'body' => $program
+        // 'body' => json_encode($user), //TODO: return to json_encode
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
 function get_unassigned_programs($id)
 {
     $res = wp_remote_get('http://localhost:3000/programs?program_assigned_to=0&pm_id=' . $id, [
@@ -442,6 +468,19 @@ function get_trainer_program($id)
 function create_trainer($user, $program_id)
 {
     $result = create_employee($user);
+    if (!empty($program_id)) {
+
+        // TODO: check error
+        $user_id = $result->id;
+        $result = assign_program($program_id, $user_id);
+
+        // $res = wp_remote_retrieve_body($res); //! POTENTIAL ERROR POINT
+    }
+    return $result;
+}
+function update_trainer($user, $program_id)
+{
+    $result = update_employee($user);
     if (!empty($program_id)) {
 
         // TODO: check error

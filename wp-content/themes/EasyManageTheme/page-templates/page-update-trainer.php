@@ -19,12 +19,13 @@ $form_success = '';
 if (isset($_POST['update-trainer'])) {
     $fullname = $_POST['fullname'];
     $password = $_POST['password'];
+    $program = $_POST['program'];
 
     $fullname_error = validate_fullname_custom($fullname);
     $password_error = validate_password_custom($password);
 
     if (empty($fullname_error)  && empty($password_error)) {
-        $result = update_employee([
+        $result = update_trainer([
             'id' => $user_info->id,
             'fullname' => $fullname,
             'email' => $user_info->email,
@@ -33,7 +34,7 @@ if (isset($_POST['update-trainer'])) {
             'is_deactivated' => $user_info->is_deactivated,
             'is_deleted' => $user_info->is_deleted,
             'created_by' => $user_info->created_by,
-        ]);
+        ], !(empty($program)) ? $program : '');
 
         //TODO: implement good error checking
         $form_success = "Successfully updated";
@@ -72,10 +73,11 @@ get_header() ?>
                         <select name="program" id="program">
                             <option value="" selected disabled hidden>Select a training</option>
                             <?php
+                            $programs = get_unassigned_programs(get_current_user_id());
+
                             foreach ($programs as $program) {
-                                $program = (object)$program;
                             ?>
-                                <option value="<?php echo $program->name ?>"><?php echo $program->name ?></option>
+                                <option value="<?php echo $program->id ?>"><?php echo $program->program_name ?></option>
                             <?php
                             }
                             ?>

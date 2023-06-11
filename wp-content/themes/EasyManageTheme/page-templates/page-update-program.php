@@ -1,5 +1,44 @@
 <?php
 
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+
+    $program = get_single_program($id);
+} else {
+    wp_redirect(site_url('/programs'));
+}
+
+$program_name_error = '';
+$description_error = '';
+$logo_error = '';
+
+$form_error = '';
+$form_success = '';
+
+if (isset($_POST['update-program'])) {
+    $program_name = $_POST['program_name'];
+    $description = $_POST['description'];
+    $logo = $_POST['logo'];
+
+    $program_name_error = empty($program_name) ? 'Name is required' : '';
+    $description_error = empty($description) ? 'Description is required' : '';
+    $logo_error = empty($logo) ? 'Logo is required' : '';
+
+    if (empty($program_name_error) && empty($description_error) && empty($logo_error)) {
+        $result = update_program([
+            'id' => $program->id,
+            'program_name' => $program_name,
+            'program_description' => $description,
+            'program_logo' => $logo,
+            'pm_id' => get_current_user_id(),
+            'program_assigned_to' => 0
+        ]);
+
+        //TODO: implement good error checking
+        $form_success = "Successfully updated";
+    }
+}
+
 /**
  * 
  * Template Name: Update Program Page Template
@@ -19,29 +58,20 @@ get_header() ?>
             <div class="form">
                 <h2>Update Program</h2>
 
-                <?php echo do_shortcode('[input_con name="fullname" label="Fullname" error="" placeholder="Enter their fullname"]') ?>
-                <?php echo do_shortcode('[input_con name="email" label="Email Address" error="" placeholder="Enter their email address" input_type="email"]') ?>
-                <?php echo do_shortcode('[input_con name="password" label="Password" error="" placeholder="Enter their password" input_type="password"]') ?>
+                <?php
+                $curr_program_name = $_POST["program_name"] ?? $program->program_name;
+                $curr_description = $_POST["description"] ?? $program->program_description;
+                $curr_logo = $_POST["logo"] ?? $program->program_logo;
+                ?>
 
-                <div class="input-con">
-                    <div>
-                        <label for="program">Training Program</label>
-                        <select name="program" id="program">
-                            <option value="" selected disabled hidden>Select a training</option>
-                            <?php
-                            foreach ($programs as $program) {
-                                $program = (object)$program;
-                            ?>
-                                <option value="<?php echo $program->name ?>"><?php echo $program->name ?></option>
-                            <?php
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    <p class="form-error color-danger"></p>
-                </div>
+                <p class="error"><?php echo $form_error ?></p>
+                <p class="success"><?php echo $form_success ?></p>
 
-                <button type="submit" class="app-btn primary-btn" name="update-trainer">Update</button>
+                <?php echo do_shortcode('[input_con name="program_name" label="Program Name" error="' . $program_name_error . '" placeholder="E.g. Angular Training" value="' . $curr_program_name . '"]') ?>
+                <?php echo do_shortcode('[input_con name="description" label="Program Description" error="' . $description_error . '" placeholder="Brief 10 word explanation about the program"  value="' . $curr_description . '"]') ?>
+                <?php echo do_shortcode('[input_con name="logo" label="Logo URL" error="' . $logo_error . '" placeholder="E.g. Link to a good angular logo" input_type="url"  value="' . $curr_logo . '"]') ?>
+
+                <button type="submit" class="app-btn primary-btn" name="update-program">Update</button>
             </div>
         </form>
     </div>

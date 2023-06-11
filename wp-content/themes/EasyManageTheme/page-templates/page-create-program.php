@@ -1,5 +1,35 @@
 <?php
 
+$program_name_error = '';
+$description_error = '';
+$logo_error = '';
+
+$form_error = '';
+$form_success = '';
+
+if (isset($_POST['create-program'])) {
+    $program_name = $_POST['program_name'];
+    $description = $_POST['description'];
+    $logo = $_POST['logo'];
+
+    $program_name_error = empty($program_name) ? 'Name is required' : '';
+    $description_error = empty($description) ? 'Description is required' : '';
+    $logo_error = empty($logo) ? 'Logo is required' : '';
+
+    if (empty($program_name_error) && empty($description_error) && empty($logo_error)) {
+        $result = create_program([
+            'program_name' => $program_name,
+            'program_description' => $description,
+            'program_logo' => $logo,
+            'pm_id' => get_current_user_id(),
+            'program_assigned_to' => 0
+        ]);
+
+        //TODO: implement good error checking
+        $form_success = "Successfully created";
+    }
+}
+
 /**
  * 
  * Template Name: Create Program Page Template
@@ -16,13 +46,23 @@ get_header() ?>
 
 
     <div class="form-container">
-        <form action="" method="post">
+        <form action="" method="POST">
             <div class="form">
                 <h2>Create Program</h2>
 
-                <?php echo do_shortcode('[input_con name="name" label="Program Name" error="" placeholder="E.g. Angular Training"]') ?>
-                <?php echo do_shortcode('[input_con name="description" label="Program Description" error="" placeholder="Brief 10 word explanation about the program"]') ?>
-                <?php echo do_shortcode('[input_con name="logo" label="Logo URL" error="" placeholder="E.g. Link to a good angular logo" input_type="url"]') ?>
+                <?php
+                $curr_program_name = $_POST["program_name"] ?? "";
+                $curr_description = $_POST["description"] ?? "";
+                $curr_logo = $_POST["logo"] ?? "";
+                ?>
+
+
+                <p class="error"><?php echo $form_error ?></p>
+                <p class="success"><?php echo $form_success ?></p>
+
+                <?php echo do_shortcode('[input_con name="program_name" label="Program Name" error="' . $program_name_error . '" placeholder="E.g. Angular Training" value="' . $curr_program_name . '"]') ?>
+                <?php echo do_shortcode('[input_con name="description" label="Program Description" error="' . $description_error . '" placeholder="Brief 10 word explanation about the program"  value="' . $curr_description . '"]') ?>
+                <?php echo do_shortcode('[input_con name="logo" label="Logo URL" error="' . $logo_error . '" placeholder="E.g. Link to a good angular logo" input_type="url"  value="' . $curr_logo . '"]') ?>
 
                 <button type="submit" class="app-btn primary-btn" name="create-program">Create</button>
             </div>
