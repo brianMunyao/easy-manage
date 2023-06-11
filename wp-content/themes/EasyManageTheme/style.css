@@ -457,7 +457,13 @@ footer {
 	width: 240px;
 	height: auto;
 }
-
+.form-info {
+	color: grey;
+	font-size: 14px;
+}
+.form-info ion-icon {
+	transform: translateY(2px);
+}
 /***** Login Page *****/
 
 .form {

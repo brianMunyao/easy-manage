@@ -1,5 +1,9 @@
 <?php
 
+if (!is_user_admin_custom()) {
+    wp_redirect(home_url());
+}
+
 /**
  * 
  * Template Name: Employees Page Template
@@ -52,13 +56,13 @@ get_header() ?>
     }
 
     $active_employees = array_filter($employees, function ($employee) {
-        return $employee->is_deactivated == (0) && $employee->is_deleted == (0);
+        return $employee->is_deactivated == 0 && $employee->is_deleted == 0;
     });
     $inactive_employees = array_filter($employees, function ($employee) {
-        return $employee->is_deactivated == (1) && $employee->is_deleted == (0);
+        return $employee->is_deactivated == 1 && $employee->is_deleted == 0;
     });
     $deleted_employees = array_filter($employees, function ($employee) {
-        return $employee->is_deleted == (1);
+        return $employee->is_deleted == 1;
     });
 
     ?>

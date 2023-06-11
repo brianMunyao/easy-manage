@@ -66,10 +66,12 @@ function input_con_shortcode($attrs)
         'input_type' => 'text'
     ], $attrs);
 
+    $disabled = isset($attrs['disabled']) ? "disabled" : "";
+
     return '
     <div class="input-con">
         <label for="' . $att['name'] . '">' . $att['label'] . '</label>
-        <input type="' . $att['input_type'] . '" name="' . $att['name'] . '" id="' . $att['name'] . '" placeholder="' . $att['placeholder'] . '" value="' . $att['value'] . '">
+        <input type="' . $att['input_type'] . '" name="' . $att['name'] . '" id="' . $att['name'] . '" placeholder="' . $att['placeholder'] . '" value="' . $att['value'] . '" ' . $disabled . '>
         <p class="form-error color-danger">' . $att['error'] . '</p>
     </div>
     ';
@@ -372,6 +374,81 @@ function get_programs($id)
         'method' => 'GET',
         // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
     ]);
-    $employees = wp_remote_retrieve_body($res);
-    return json_decode($employees);
+    $programs = wp_remote_retrieve_body($res);
+    return json_decode($programs);
+}
+function get_single_program($id)
+{
+    $res = wp_remote_get("http://localhost:3000/programs/" . $id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $program = wp_remote_retrieve_body($res);
+    return json_decode($program);
+}
+function get_unassigned_programs($id)
+{
+    $res = wp_remote_get('http://localhost:3000/programs?program_assigned_to=0&pm_id=' . $id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $programs = wp_remote_retrieve_body($res);
+    return json_decode($programs);
+}
+function assign_program($program_id, $assignee)
+{
+    $program = get_single_program($program_id);
+    $program->program_assigned_to = $assignee;
+    $program = json_decode(json_encode($program), true); //! POTENTIAL ERROR POINT
+
+    $res = wp_remote_post("http://localhost:3000/programs/" . $program_id, [
+        'method' => 'PUT',
+        'data_format' => 'body',
+        'body' => $program
+        // 'body' => json_encode($user), //TODO: return to json_encode
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
+function get_trainers($id)
+{
+    $res = wp_remote_get("http://localhost:3000/employees?role=trainer&created_by=" . $id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $trainers = wp_remote_retrieve_body($res);
+    $trainers = json_decode($trainers);
+
+    for ($i = 0; $i < count($trainers); $i++) {
+        $program = get_trainer_program($trainers[$i]->id);
+        $trainers[$i]->stack = count($program) > 0  ? $program[0]->program_name : '--';
+    }
+
+    return $trainers;
+}
+function get_trainer_program($id)
+{
+    $res = wp_remote_get("http://localhost:3000/programs?program_assigned_to=" . $id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $program = wp_remote_retrieve_body($res);
+    return json_decode($program);
+}
+
+function create_trainer($user, $program_id)
+{
+    $result = create_employee($user);
+    if (!empty($program_id)) {
+
+        // TODO: check error
+        $user_id = $result->id;
+        $result = assign_program($program_id, $user_id);
+
+        // $res = wp_remote_retrieve_body($res); //! POTENTIAL ERROR POINT
+    }
+    return $result;
 }
