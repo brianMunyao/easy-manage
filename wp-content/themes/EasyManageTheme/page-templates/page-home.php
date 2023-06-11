@@ -1,3 +1,5 @@
+<?php if (!is_user_logged_in()) wp_redirect(site_url('/login')) ?>
+
 <?php
 
 /**
@@ -9,7 +11,14 @@ get_header() ?>
 <div class="home-page app-padding">
     <div class="greeting-search">
         <div class="greeting-con">
-            <p class="greeting">Good Morning Brian,</p>
+            <p class="greeting">
+                <?php
+                $name = get_user_meta_custom(get_current_user_id());
+                $greeting = get_greeting() . ", ";
+                $greeting .=  $name != '' ? $name : get_userdata(get_current_user_id())->user_login;
+
+                echo $greeting;
+                ?>
             <p class="greeting-sub">Here is the latest in a nutshell</p>
         </div>
 
@@ -18,32 +27,48 @@ get_header() ?>
         </form>
     </div>
 
+    <?php
+    if (is_user_admin_custom()) {
+        $dash1_icon = 'people-outline';
+        $dash1_val = count(get_users()) - 1;
+        $dash1_label = "Total Employees";
+
+        $dash2_icon = 'people';
+        $dash2_val = count(get_users(['role' => 'program_manager']));
+        $dash2_label = "Program Managers";
+
+        $dash3_icon = 'people';
+        $dash3_val = count(get_users(['role' => 'trainer']));
+        $dash3_label = "Trainers";
+
+        $dash4_icon = 'people-outline';
+        $dash4_val = count(get_users(['role' => 'trainee']));
+        $dash4_label = "Trainees";
+
+        $projects = get_projects();
+        $projects_ongoing = array_filter($projects, function ($project) {
+            return $project->project_done == 0;
+        });
+        $projects_completed = array_filter($projects, function ($project) {
+            return $project->project_done == 1;
+        });
+    } else {
+        //TODO: for other users
+    }
+
+
+
+    ?>
 
     <div class="dash-cards">
-        <div class="dash-card">
-            <ion-icon name="business"></ion-icon>
+        <?php echo do_shortcode('[dash_card icon="' . $dash1_icon . '" label="' . $dash1_label . '" value="' . $dash1_val . '"]') ?>
+        <?php echo do_shortcode('[dash_card icon="' . $dash2_icon . '" label="' . $dash2_label . '" value="' . $dash2_val . '"]') ?>
+        <?php echo do_shortcode('[dash_card icon="' . $dash3_icon . '" label="' . $dash3_label . '" value="' . $dash3_val . '"]') ?>
+        <?php echo do_shortcode('[dash_card icon="' . $dash4_icon . '" label="' . $dash4_label . '" value="' . $dash4_val . '"]') ?>
 
-            <p class="dash-number">19</p>
-            <p class="dash-label">Total Employees</p>
-        </div>
-        <div class="dash-card">
-            <ion-icon name="business"></ion-icon>
 
-            <p class="dash-number">19</p>
-            <p class="dash-label">Total Employees</p>
-        </div>
-        <div class="dash-card">
-            <ion-icon name="business"></ion-icon>
 
-            <p class="dash-number">19</p>
-            <p class="dash-label">Total Employees</p>
-        </div>
-        <div class="dash-card">
-            <ion-icon name="business"></ion-icon>
 
-            <p class="dash-number">19</p>
-            <p class="dash-label">Total Employees</p>
-        </div>
     </div>
 
     <div class="dash-bottom">
@@ -90,27 +115,27 @@ get_header() ?>
             <p class="overview-title">Projects Status</p>
 
             <div class="progress">
-                <div style="width: 30%"></div>
+                <div style="width: <?php echo calculate_percentage($projects_completed, $projects); ?>"></div>
             </div>
 
             <div class="overview-details">
                 <div class="overview-row overview-row-h">
                     <span class="title">Total</span>
-                    <span class="value">21</span>
+                    <span class="value"><?php echo count($projects) ?></span>
                 </div>
                 <div class="overview-row">
                     <div>
                         <div class="dot bg-primary"></div>
                         <span class="title">Completed</span>
                     </div>
-                    <span class="value">12</span>
+                    <span class="value"><?php echo count($projects) - count($projects_ongoing) ?></span>
                 </div>
                 <div class="overview-row">
                     <div>
                         <div class="dot bg-secondary"></div>
                         <span class="title">Ongoing</span>
                     </div>
-                    <span class="value">10</span>
+                    <span class="value"><?php echo count($projects_ongoing) ?></span>
                 </div>
             </div>
         </div>

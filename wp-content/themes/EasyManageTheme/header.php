@@ -18,41 +18,66 @@
                 <?php the_custom_logo() ?>
             </span>
 
-            <div class="nav-links">
-                <?php
-                $current_url = get_permalink();
-                if (is_user_admin_custom()) {
-                    $menu_items = wp_get_nav_menu_items('admin-menu');
+            <?php if (is_user_logged_in()) { ?>
+                <div class="nav-links">
+                    <?php
 
-                    foreach ($menu_items as $menu_item) {
-                        $title = $menu_item->title;
-                        $url = $menu_item->url;
-                        $is_active = false;
-
-                        if ($current_url === $url) {
-                            $is_active = true;
-                        }
-
-
-                        if (!$is_active && $current_url != home_url() . '/') {
-                            $child_pages = get_pages(array('child_of' => $menu_item->object_id));
-                            foreach ($child_pages as $child_page) {
-                                if (get_permalink($child_page->ID) === $current_url) {
-                                    $is_active = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        echo '<a href="' . $url . '" class="nav-link ' . ($is_active ? "nav-link-active" : "") . '">' . $title . '</a>';
+                    if (is_user_admin_custom()) {
+                        get_user_menu(wp_get_nav_menu_items('admin-menu'));
                     }
-                }
-                ?>
-            </div>
+                    ?>
+                </div>
 
-            <div class="curr-user">
-                Admin
-            </div>
+                <form action="" method="post">
+                    <span class="logged-user">
+                        <?php
+                        $email = wp_get_current_user()->user_email;
+                        $avatar = 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($email))) . '?d=identicon';
+                        ?>
+                        <img src="<?php echo $avatar ?>" alt="avatar">
+                        <?php
+
+                        $name = get_user_meta_custom(get_current_user_id());
+                        echo $name != '' ? $name : get_userdata(get_current_user_id())->user_login;
+                        ?>
+
+                        <div>
+                            <button class="app-btn danger-btn" name="logout" type="submit">Logout</button>
+                        </div>
+                    </span>
+                </form>
+
+
+                <span class="burger"><ion-icon name="menu"></ion-icon>
+                    <div class="mob-nav-link">
+                        <?php
+                        if (is_user_admin_custom()) {
+                            get_user_menu(wp_get_nav_menu_items('admin-menu'));
+                        }
+                        ?>
+
+                        <span class="logged-user">
+                            <?php
+                            $email = wp_get_current_user()->user_email;
+                            $avatar = 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($email))) . '?d=identicon';
+                            ?>
+                            <img src="<?php echo $avatar ?>" alt="avatar">
+                            <?php
+
+                            $name = get_user_meta_custom(get_current_user_id());
+                            echo $name != '' ? $name : get_userdata(get_current_user_id())->user_login;
+                            ?>
+                        </span>
+
+                        <form action="" method="post">
+                            <button class="app-btn danger-btn" name="logout" type="submit">Logout</button>
+                        </form>
+
+                    </div>
+                </span>
+
+            <?php } ?>
+
         </nav>
 
         <main>

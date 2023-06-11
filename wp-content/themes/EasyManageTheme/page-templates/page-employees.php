@@ -5,6 +5,7 @@
  * Template Name: Employees Page Template
  */
 get_header() ?>
+
 <div class="app-padding employees-page">
     <div class="nav-pages-links">
         <ion-icon name='home-outline'></ion-icon>
@@ -13,27 +14,65 @@ get_header() ?>
     </div>
 
     <div class="table-heading">
-        <h3>Company Employees</h3>
+        <div class="table-heading-top">
+            <h3>
+                <?php
+                $section_title = 'Employees';
+                if (!isset($_GET['cat'])) {
+                    $section_title = 'Employees';
+                    echo 'All ' . $section_title;
+                } else {
+                    $section_title = ucwords(str_replace('_', ' ', $_GET['cat'])) . 's';
+                    echo $section_title;
+                }
+                ?>
+            </h3>
 
-        <div>
+            <div>
+                <form action="" method="get">
+                    <?php echo do_shortcode('[search_bar placeholder="search"]') ?>
+                </form>
+                <a href="<?php echo site_url('/employees/create-program-manager'); ?>"><button class="app-btn secondary-btn"><ion-icon name='add'></ion-icon> Add Program Manager</button></a>
+            </div>
+        </div>
+        <div class="table-heading-bottom">
             <form action="" method="get">
                 <?php echo do_shortcode('[search_bar placeholder="search"]') ?>
             </form>
-            <a href="<?php echo site_url('/employees/create-program-manager'); ?>"><button class="app-btn secondary-btn"><ion-icon name='add'></ion-icon> Add Program Manager</button></a>
         </div>
     </div>
     <?php
 
-    /**
-     * 
-     * TODO: get recent accounts here
-     */
-    $employees = [
-        ["name" => "Drew Barrymore", "email" => "drew@gmail.com", "status" => 0],
-        ["name" => "Drew Barrymore", "email" => "drew@gmail.com", "status" => 1],
-        ["name" => "Drew Barrymore", "email" => "drew@gmail.com", "status" => 1],
-    ];
+    $employees = get_employees();
+
+    if (isset($_GET['cat'])) {
+        $employees = array_filter($employees, function ($employee) {
+            return $employee->role == $_GET['cat'];
+        });
+    }
+
+    $active_employees = array_filter($employees, function ($employee) {
+        return $employee->is_deactivated == (0) && $employee->is_deleted == (0);
+    });
+    $inactive_employees = array_filter($employees, function ($employee) {
+        return $employee->is_deactivated == (1) && $employee->is_deleted == (0);
+    });
+    $deleted_employees = array_filter($employees, function ($employee) {
+        return $employee->is_deleted == (1);
+    });
+
     ?>
+
+    <div class="categories">
+        <a href="<?php echo site_url('/employees') ?>" class="<?php echo isset($_GET['cat']) ? '' : 'color-blue' ?>">All </a> |
+        <a href="<?php echo site_url('/employees?cat=program_manager') ?>" class="<?php echo isset($_GET['cat']) && $_GET['cat'] == 'program_manager' ? 'color-blue' : '' ?>">Program Managers</a> |
+        <a href="<?php echo site_url('/employees?cat=trainer') ?>" class="<?php echo isset($_GET['cat']) && $_GET['cat'] == 'trainer' ? 'color-blue' : '' ?>">Trainers</a> |
+        <a href="<?php echo site_url('/employees?cat=trainee') ?>" class="<?php echo isset($_GET['cat']) && $_GET['cat'] == 'trainee' ? 'color-blue' : '' ?>">Trainees </a>
+    </div>
+
+    <div class="table-h">
+        <span class="color-success">Active <?php echo $section_title ?> (<?php echo count($active_employees) ?>)</span>
+    </div>
     <table style="width:100%">
         <!-- <tr class="table-h">
             <th colspan="5">Active Accounts</th>
@@ -41,36 +80,158 @@ get_header() ?>
         <tr class="table-h">
             <th style="width: 30px">No.</th>
             <th class="tr-flex">Name</th>
-            <th style="width:150px">Email Address</th>
+            <th style="width:150px">Role</th>
             <th style="width:80px;">Status</th>
             <th style="width:100px">Actions</th>
         </tr>
 
-
-        <?php
-        $i = 0;
-        foreach ($employees as $employee) {
-            $employee = (object)$employee;
-        ?>
+        <?php if (count($active_employees) == 0) { ?>
             <tr class="table-c">
-                <td style="width: 30px"><?php echo ++$i; ?></td>
-                <td class="name tr-flex"><?php echo $employee->name ?></td>
-                <td style="width:150px"><?php echo $employee->email ?></td>
-                <td style="width:80px;"><?php echo $employee->status ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
-                <td style="width:100px" class="actions">
-                    <a href="<?php echo site_url('/employees/update-program-manager?id=1') ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
-                    <span class="list-actions">
-                        <ion-icon name='ellipsis-horizontal'></ion-icon>
-
-                        <div class="more-actions">
-                            <div class="color-info"><ion-icon name='power'></ion-icon>Activate</div>
-                            <section class="separator"></section>
-                            <div class="color-danger"><ion-icon name='trash'></ion-icon>Delete</div>
-                        </div>
-                    </span>
-                </td>
+                <td class="empty-row" colspan="5">No Active <?php echo $section_title ?></td>
             </tr>
+            <?php } else {
+
+            $i = 0;
+            foreach ($active_employees as $employee) {
+            ?>
+                <tr class="table-c">
+                    <td style="width: 30px"><?php echo ++$i; ?></td>
+                    <td class="name tr-flex"><?php echo $employee->fullname ?></td>
+                    <td style="width:150px"><?php echo ucwords(str_replace('_', ' ', $employee->role)) ?></td>
+                    <td style="width:80px;"><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
+                    <td style="width:100px" class="actions">
+                        <a href="<?php echo site_url('/employees/update-program-manager?id=') . $employee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
+                        <span class="list-actions">
+                            <ion-icon name='ellipsis-horizontal'></ion-icon>
+
+                            <div class="more-actions">
+                                <form action="" method="post">
+                                    <input type="hidden" name="id" value="<?php echo $employee->id ?>">
+                                    <button type="submit" name="deactivate-user" class="btn-text color-info"><ion-icon name='power'></ion-icon>Deactivate</button>
+                                </form>
+                                <section class="separator"></section>
+                                <form action="" method="post">
+                                    <input type="hidden" name="id" value="<?php echo $employee->id ?>">
+                                    <button type="submit" name="delete-user" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
+                                </form>
+                            </div>
+                        </span>
+                    </td>
+                </tr>
         <?php
+            }
+        }
+        ?>
+    </table>
+
+    <div class="spacer"></div>
+
+    <div class="table-h">
+        <span class="color-danger">Inactive <?php echo $section_title ?> (<?php echo count($inactive_employees) ?>)</span>
+    </div>
+    <table style="width:100%">
+        <!-- <tr class="table-h">
+            <th colspan="5">Active Accounts</th>
+        </tr> -->
+        <tr class="table-h">
+            <th style="width: 30px">No.</th>
+            <th class="tr-flex">Name</th>
+            <th style="width:150px">Role </th>
+            <th style="width:80px;">Status</th>
+            <th style="width:100px">Actions</th>
+        </tr>
+
+        <?php if (count($inactive_employees) == 0) { ?>
+            <tr class="table-c">
+                <td class="empty-row" colspan="5">No Inactive <?php echo $section_title ?></td>
+            </tr>
+            <?php } else {
+
+            $i = 0;
+            foreach ($inactive_employees as $employee) {
+            ?>
+                <tr class="table-c">
+                    <td style="width: 30px"><?php echo ++$i; ?></td>
+                    <td class="name tr-flex"><?php echo $employee->fullname ?></td>
+                    <td style="width:150px"><?php echo ucwords(str_replace('_', ' ', $employee->role)) ?></td>
+                    <td style="width:80px;"><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
+                    <td style="width:100px" class="actions">
+                        <a href="<?php echo site_url('/employees/update-program-manager?id=') . $employee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
+                        <span class="list-actions">
+                            <ion-icon name='ellipsis-horizontal'></ion-icon>
+
+                            <div class="more-actions">
+                                <form action="" method="post">
+                                    <input type="hidden" name="id" value="<?php echo $employee->id ?>">
+                                    <button type="submit" name="activate-user" class="btn-text color-info"><ion-icon name='power'></ion-icon>Activate</button>
+                                </form>
+                                <section class="separator"></section>
+                                <form action="" method="post">
+                                    <input type="hidden" name="id" value="<?php echo $employee->id ?>">
+                                    <button type="submit" name="delete-user" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
+                                </form>
+                            </div>
+                        </span>
+                    </td>
+                </tr>
+        <?php
+            }
+        }
+        ?>
+    </table>
+
+    <div class="spacer"></div>
+
+    <div class="table-h">
+        <span class="color-danger">Deleted <?php echo $section_title ?> (<?php echo count($deleted_employees) ?>)</span>
+    </div>
+    <table style="width:100%">
+        <!-- <tr class="table-h">
+            <th colspan="5">Active Accounts</th>
+        </tr> -->
+        <tr class="table-h">
+            <th style="width: 30px">No.</th>
+            <th class="tr-flex">Name</th>
+            <th style="width:150px">Role</th>
+            <th style="width:80px;">Status</th>
+            <th style="width:100px">Actions</th>
+        </tr>
+
+        <?php if (count($deleted_employees) == 0) { ?>
+            <tr class="table-c">
+                <td class="empty-row" colspan="5">No Deleted <?php echo $section_title ?></td>
+            </tr>
+            <?php } else {
+
+            $i = 0;
+            foreach ($deleted_employees as $employee) {
+            ?>
+                <tr class="table-c">
+                    <td style="width: 30px"><?php echo ++$i; ?></td>
+                    <td class="name tr-flex"><?php echo $employee->fullname ?></td>
+                    <td style="width:150px"><?php echo ucwords(str_replace('_', ' ', $employee->role)) ?></td>
+                    <td style="width:80px;"><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
+                    <td style="width:100px" class="actions">
+                        <a href="<?php echo site_url('/employees/update-program-manager?id=') . $employee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
+                        <span class="list-actions">
+                            <ion-icon name='ellipsis-horizontal'></ion-icon>
+
+                            <div class="more-actions">
+                                <form action="" method="post">
+                                    <input type="hidden" name="id" value="<?php echo $employee->id ?>">
+                                    <button type="submit" name="activate-user" class="btn-text color-info"><ion-icon name='power'></ion-icon>Activate</button>
+                                </form>
+                                <section class="separator"></section>
+                                <form action="" method="post">
+                                    <input type="hidden" name="id" value="<?php echo $employee->id ?>">
+                                    <button type="submit" name="restore-user" class="btn-text color-blue"><ion-icon name="arrow-undo-circle-outline"></ion-icon>Restore</button>
+                                </form>
+                            </div>
+                        </span>
+                    </td>
+                </tr>
+        <?php
+            }
         }
         ?>
     </table>

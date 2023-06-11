@@ -75,9 +75,56 @@ function input_con_shortcode($attrs)
     ';
 }
 
-
-
 add_shortcode('input_con', 'input_con_shortcode');
+
+function dash_card_shortcode($attrs)
+{
+    $att = shortcode_atts([
+        'icon' => 'business',
+        'label' => '',
+        'value' => '',
+    ], $attrs);
+
+    return '
+    <div class="dash-card">
+        <ion-icon name="' . $att['icon'] . '"></ion-icon>
+
+        <p class="dash-number">' . $att['value'] . '</p>
+        <p class="dash-label">' . $att['label'] . '</p>
+    </div>
+    ';
+}
+
+add_shortcode('dash_card', 'dash_card_shortcode');
+
+
+function get_user_menu($menu_items)
+{
+    $current_url = get_permalink();
+
+    foreach ($menu_items as $menu_item) {
+        $title = $menu_item->title;
+        $url = $menu_item->url;
+        $is_active = false;
+
+        if ($current_url === $url) {
+            $is_active = true;
+        }
+
+        if (!$is_active && $current_url != home_url() . '/') {
+            $child_pages = get_pages(array('child_of' => $menu_item->object_id));
+            foreach ($child_pages as $child_page) {
+                if (get_permalink($child_page->ID) === $current_url) {
+                    $is_active = true;
+                    break;
+                }
+            }
+        }
+
+        echo '<a href="' . $url . '" class="nav-link ' . ($is_active ? "nav-link-active" : "") . '">' . $title . '</a>';
+    }
+}
+
 
 
 /**
@@ -120,53 +167,94 @@ function is_user_trainee()
 {
     return get_user_role() == 'trainee';
 }
+function get_user_meta_custom($user_id, $key = 'fullname')
+{
+    return get_user_meta($user_id, $key, true);
+}
+
+function get_greeting()
+{
+    $currentHour = date('G');
+    if ($currentHour >= 5 && $currentHour < 12) {
+        return 'Good morning';
+    } elseif ($currentHour >= 12 && $currentHour < 18) {
+        return 'Good afternoon';
+    } else {
+        return 'Good evening';
+    }
+}
 
 function format_date($date)
 {
     return date('jS F Y', strtotime($date));;
 }
 
+function calculate_completion_percentage($arr1, $arr2)
+{
+    $res = "100% 0%";
+    if (count($arr2) > 0) {
+
+        $ongoing_percentage = (count($arr1) / count(array_merge($arr1, $arr2))) * 100;
+        $completed_percentage = 100 - $ongoing_percentage;
+
+        $res  = "{$ongoing_percentage}% {$completed_percentage}%";
+    }
+    return $res;
+}
+
+function calculate_percentage($completed, $total)
+{
+    $res = "0%";
+    if (count($total) > 0) {
+        $percentage = (count($completed) / count($total)) * 100;
+        $res = ceil($percentage) . "%";
+    }
+    return $res;
+}
 
 /**
  * 
- * Rest API functions
+ * Validation Functions
  */
 
+function validate_email_custom($email)
+{
+    $email = trim($email);
+    if (empty($email)) {
+        return "Email is required";
+    }
+    if (!is_email($email)) {
+        return "Invalid email";
+    }
+    return '';
+}
 
-$tasks = [
-    (object)[
-        'id' => 1,
-        'name' => 'Task 1',
-        'done' => 1,
-        'project_id' => 1,
-    ],
-    (object)[
-        'id' => 2,
-        'name' => 'Task 2',
-        'done' => 0,
-        'project_id' => 2,
-    ],
-    (object)[
-        'id' => 3,
-        'name' => 'Task 3',
-        'done' => 0,
-        'project_id' => 1,
-    ],
-    (object)[
-        'id' => 4,
-        'name' => 'Task 4',
-        'done' => 1,
-        'project_id' => 3,
-    ],
-    (object)[
-        'id' => 5,
-        'name' => 'Task 5',
-        'done' => 0,
-        'project_id' => 2,
-    ],
-];
+function validate_password_custom($password)
+{
+    $password = trim($password);
+    if (empty($password)) {
+        return "Password is required";
+    }
+    return '';
+}
+
+function validate_fullname_custom($fullname)
+{
+    $fullname = trim($fullname);
+    if (empty($fullname)) {
+        return "Fullname is required";
+    }
+    return '';
+}
 
 
+
+/**
+ * 
+ * 
+ * Rest API functions
+ * 
+ */
 
 function get_projects()
 {
@@ -220,25 +308,26 @@ function get_single_task($id)
     return $task;
 }
 
-function calculate_completion_percentage($arr1, $arr2)
+function get_employees()
 {
-    $res = "100% 0%";
-    if (count($arr2) > 0) {
-
-        $ongoing_percentage = (count($arr1) / count(array_merge($arr1, $arr2))) * 100;
-        $completed_percentage = 100 - $ongoing_percentage;
-
-        $res  = "{$ongoing_percentage}% {$completed_percentage}%";
-    }
-    return $res;
+    $res = wp_remote_get("http://localhost:3000/employees", [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $employees = wp_remote_retrieve_body($res);
+    return json_decode($employees);
 }
 
-function calculate_percentage($completed, $total)
+function create_employee($user)
 {
-    $res = "0%";
-    if (count($total) > 0) {
-        $percentage = (count($completed) / count($total)) * 100;
-        $res = ceil($percentage) . "%";
-    }
-    return $res;
+    $res = wp_remote_post("http://localhost:3000/employees", [
+        'method' => 'POST',
+        'data_format' => 'body',
+        'body' => $user
+        // 'body' => json_encode($user), //TODO: return to json_encode
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
 }
