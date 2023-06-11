@@ -52,6 +52,30 @@ get_header() ?>
         $projects_completed = array_filter($projects, function ($project) {
             return $project->project_done == 1;
         });
+    } else if (is_user_p_manager()) {
+        $dash1_icon = 'file-tray-stacked-outline';
+        $dash1_val = count(get_programs(get_current_user_id()));
+        $dash1_label = "Total Programs";
+
+        $dash2_icon = 'people';
+        $dash2_val = count(get_users(['role' => 'trainer']));
+        $dash2_label = "Trainers";
+
+        $dash3_icon = 'people';
+        $dash3_val = count(get_users(['role' => 'program_manager']));
+        $dash3_label = "Program Managers";
+
+        // $dash4_icon = 'people-outline';
+        // $dash4_val = count(get_users(['role' => 'trainee']));
+        // $dash4_label = "Trainees";
+
+        $projects = get_projects();
+        $projects_ongoing = array_filter($projects, function ($project) {
+            return $project->project_done == 0;
+        });
+        $projects_completed = array_filter($projects, function ($project) {
+            return $project->project_done == 1;
+        });
     } else {
         //TODO: for other users
     }
@@ -64,7 +88,7 @@ get_header() ?>
         <?php echo do_shortcode('[dash_card icon="' . $dash1_icon . '" label="' . $dash1_label . '" value="' . $dash1_val . '"]') ?>
         <?php echo do_shortcode('[dash_card icon="' . $dash2_icon . '" label="' . $dash2_label . '" value="' . $dash2_val . '"]') ?>
         <?php echo do_shortcode('[dash_card icon="' . $dash3_icon . '" label="' . $dash3_label . '" value="' . $dash3_val . '"]') ?>
-        <?php echo do_shortcode('[dash_card icon="' . $dash4_icon . '" label="' . $dash4_label . '" value="' . $dash4_val . '"]') ?>
+        <?php echo isset($dash4_val) ?? do_shortcode('[dash_card icon="' . $dash4_icon . '" label="' . $dash4_label . '" value="' . $dash4_val . '"]') ?>
 
 
 

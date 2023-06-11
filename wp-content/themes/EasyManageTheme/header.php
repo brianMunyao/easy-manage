@@ -20,14 +20,22 @@
                 <?php the_custom_logo() ?>
             </span>
 
-            <?php if (is_user_logged_in()) { ?>
-                <div class="nav-links">
-                    <?php
+            <?php if (is_user_logged_in()) {
+                $menu_string = '';
 
-                    if (is_user_admin_custom()) {
-                        get_user_menu(wp_get_nav_menu_items('admin-menu'));
-                    }
-                    ?>
+                if (is_user_admin_custom()) {
+                    $menu_string = get_user_menu(wp_get_nav_menu_items('admin-menu'));
+                } else if (is_user_p_manager()) {
+                    $menu_string = get_user_menu(wp_get_nav_menu_items('program-manager-menu'));
+                } else if (is_user_trainer()) {
+                    $menu_string = get_user_menu(wp_get_nav_menu_items('trainer-menu'));
+                } else {
+                    $menu_string = get_user_menu(wp_get_nav_menu_items('trainee-menu'));
+                }
+            ?>
+
+                <div class="nav-links">
+                    <?php echo $menu_string; ?>
                 </div>
 
                 <form action="" method="post">
@@ -52,11 +60,7 @@
 
                 <span class="burger"><ion-icon name="menu"></ion-icon>
                     <div class="mob-nav-link">
-                        <?php
-                        if (is_user_admin_custom()) {
-                            get_user_menu(wp_get_nav_menu_items('admin-menu'));
-                        }
-                        ?>
+                        <?php echo $menu_string; ?>
 
                         <span class="logged-user">
                             <?php

@@ -577,11 +577,10 @@ footer {
 	margin-bottom: 20px;
 	font-size: 24px;
 	color: var(--primary);
-	opacity: 0.7;
 }
 .dash-card .dash-number {
 	font-weight: 600;
-	font-size: 20px;
+	font-size: 22px;
 }
 .dash-card .dash-label {
 	font-size: 14px;

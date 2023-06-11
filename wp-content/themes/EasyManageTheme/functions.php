@@ -16,7 +16,7 @@ function register_theme_menus()
 {
     register_nav_menus([
         'admin-menu' => __('Admin Menu'),
-        'pm-menu' => __('Program Manager Menu'),
+        'p-manager-menu' => __('Program Manager Menu'),
         'trainer-menu' => __('Trainer Menu'),
         'trainee-menu' => __('Trainee Menu')
     ]);
@@ -107,6 +107,7 @@ add_shortcode('dash_card', 'dash_card_shortcode');
 function get_user_menu($menu_items)
 {
     $current_url = get_permalink();
+    $res = '';
 
     foreach ($menu_items as $menu_item) {
         $title = $menu_item->title;
@@ -127,8 +128,9 @@ function get_user_menu($menu_items)
             }
         }
 
-        echo '<a href="' . $url . '" class="nav-link ' . ($is_active ? "nav-link-active" : "") . '">' . $title . '</a>';
+        $res .= '<a href="' . $url . '" class="nav-link ' . ($is_active ? "nav-link-active" : "") . '">' . $title . '</a>';
     }
+    return $res;
 }
 
 
@@ -362,4 +364,14 @@ function update_employee($user)
 
     $res = wp_remote_retrieve_body($res);
     return json_decode($res);
+}
+
+function get_programs($id)
+{
+    $res = wp_remote_get("http://localhost:3000/programs?pm_id=" . $id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $employees = wp_remote_retrieve_body($res);
+    return json_decode($employees);
 }
