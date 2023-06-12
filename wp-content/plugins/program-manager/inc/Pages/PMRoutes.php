@@ -19,7 +19,7 @@ class PMRoutes
     {
         register_rest_route('api/v1', '/program-managers', [
             'methods' => "GET",
-            'callback' => [$this, 'get_program_manager'],
+            'callback' => [$this, 'get_program_managers'],
             // 'permission_callback' => function () {
             //     return current_user_can('manage_options');
             // }
@@ -33,11 +33,11 @@ class PMRoutes
         ]);
     }
 
-    public function get_program_manager($request)
+    public function get_program_managers($request)
     {
         $res = [];
 
-        $pms = get_users(['role' => 'program_manager']);
+        $pms = get_users(['role__in' => ['program_manager'], 'fields' => ['ID', 'user_email', 'user_registered', 'roles']]);
 
         $res = array_map(function ($pm) {
             return [

@@ -24,6 +24,14 @@ class EmployeeRoutes
             //     return current_user_can('read');
             // }
         ]);
+
+        register_rest_route('api/v1', '/employees', [
+            'methods' => 'POST',
+            'callback' => [$this, 'create_employee'],
+            // 'permission_callback' => function () {
+            //     return current_user_can('manage_options');
+            // }
+        ]);
     }
 
     public function search_employees($request)
@@ -57,5 +65,25 @@ class EmployeeRoutes
 
         // return count($filtered_users);
         return array_values($filtered_users);
+    }
+
+    public function create_employee($request)
+    {
+        $result = wp_insert_user([
+            'user_login' => $request['email'],
+            'user_email' => $request['email'],
+            'user_pass' => $request['password'],
+            'role' => $request['role'],
+            'meta_input' => [
+                'is_deactivated' => 0,
+                'is_deleted' => 0,
+                'fullname' => $request['fullname']
+            ]
+        ]);
+
+        if (is_wp_error($result)) {
+            return new WP_Error(400, 'Program Manager Creation Failed', $result);
+        }
+        return $result;
     }
 }

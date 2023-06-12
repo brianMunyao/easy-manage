@@ -17,11 +17,11 @@ if (isset($_POST['create-pm'])) {
     $password_error = validate_password_custom($password);
 
     if (empty($fullname_error) && empty($email_error) && empty($password_error)) {
-        $result = create_employee([
+        $result = create_employee_new([
             'fullname' => $fullname,
             'email' => $email,
             'password' => $password,
-            'role' => 'project_manager',
+            'role' => 'program_manager',
             'is_deactivated' => 0,
             'is_deleted' => 0
         ]);

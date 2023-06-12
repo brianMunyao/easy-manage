@@ -31,7 +31,7 @@ get_header() ?>
     <?php
     if (is_user_admin_custom()) {
         $dash1_icon = 'people-outline';
-        $dash1_val = count(get_users()) - 1;
+        $dash1_val = count(get_employees_new());
         $dash1_label = "Total Employees";
 
         $dash2_icon = 'people';
@@ -46,7 +46,7 @@ get_header() ?>
         $dash4_val =   count(get_trainees_new()); //count(get_users(['role' => 'trainee']));
         $dash4_label = "Trainees";
 
-        $projects = get_projects();
+        $projects = get_all_projects();
         $projects_ongoing = array_filter($projects, function ($project) {
             return $project->project_done == 0;
         });
@@ -70,7 +70,7 @@ get_header() ?>
         // $dash4_val = count(get_users(['role' => 'trainee']));
         // $dash4_label = "Trainees";
 
-        $projects = get_projects();
+        $projects = get_all_projects();
         $projects_ongoing = array_filter($projects, function ($project) {
             return $project->project_done == 0;
         });
@@ -89,7 +89,7 @@ get_header() ?>
         $dash2_val =  count(get_trainees_new()); //count(get_users(['role' => 'trainer']));
         $dash2_label = "Active Trainees";
 
-        $projects = get_projects();
+        $projects = get_all_projects();
         $projects_ongoing = array_filter($projects, function ($project) {
             return $project->project_done == 0;
         });
@@ -100,7 +100,7 @@ get_header() ?>
         $dash_val = "WordPress Training";
         $dash_label = "Current Cohort";
 
-        $projects = get_projects();
+        $projects = get_all_projects();
         $projects_ongoing = array_filter($projects, function ($project) {
             return $project->project_done == 0;
         });

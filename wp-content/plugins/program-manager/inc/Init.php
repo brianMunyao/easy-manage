@@ -11,6 +11,8 @@ use Inc\Pages\PMRoutes;
 use Inc\Pages\RoleManager;
 use Inc\Pages\TraineeRoutes;
 use Inc\Pages\TrainerRoutes;
+use Inc\Pages\CreateTables;
+use Inc\Pages\ProjectRoutes;
 
 class Init
 {
@@ -21,7 +23,9 @@ class Init
             PMRoutes::class,
             TrainerRoutes::class,
             TraineeRoutes::class,
-            EmployeeRoutes::class
+            EmployeeRoutes::class,
+            CreateTables::class,
+            ProjectRoutes::class
         ];
     }
 

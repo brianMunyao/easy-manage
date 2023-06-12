@@ -553,7 +553,7 @@ footer {
 .search-con * {
 	position: absolute;
 }
-.search-con ion-icon {
+.search-con > ion-icon {
 	z-index: 1;
 	top: 50%;
 	transform: translate(10px, -50%);
@@ -564,8 +564,22 @@ footer {
 	height: 100%;
 	border: none;
 	background: transparent;
-	padding: 5px 5px 5px 35px;
+	padding: 5px 35px 5px 35px;
 	font-size: 15px;
+}
+.search-con button {
+	background: rgba(7, 107, 132, 0.4);
+	color: #fff;
+	border: none;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	width: 40px;
+	right: 0;
+	font-size: 20px;
+	border-radius: 5px;
 }
 
 .dash-cards {

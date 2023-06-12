@@ -51,7 +51,6 @@ get_header() ?>
             <th class="tr-flex">Name</th>
             <th style="width:150px">Role</th>
             <th style="width:80px;">Status</th>
-            <th style="width:100px">Actions</th>
         </tr>
 
         <?php if (count($employees) == 0) { ?>
@@ -68,24 +67,7 @@ get_header() ?>
                     <td class="name tr-flex"><?php echo $employee->fullname ?></td>
                     <td style="width:150px"><?php echo ucwords(str_replace('_', ' ', $employee->role)) ?></td>
                     <td style="width:80px;"><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
-                    <td style="width:100px" class="actions">
-                        <a href="<?php echo site_url('/employees/update-program-manager?id=') . $employee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
-                        <span class="list-actions">
-                            <ion-icon name='ellipsis-horizontal'></ion-icon>
 
-                            <div class="more-actions">
-                                <form action="" method="post">
-                                    <input type="hidden" name="id" value="<?php echo $employee->id ?>">
-                                    <button type="submit" name="deactivate-user" class="btn-text color-info"><ion-icon name='power'></ion-icon>Deactivate</button>
-                                </form>
-                                <section class="separator"></section>
-                                <form action="" method="post">
-                                    <input type="hidden" name="id" value="<?php echo $employee->id ?>">
-                                    <button type="submit" name="delete-user" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
-                                </form>
-                            </div>
-                        </span>
-                    </td>
                 </tr>
         <?php
             }

@@ -49,7 +49,7 @@ function search_bar_shortcode($attrs)
         <div class="search-con">
             <ion-icon name="search"></ion-icon>
             <input type="search" name="q" id="search" value="' . $att['value'] . '" placeholder="' . $att['placeholder'] . '">
-            <button type="submit" class="search-submit">Search</button>
+            <button type="submit" class="search-submit"><ion-icon name="arrow-forward"></ion-icon></button>
         </div>
     ';
 }
@@ -343,6 +343,35 @@ function search_employees($q)
 
     $trainees = wp_remote_retrieve_body($res);
     return json_decode($trainees);
+}
+
+function get_all_projects()
+{
+    global $url;
+
+    $res = wp_remote_get($url . "/projects", [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $projects = wp_remote_retrieve_body($res);
+    return json_decode($projects);
+}
+
+function create_employee_new($user)
+{
+    global $url;
+
+    $res = wp_remote_post($url . "/employees", [
+        'method' => 'POST',
+        'data_format' => 'body',
+        'body' => $user, //TODO: return to json_encode
+        // 'body' => $user
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
 }
 
 /**
