@@ -260,6 +260,17 @@ function validate_fullname_custom($fullname)
 }
 
 
+function validate_field_custom($field, $label = "Field")
+{
+    $field = trim($field);
+    if (empty($field)) {
+        return $label . " is required";
+    }
+    return '';
+}
+
+
+
 
 /**
  * 

@@ -221,3 +221,26 @@
 .update-task-modal button {
 	width: 100%;
 }
+
+.trainees-dropdown {
+	background-color: #fff;
+	border: 1.5px solid #076b8469;
+	display: flex;
+	flex-direction: column;
+	padding: 10px;
+	border-radius: 5px;
+	height: 100px;
+	overflow: auto;
+}
+
+.trainees-option {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+.trainees-option input {
+	width: 20px;
+}
+.trainees-option {
+	height: 30px;
+}
