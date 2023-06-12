@@ -6,14 +6,20 @@
 
 namespace Inc;
 
+use Inc\Pages\PMRoutes;
 use Inc\Pages\RoleManager;
+use Inc\Pages\TraineeRoutes;
+use Inc\Pages\TrainerRoutes;
 
 class Init
 {
     public static function get_services()
     {
         return [
-            RoleManager::class
+            RoleManager::class,
+            PMRoutes::class,
+            TrainerRoutes::class,
+            TraineeRoutes::class
         ];
     }
 

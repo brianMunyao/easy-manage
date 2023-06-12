@@ -279,6 +279,62 @@ function validate_field_custom($field, $label = "Field")
  * 
  * 
  */
+global $url;
+$url = 'http://localhost/easy-manage/wp-json/api/v1';
+
+function get_program_managers()
+{
+    global $url;
+
+    $res = wp_remote_get($url . "/program-managers", [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $project_managers = wp_remote_retrieve_body($res);
+    return json_decode($project_managers);
+}
+
+function get_trainers_new()
+{
+    global $url;
+
+    $res = wp_remote_get($url . "/trainers", [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $trainers = wp_remote_retrieve_body($res);
+    return json_decode($trainers);
+}
+
+function get_trainees_new()
+{
+    global $url;
+
+    $res = wp_remote_get($url . "/trainees", [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $trainees = wp_remote_retrieve_body($res);
+    return json_decode($trainees);
+}
+
+function get_employees_new()
+{
+    $pms = get_program_managers();
+    $trainers = get_trainers_new();
+    $trainees = get_trainees_new();
+
+    $employees = array_merge($pms, $trainers, $trainees);
+    return $employees;
+}
+
+/**
+ * 
+ * ! OLD ROUTES
+ */
 
 function get_projects()
 {

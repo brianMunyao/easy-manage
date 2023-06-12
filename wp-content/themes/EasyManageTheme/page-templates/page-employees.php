@@ -47,7 +47,7 @@ get_header() ?>
     </div>
     <?php
 
-    $employees = get_employees();
+    $employees = get_employees_new();
 
     if (isset($_GET['cat'])) {
         $employees = array_filter($employees, function ($employee) {
