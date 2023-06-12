@@ -6,6 +6,7 @@
 
 namespace Inc;
 
+use Inc\Pages\EmployeeRoutes;
 use Inc\Pages\PMRoutes;
 use Inc\Pages\RoleManager;
 use Inc\Pages\TraineeRoutes;
@@ -19,7 +20,8 @@ class Init
             RoleManager::class,
             PMRoutes::class,
             TrainerRoutes::class,
-            TraineeRoutes::class
+            TraineeRoutes::class,
+            EmployeeRoutes::class
         ];
     }
 
