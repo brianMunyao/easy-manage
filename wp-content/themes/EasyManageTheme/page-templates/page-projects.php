@@ -24,19 +24,27 @@ $completed = array_filter($projects, function ($project) {
     </div>
 
     <div class="table-heading">
-        <h3>Projects</h3>
+        <div class="table-heading-top">
+            <h4>Projects</h4>
 
-        <div>
+            <div>
+                <!-- <form action="" method="get">
+                    <?php // echo do_shortcode('[search_bar placeholder="search"]') 
+                    ?>
+                </form> -->
+                <a href="<?php echo site_url('/projects/create-project'); ?>"><button class="app-btn secondary-btn"><ion-icon name='add'></ion-icon> Add Project</button></a>
+            </div>
+        </div>
+        <div class="table-heading-bottom">
             <!-- <form action="" method="get">
-                <?php // echo do_shortcode('[search_bar placeholder="Search"]') 
+                <?php // echo do_shortcode('[search_bar placeholder="search"]') 
                 ?>
             </form> -->
-            <a href="<?php echo site_url('/projects/create-project'); ?>"><button class="app-btn secondary-btn"><ion-icon name='add'></ion-icon> Add Project</button></a>
         </div>
     </div>
 
     <div class="table-h">
-        Active Projects (<?php echo count($ongoing) ?>)
+        <span class="color-success">Active Projects (<?php echo count($ongoing) ?>)</span>
     </div>
 
     <?php if (count($ongoing) == 0) { ?>
@@ -94,7 +102,7 @@ $completed = array_filter($projects, function ($project) {
 
 
     <div class="table-h">
-        Completed Projects (<?php echo count($completed) ?>)
+        <span class="color-error">Completed Projects (<?php echo count($completed) ?>)</span>
     </div>
     <?php if (count($completed) == 0) { ?>
         <div class="empty-list">No Completed Projects</div>

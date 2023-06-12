@@ -491,3 +491,15 @@ function update_trainer($user, $program_id)
     }
     return $result;
 }
+
+function get_trainees($id)
+{
+    $res = wp_remote_get("http://localhost:3000/employees?role=trainee&created_by=" . $id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $trainers = wp_remote_retrieve_body($res);
+    $trainers = json_decode($trainers);
+
+    return $trainers;
+}

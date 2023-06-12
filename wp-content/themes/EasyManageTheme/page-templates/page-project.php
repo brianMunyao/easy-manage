@@ -157,15 +157,26 @@ if (isset($_POST['delete-task'])) {
     </div>
 
     <div class="table-heading">
-        <h3>Tasks</h3>
-        <div>
+        <div class="table-heading-top">
+            <h3>Task</h3>
+
+            <div>
+                <!-- <form action="" method="get">
+                    <?php // echo do_shortcode('[search_bar placeholder="search"]') 
+                    ?>
+                </form> -->
+                <button class="app-btn secondary-btn add-task-btn"><ion-icon name='add'></ion-icon> Add Task</button>
+            </div>
+        </div>
+        <div class="table-heading-bottom">
             <!-- <form action="" method="get">
-                <?php // echo do_shortcode('[search_bar placeholder="Search"]') 
+                <?php // echo do_shortcode('[search_bar placeholder="search"]') 
                 ?>
             </form> -->
-            <button class="app-btn secondary-btn add-task-btn"><ion-icon name='add'></ion-icon> Add Task</button>
         </div>
     </div>
+
+
 
     <div class="table-h">
         Active Tasks (<?php echo count($ongoing) ?>)

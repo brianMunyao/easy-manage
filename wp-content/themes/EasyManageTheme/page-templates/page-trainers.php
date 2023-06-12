@@ -67,26 +67,26 @@ get_header() ?>
             <?php } else {
 
             $i = 0;
-            foreach ($active_trainers as $employee) {
+            foreach ($active_trainers as $trainer) {
             ?>
                 <tr class="table-c">
                     <td style="width: 30px"><?php echo ++$i; ?></td>
-                    <td class="name tr-flex"><?php echo $employee->fullname ?></td>
-                    <td class=""><?php echo $employee->stack ?></td>
-                    <td style="width:80px;"><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
+                    <td class="name tr-flex"><?php echo $trainer->fullname ?></td>
+                    <td class=""><?php echo $trainer->stack ?></td>
+                    <td style="width:80px;"><?php echo !$trainer->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                     <td style="width:100px" class="actions">
-                        <a href="<?php echo site_url('/employees/update-trainer?id=') . $employee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
+                        <a href="<?php echo site_url('/trainers/update-trainer?id=') . $trainer->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
                         <span class="list-actions">
                             <ion-icon name='ellipsis-horizontal'></ion-icon>
 
                             <div class="more-actions">
                                 <form action="" method="post">
-                                    <input type="hidden" name="id" value="<?php echo $employee->id ?>">
+                                    <input type="hidden" name="id" value="<?php echo $trainer->id ?>">
                                     <button type="submit" name="deactivate-trainer" class="btn-text color-info"><ion-icon name='power'></ion-icon>Deactivate</button>
                                 </form>
                                 <section class="separator"></section>
                                 <form action="" method="post">
-                                    <input type="hidden" name="id" value="<?php echo $employee->id ?>">
+                                    <input type="hidden" name="id" value="<?php echo $trainer->id ?>">
                                     <button type="submit" name="delete-trainer" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
                                 </form>
                             </div>
