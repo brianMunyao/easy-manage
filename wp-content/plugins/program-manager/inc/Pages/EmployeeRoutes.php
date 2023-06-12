@@ -52,7 +52,7 @@ class EmployeeRoutes
         $filtered_users = array_filter($res, function ($user) use ($q) {
             $fullname_lower = strtolower($user['fullname']);
             $email_lower = strtolower($user['email']);
-            return strpos($fullname_lower, $q) !== false || strpos($email_lower, $q) !== false;
+            return (strpos($fullname_lower, $q) !== false || strpos($email_lower, $q) !== false) && $user['is_deactivated'] == '0' && $user['is_deleted'] == '0';
         });
 
         // return count($filtered_users);

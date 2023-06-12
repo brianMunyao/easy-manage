@@ -22,10 +22,11 @@ get_header() ?>
             <p class="greeting-sub">Here is the latest in a nutshell</p>
         </div>
 
-        <form action="" method="get">
+        <form action="<?php echo site_url('/search') ?>" method="get">
             <?php echo do_shortcode('[search_bar]') ?>
         </form>
     </div>
+
 
     <?php
     if (is_user_admin_custom()) {
@@ -34,15 +35,15 @@ get_header() ?>
         $dash1_label = "Total Employees";
 
         $dash2_icon = 'people';
-        $dash2_val = count(get_users(['role' => 'program_manager']));
+        $dash2_val = count(get_program_managers()); //count(get_users(['role' => 'program_manager']));
         $dash2_label = "Program Managers";
 
         $dash3_icon = 'people';
-        $dash3_val = count(get_users(['role' => 'trainer']));
+        $dash3_val =  count(get_trainers_new()); //count(get_users(['role' => 'trainer']));
         $dash3_label = "Trainers";
 
         $dash4_icon = 'people-outline';
-        $dash4_val = count(get_users(['role' => 'trainee']));
+        $dash4_val =   count(get_trainees_new()); //count(get_users(['role' => 'trainee']));
         $dash4_label = "Trainees";
 
         $projects = get_projects();
@@ -58,12 +59,12 @@ get_header() ?>
         $dash1_label = "Total Programs";
 
         $dash2_icon = 'people';
-        $dash2_val = count(get_users(['role' => 'trainer']));
-        $dash2_label = "Trainers";
+        $dash2_val =  count(get_program_managers()); //count(get_users(['role' => 'trainer']));
+        $dash2_label = "Program Managers";
 
         $dash3_icon = 'people';
-        $dash3_val = count(get_users(['role' => 'program_manager']));
-        $dash3_label = "Program Managers";
+        $dash3_val = count(get_trainers_new()); // count(get_users(['role' => 'program_manager']));
+        $dash3_label = "Trainers";
 
         // $dash4_icon = 'people-outline';
         // $dash4_val = count(get_users(['role' => 'trainee']));
@@ -81,11 +82,11 @@ get_header() ?>
         $dash_label = "Current Cohort";
 
         $dash1_icon = 'people-outline';
-        $dash1_val = count(get_users(['role' => 'trainer']));
+        $dash1_val =  count(get_trainees_new()); //count(get_users(['role' => 'trainer']));
         $dash1_label = "Registered Trainees";
 
         $dash2_icon = 'people-outline';
-        $dash2_val = count(get_users(['role' => 'trainer']));
+        $dash2_val =  count(get_trainees_new()); //count(get_users(['role' => 'trainer']));
         $dash2_label = "Active Trainees";
 
         $projects = get_projects();

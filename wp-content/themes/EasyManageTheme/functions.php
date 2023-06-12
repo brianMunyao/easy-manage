@@ -41,14 +41,15 @@ function search_bar_shortcode($attrs)
 {
     $att = shortcode_atts([
         'value' => '',
-        'placeholder' => 'Quick Employee Search'
+        'placeholder' => 'Quick Employee Search',
+        'name' => ''
     ], $attrs);
 
     return '
         <div class="search-con">
             <ion-icon name="search"></ion-icon>
-            <input type="search" name="search" id="search" value="' . $att['value'] . '" placeholder="' . $att['placeholder'] . '">
-            <!-- <button type="submit" class="app-btn">Search</button> --> 
+            <input type="search" name="q" id="search" value="' . $att['value'] . '" placeholder="' . $att['placeholder'] . '">
+            <button type="submit" class="search-submit">Search</button>
         </div>
     ';
 }
@@ -329,6 +330,19 @@ function get_employees_new()
 
     $employees = array_merge($pms, $trainers, $trainees);
     return $employees;
+}
+
+function search_employees($q)
+{
+    global $url;
+
+    $res = wp_remote_get($url . "/employees/search?q=" . $q, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $trainees = wp_remote_retrieve_body($res);
+    return json_decode($trainees);
 }
 
 /**
