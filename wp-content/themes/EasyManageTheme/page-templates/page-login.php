@@ -46,6 +46,8 @@ get_header() ?>
         <div class="form">
             <h2>Login</h2>
 
+            <div class="error"><?php echo $form_error ?></div>
+
             <?php
             $curr_email = $_POST["email"] ?? "";
             $curr_password = $_POST["password"] ?? "";

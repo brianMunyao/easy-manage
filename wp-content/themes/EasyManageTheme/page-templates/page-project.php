@@ -150,8 +150,10 @@ if (isset($_POST['delete-task'])) {
             <span>Actions:</span>
             <div class="s-links">
                 <button class="btn-text color-success icon-text-link"><ion-icon name='checkmark-circle-outline'></ion-icon>Mark As Complete</button>
-                <a href="<?php echo site_url('/projects/update-project?id=') . $project->project_id ?>" class="color-blue icon-text-link"><ion-icon name='create-outline'></ion-icon>Update</a>
-                <button class="btn-text color-danger icon-text-link" name="delete-project"><ion-icon name='trash-outline'></ion-icon>Delete</button>
+                <?php if (is_user_trainer()) { ?>
+                    <a href="<?php echo site_url('/projects/update-project?id=') . $project->project_id ?>" class="color-blue icon-text-link"><ion-icon name='create-outline'></ion-icon>Update</a>
+                    <button class="btn-text color-danger icon-text-link" name="delete-project"><ion-icon name='trash-outline'></ion-icon>Delete</button>
+                <?php } ?>
             </div>
         </div>
     </div>
@@ -165,7 +167,9 @@ if (isset($_POST['delete-task'])) {
                     <?php // echo do_shortcode('[search_bar placeholder="search"]') 
                     ?>
                 </form> -->
-                <button class="app-btn secondary-btn add-task-btn"><ion-icon name='add'></ion-icon> Add Task</button>
+                <?php if (is_user_trainee()) { ?>
+                    <button class="app-btn secondary-btn add-task-btn"><ion-icon name='add'></ion-icon> Add Task</button>
+                <?php } ?>
             </div>
         </div>
         <div class="table-heading-bottom">
@@ -195,13 +199,15 @@ if (isset($_POST['delete-task'])) {
                     </form>
                     <p class="task-name"><?php echo $task->task_name ?></p>
 
-                    <div class="task-options">
-                        <button class="btn-text color-blue icon-text-link update-task-btn" onclick="setUpdateID(<?php echo $task->task_id ?>)"><ion-icon name='create-outline'></ion-icon> Update</button>
-                        <form action="" method="post">
-                            <input type="hidden" name="id" value="<?php echo $task->task_id ?>">
-                            <button name="delete-task" type="submit" class="btn-text color-danger icon-text-link"><ion-icon name='trash-outline'></ion-icon> Delete</butt>
-                        </form>
-                    </div>
+                    <?php if (is_user_trainee()) { ?>
+                        <div class="task-options">
+                            <button class="btn-text color-blue icon-text-link update-task-btn" onclick="setUpdateID(<?php echo $task->task_id ?>)"><ion-icon name='create-outline'></ion-icon> Update</button>
+                            <form action="" method="post">
+                                <input type="hidden" name="id" value="<?php echo $task->task_id ?>">
+                                <button name="delete-task" type="submit" class="btn-text color-danger icon-text-link"><ion-icon name='trash-outline'></ion-icon> Delete</butt>
+                            </form>
+                        </div>
+                    <?php } ?>
                 </div>
             <?php
             }
@@ -229,13 +235,15 @@ if (isset($_POST['delete-task'])) {
                     </form>
                     <p class="task-name"><?php echo $task->task_name ?></p>
 
-                    <div class="task-options">
-                        <button class="btn-text color-blue icon-text-link update-task-btn" onclick="setUpdateID(<?php echo $task->task_id ?>)"><ion-icon name='create-outline'></ion-icon> Update</button>
-                        <form action="" method="post">
-                            <input type="hidden" name="id" value="<?php echo $task->task_id ?>">
-                            <button name="delete-task" type="submit" class="btn-text color-danger icon-text-link"><ion-icon name='trash-outline'></ion-icon> Delete</butt>
-                        </form>
-                    </div>
+                    <?php if (is_user_trainee()) { ?>
+                        <div class="task-options">
+                            <button class="btn-text color-blue icon-text-link update-task-btn" onclick="setUpdateID(<?php echo $task->task_id ?>)"><ion-icon name='create-outline'></ion-icon> Update</button>
+                            <form action="" method="post">
+                                <input type="hidden" name="id" value="<?php echo $task->task_id ?>">
+                                <button name="delete-task" type="submit" class="btn-text color-danger icon-text-link"><ion-icon name='trash-outline'></ion-icon> Delete</butt>
+                            </form>
+                        </div>
+                    <?php } ?>
                 </div>
             <?php
             }

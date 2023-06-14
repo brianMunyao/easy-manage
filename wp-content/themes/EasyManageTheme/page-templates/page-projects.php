@@ -32,7 +32,9 @@ $completed = array_filter($projects, function ($project) {
                     <?php // echo do_shortcode('[search_bar placeholder="search"]') 
                     ?>
                 </form> -->
-                <a href="<?php echo site_url('/projects/create-project'); ?>"><button class="app-btn secondary-btn"><ion-icon name='add'></ion-icon> Add Project</button></a>
+                <?php if (is_user_trainer()) { ?>
+                    <a href="<?php echo site_url('/projects/create-project'); ?>"><button class="app-btn secondary-btn"><ion-icon name='add'></ion-icon> Add Project</button></a>
+                <?php } ?>
             </div>
         </div>
         <div class="table-heading-bottom">

@@ -37,6 +37,16 @@ function redirect_on_logout()
 }
 add_action('wp_logout', 'redirect_on_logout');
 
+function restrict_wp_admin_access()
+{
+    if (is_admin() && !current_user_can('administrator') && !wp_doing_ajax()) {
+        wp_redirect(home_url());
+        exit;
+    }
+}
+add_action('init', 'restrict_wp_admin_access');
+
+
 function search_bar_shortcode($attrs)
 {
     $att = shortcode_atts([
@@ -612,4 +622,73 @@ function get_trainees($id)
     $trainers = json_decode($trainers);
 
     return $trainers;
+}
+
+/**
+ * 
+ * Login Limits
+ * 
+ */
+
+function check_login_attempts($user, $username, $password)
+{
+    $attempted_login = get_transient('attempted_login');
+    $max_attempts = 3;
+    $transient_timeout = get_option('_transient_timeout_attempted_login');
+
+    if ($attempted_login && $attempted_login['tried'] >= $max_attempts) {
+        $time_left = calculate_time_left($transient_timeout);
+
+        $error_message = 'Too many attempts. Try again in ' . $time_left;
+
+        return new WP_Error('too_many_tried', $error_message);
+    }
+
+    return $user;
+}
+
+add_filter('authenticate', 'check_login_attempts', 30, 3);
+
+function increment_login_attempts($username)
+{
+    $attempted_login = get_transient('attempted_login') ?: ['tried' => 0];
+    $max_attempts = 3;
+    $expiration_time = 60;
+
+    $attempted_login['tried']++;
+    if ($attempted_login['tried'] <= $max_attempts) {
+        set_transient('attempted_login', $attempted_login, $expiration_time);
+    }
+}
+
+add_action('wp_login_failed', 'increment_login_attempts', 10, 1);
+
+function calculate_time_left($timestamp)
+{
+    $periods = [
+        "second" => 60,
+        "minute" => 60,
+        "hour" => 24,
+        "day" => 7,
+        "week" => 4.35,
+        "month" => 12
+    ];
+
+    $currentTimestamp = time();
+    $difference = abs($currentTimestamp - $timestamp);
+    $periodKeys = array_keys($periods);
+    $periodCount = count($periods);
+
+    for ($i = 0; $i < $periodCount && $difference >= $periods[$periodKeys[$i]]; $i++) {
+        $difference /= $periods[$periodKeys[$i]];
+    }
+
+    $difference = round($difference);
+    $period = $periodKeys[$i];
+
+    if ($difference !== 1) {
+        $period .= "s";
+    }
+
+    return ($difference !== 0) ? "$difference $period" : null;
 }
