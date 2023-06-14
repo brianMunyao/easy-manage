@@ -384,6 +384,60 @@ function create_employee_new($user)
     return json_decode($res);
 }
 
+function activate_employee($id)
+{
+    global $url;
+
+    $res = wp_remote_post($url . "/employees/activate/" . $id, [
+        'method' => 'PUT',
+        'data_format' => 'body',
+        // 'body' => $user
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+function deactivate_employee($id)
+{
+    global $url;
+
+    $res = wp_remote_post($url . "/employees/deactivate/" . $id, [
+        'method' => 'PUT',
+        'data_format' => 'body',
+        // 'body' => $user
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
+function delete_employee($id)
+{
+    global $url;
+
+    $res = wp_remote_post($url . "/employees/delete/" . $id, [
+        'method' => 'PUT',
+        'data_format' => 'body',
+        // 'body' => $user
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+function restore_employee($id)
+{
+    global $url;
+
+    $res = wp_remote_post($url . "/employees/restore/" . $id, [
+        'method' => 'PUT',
+        'data_format' => 'body',
+        // 'body' => $user
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
 /**
  * 
  * ! OLD ROUTES

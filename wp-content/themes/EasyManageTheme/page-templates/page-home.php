@@ -59,12 +59,12 @@ get_header() ?>
         $dash1_label = "Total Programs";
 
         $dash2_icon = 'people';
-        $dash2_val =  count(get_program_managers()); //count(get_users(['role' => 'trainer']));
-        $dash2_label = "Program Managers";
+        $dash2_val =  count(get_trainers_new()); //count(get_users(['role' => 'trainer']));
+        $dash2_label = "Trainers";
 
         $dash3_icon = 'people';
-        $dash3_val = count(get_trainers_new()); // count(get_users(['role' => 'program_manager']));
-        $dash3_label = "Trainers";
+        $dash3_val = count(get_trainees_new()); // count(get_users(['role' => 'program_manager']));
+        $dash3_label = "Trainees";
 
         // $dash4_icon = 'people-outline';
         // $dash4_val = count(get_users(['role' => 'trainee']));

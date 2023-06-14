@@ -1,5 +1,5 @@
 <?php
-if (!is_user_p_manager()) {
+if (!is_user_admin_custom()) {
     wp_redirect(home_url());
 }
 if (!isset($_GET['id'])) {

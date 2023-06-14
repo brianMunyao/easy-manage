@@ -4,6 +4,19 @@ if (!is_user_admin_custom()) {
     wp_redirect(home_url());
 }
 
+if (isset($_POST['deactivate-user'])) {
+    $res = deactivate_employee($_POST['id']);
+}
+if (isset($_POST['activate-user'])) {
+    $res = activate_employee($_POST['id']);
+}
+if (isset($_POST['delete-user'])) {
+    $res = delete_employee($_POST['id']);
+}
+if (isset($_POST['restore-user'])) {
+    $res = restore_employee($_POST['id']);
+}
+
 /**
  * 
  * Template Name: Employees Page Template
@@ -103,26 +116,29 @@ get_header() ?>
                     <td class="name tr-flex"><?php echo $employee->fullname ?></td>
                     <td style="width:150px"><?php echo ucwords(str_replace('_', ' ', $employee->role)) ?></td>
                     <td style="width:80px;"><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
-                    <?php if ($employee->role == 'program_manager') { ?>
-                        <td style="width:100px" class="actions">
+                    <td style="width:100px" class="actions">
+                        <?php if ($employee->role == 'program_manager') { ?>
                             <a href="<?php echo site_url('/employees/update-program-manager?id=') . $employee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
-                            <span class="list-actions">
-                                <ion-icon name='ellipsis-horizontal'></ion-icon>
+                        <?php } else { ?>
+                            <span></span>
+                        <?php } ?>
 
-                                <div class="more-actions">
-                                    <form action="" method="post">
-                                        <input type="hidden" name="id" value="<?php echo $employee->id ?>">
-                                        <button type="submit" name="deactivate-user" class="btn-text color-info"><ion-icon name='power'></ion-icon>Deactivate</button>
-                                    </form>
-                                    <section class="separator"></section>
-                                    <form action="" method="post">
-                                        <input type="hidden" name="id" value="<?php echo $employee->id ?>">
-                                        <button type="submit" name="delete-user" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
-                                    </form>
-                                </div>
-                            </span>
-                        </td>
-                    <?php } ?>
+                        <span class="list-actions">
+                            <ion-icon name='ellipsis-horizontal'></ion-icon>
+
+                            <div class="more-actions">
+                                <form action="" method="post">
+                                    <input type="hidden" name="id" value="<?php echo $employee->id ?>">
+                                    <button type="submit" name="deactivate-user" class="btn-text color-info"><ion-icon name='power'></ion-icon>Deactivate</button>
+                                </form>
+                                <section class="separator"></section>
+                                <form action="" method="post">
+                                    <input type="hidden" name="id" value="<?php echo $employee->id ?>">
+                                    <button type="submit" name="delete-user" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
+                                </form>
+                            </div>
+                        </span>
+                    </td>
                 </tr>
         <?php
             }
@@ -161,26 +177,28 @@ get_header() ?>
                     <td class="name tr-flex"><?php echo $employee->fullname ?></td>
                     <td style="width:150px"><?php echo ucwords(str_replace('_', ' ', $employee->role)) ?></td>
                     <td style="width:80px;"><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
-                    <?php if ($employee->role == 'program_manager') { ?>
-                        <td style="width:100px" class="actions">
+                    <td style="width:100px" class="actions">
+                        <?php if ($employee->role == 'program_manager') { ?>
                             <a href="<?php echo site_url('/employees/update-program-manager?id=') . $employee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
-                            <span class="list-actions">
-                                <ion-icon name='ellipsis-horizontal'></ion-icon>
+                        <?php } else { ?>
+                            <span></span>
+                        <?php } ?>
+                        <span class="list-actions">
+                            <ion-icon name='ellipsis-horizontal'></ion-icon>
 
-                                <div class="more-actions">
-                                    <form action="" method="post">
-                                        <input type="hidden" name="id" value="<?php echo $employee->id ?>">
-                                        <button type="submit" name="activate-user" class="btn-text color-info"><ion-icon name='power'></ion-icon>Activate</button>
-                                    </form>
-                                    <section class="separator"></section>
-                                    <form action="" method="post">
-                                        <input type="hidden" name="id" value="<?php echo $employee->id ?>">
-                                        <button type="submit" name="delete-user" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
-                                    </form>
-                                </div>
-                            </span>
-                        </td>
-                    <?php } ?>
+                            <div class="more-actions">
+                                <form action="" method="post">
+                                    <input type="hidden" name="id" value="<?php echo $employee->id ?>">
+                                    <button type="submit" name="activate-user" class="btn-text color-info"><ion-icon name='power'></ion-icon>Activate</button>
+                                </form>
+                                <section class="separator"></section>
+                                <form action="" method="post">
+                                    <input type="hidden" name="id" value="<?php echo $employee->id ?>">
+                                    <button type="submit" name="delete-user" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
+                                </form>
+                            </div>
+                        </span>
+                    </td>
                 </tr>
         <?php
             }
@@ -219,26 +237,24 @@ get_header() ?>
                     <td class="name tr-flex"><?php echo $employee->fullname ?></td>
                     <td style="width:150px"><?php echo ucwords(str_replace('_', ' ', $employee->role)) ?></td>
                     <td style="width:80px;"><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
-                    <?php if ($employee->role == 'program_manager') { ?>
-                        <td style="width:100px" class="actions">
+                    <td style="width:100px" class="actions">
+                        <?php if ($employee->role == 'program_manager') { ?>
                             <a href="<?php echo site_url('/employees/update-program-manager?id=') . $employee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
-                            <span class="list-actions">
-                                <ion-icon name='ellipsis-horizontal'></ion-icon>
+                        <?php } else { ?>
+                            <span></span>
+                        <?php } ?>
+                        <span class="list-actions">
+                            <ion-icon name='ellipsis-horizontal'></ion-icon>
 
-                                <div class="more-actions">
-                                    <form action="" method="post">
-                                        <input type="hidden" name="id" value="<?php echo $employee->id ?>">
-                                        <button type="submit" name="activate-user" class="btn-text color-info"><ion-icon name='power'></ion-icon>Activate</button>
-                                    </form>
-                                    <section class="separator"></section>
-                                    <form action="" method="post">
-                                        <input type="hidden" name="id" value="<?php echo $employee->id ?>">
-                                        <button type="submit" name="restore-user" class="btn-text color-blue"><ion-icon name="arrow-undo-circle-outline"></ion-icon>Restore</button>
-                                    </form>
-                                </div>
-                            </span>
-                        </td>
-                    <?php } ?>
+                            <div class="more-actions">
+
+                                <form action="" method="post">
+                                    <input type="hidden" name="id" value="<?php echo $employee->id ?>">
+                                    <button type="submit" name="restore-user" class="btn-text color-blue"><ion-icon name="arrow-undo-circle-outline"></ion-icon>Restore</button>
+                                </form>
+                            </div>
+                        </span>
+                    </td>
                 </tr>
         <?php
             }

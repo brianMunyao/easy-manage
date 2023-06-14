@@ -77,21 +77,24 @@ get_header() ?>
                     <td style="width:80px;"><?php echo !$trainer->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                     <td style="width:100px" class="actions">
                         <a href="<?php echo site_url('/trainers/update-trainer?id=') . $trainer->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
-                        <span class="list-actions">
-                            <ion-icon name='ellipsis-horizontal'></ion-icon>
 
-                            <div class="more-actions">
-                                <form action="" method="post">
-                                    <input type="hidden" name="id" value="<?php echo $trainer->id ?>">
-                                    <button type="submit" name="deactivate-trainer" class="btn-text color-info"><ion-icon name='power'></ion-icon>Deactivate</button>
-                                </form>
-                                <section class="separator"></section>
-                                <form action="" method="post">
-                                    <input type="hidden" name="id" value="<?php echo $trainer->id ?>">
-                                    <button type="submit" name="delete-trainer" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
-                                </form>
-                            </div>
-                        </span>
+                        <?php if (is_user_admin_custom()) { ?>
+                            <span class="list-actions">
+                                <ion-icon name='ellipsis-horizontal'></ion-icon>
+
+                                <div class="more-actions">
+                                    <form action="" method="post">
+                                        <input type="hidden" name="id" value="<?php echo $trainer->id ?>">
+                                        <button type="submit" name="deactivate-trainer" class="btn-text color-info"><ion-icon name='power'></ion-icon>Deactivate</button>
+                                    </form>
+                                    <section class="separator"></section>
+                                    <form action="" method="post">
+                                        <input type="hidden" name="id" value="<?php echo $trainer->id ?>">
+                                        <button type="submit" name="delete-trainer" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
+                                    </form>
+                                </div>
+                            </span>
+                        <?php } ?>
                     </td>
                 </tr>
         <?php
@@ -134,21 +137,24 @@ get_header() ?>
                     <td style="width:80px;"><?php echo !$trainer->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                     <td style="width:100px" class="actions">
                         <a href="<?php echo site_url('/trainers/update-trainer?id=') . $trainer->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
-                        <span class="list-actions">
-                            <ion-icon name='ellipsis-horizontal'></ion-icon>
 
-                            <div class="more-actions">
-                                <form action="" method="post">
-                                    <input type="hidden" name="id" value="<?php echo $trainer->id ?>">
-                                    <button type="submit" name="activate-trainer" class="btn-text color-info"><ion-icon name='power'></ion-icon>Activate</button>
-                                </form>
-                                <section class="separator"></section>
-                                <form action="" method="post">
-                                    <input type="hidden" name="id" value="<?php echo $trainer->id ?>">
-                                    <button type="submit" name="delete-trainer" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
-                                </form>
-                            </div>
-                        </span>
+                        <?php if (is_user_admin_custom()) { ?>
+                            <span class="list-actions">
+                                <ion-icon name='ellipsis-horizontal'></ion-icon>
+
+                                <div class="more-actions">
+                                    <form action="" method="post">
+                                        <input type="hidden" name="id" value="<?php echo $trainer->id ?>">
+                                        <button type="submit" name="activate-trainer" class="btn-text color-info"><ion-icon name='power'></ion-icon>Activate</button>
+                                    </form>
+                                    <section class="separator"></section>
+                                    <form action="" method="post">
+                                        <input type="hidden" name="id" value="<?php echo $trainer->id ?>">
+                                        <button type="submit" name="delete-trainer" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
+                                    </form>
+                                </div>
+                            </span>
+                        <?php } ?>
                     </td>
                 </tr>
         <?php

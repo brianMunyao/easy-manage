@@ -32,6 +32,34 @@ class EmployeeRoutes
             //     return current_user_can('manage_options');
             // }
         ]);
+        register_rest_route('api/v1', '/employees/deactivate/(?P<id>\d+)', [
+            'methods' => 'PUT',
+            'callback' => [$this, 'deactivate_employee'],
+            // 'permission_callback' => function () {
+            //     return current_user_can('manage_options');
+            // }
+        ]);
+        register_rest_route('api/v1', '/employees/activate/(?P<id>\d+)', [
+            'methods' => 'PUT',
+            'callback' => [$this, 'activate_employee'],
+            // 'permission_callback' => function () {
+            //     return current_user_can('manage_options');
+            // }
+        ]);
+        register_rest_route('api/v1', '/employees/delete/(?P<id>\d+)', [
+            'methods' => 'PUT',
+            'callback' => [$this, 'delete_employee'],
+            // 'permission_callback' => function () {
+            //     return current_user_can('manage_options');
+            // }
+        ]);
+        register_rest_route('api/v1', '/employees/restore/(?P<id>\d+)', [
+            'methods' => 'PUT',
+            'callback' => [$this, 'restore_employee'],
+            // 'permission_callback' => function () {
+            //     return current_user_can('manage_options');
+            // }
+        ]);
     }
 
     public function search_employees($request)
@@ -85,5 +113,52 @@ class EmployeeRoutes
             return new WP_Error(400, 'Program Manager Creation Failed', $result);
         }
         return $result;
+    }
+
+    public function deactivate_employee($request)
+    {
+        $id = $request->get_param('id');
+        $meta_id = update_user_meta($id, "is_deactivated", 1);
+
+        if (!$meta_id) {
+            return new WP_Error(400, 'Deactivation Failed ', $meta_id);
+        }
+        return $meta_id;
+    }
+
+
+    public function activate_employee($request)
+    {
+        $id = $request->get_param('id');
+        $meta_id = update_user_meta($id, "is_deactivated", 0);
+
+        if (!$meta_id) {
+            return new WP_Error(400, 'Activation Successful ', $meta_id);
+        }
+        return $meta_id;
+    }
+
+    public function delete_employee($request)
+    {
+        $id = $request->get_param('id');
+        $meta_id_deactivate = update_user_meta($id, "is_deactivated", 1);
+        $meta_id = update_user_meta($id, "is_deleted", 1);
+
+        if (!$meta_id) {
+            return new WP_Error(400, 'User Deleted Successfully', $meta_id);
+        }
+        return $meta_id;
+    }
+
+
+    public function restore_employee($request)
+    {
+        $id = $request->get_param('id');
+        $meta_id = update_user_meta($id, "is_deleted", 0);
+
+        if (!$meta_id) {
+            return new WP_Error(400, 'Restored Successfully ', $meta_id);
+        }
+        return $meta_id;
     }
 }

@@ -146,6 +146,12 @@ if (isset($_POST['delete-task'])) {
                 <?php echo $project->project_category ?>
             </div>
         </div>
+        <div class="s-project-details" style="align-items: flex-start;">
+            <span>Description:</span>
+            <div>
+                <?php echo $project->project_description ?>
+            </div>
+        </div>
         <div class="s-project-details">
             <span>Actions:</span>
             <div class="s-links">
