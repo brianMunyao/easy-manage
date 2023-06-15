@@ -23,7 +23,8 @@ if (isset($_POST['create-pm'])) {
             'password' => $password,
             'role' => 'program_manager',
             'is_deactivated' => 0,
-            'is_deleted' => 0
+            'is_deleted' => 0,
+            'created_by' => get_current_user_id()
         ]);
 
         //TODO: implement good error checking

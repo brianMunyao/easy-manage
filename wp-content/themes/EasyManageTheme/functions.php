@@ -51,7 +51,7 @@ function search_bar_shortcode($attrs)
 {
     $att = shortcode_atts([
         'value' => '',
-        'placeholder' => 'Quick Employee Search',
+        'placeholder' => 'Employee Search',
         'name' => ''
     ], $attrs);
 
@@ -207,7 +207,18 @@ function get_greeting()
 
 function format_date($date)
 {
-    return date('jS F Y', strtotime($date));;
+    return date('jS F Y', strtotime($date));
+}
+
+function sort_by_date_registered($a, $b)
+{
+    $dateA = strtotime($a->registered_on);
+    $dateB = strtotime($b->registered_on);
+
+    if ($dateA == $dateB) {
+        return 0;
+    }
+    return ($dateA > $dateB) ? -1 : 1;
 }
 
 function calculate_completion_percentage($arr1, $arr2)
@@ -306,11 +317,16 @@ function get_program_managers()
     return json_decode($project_managers);
 }
 
-function get_trainers_new()
+function get_trainers_new($pm_id = null)
 {
     global $url;
+    $full_url = $url . "/trainers";
 
-    $res = wp_remote_get($url . "/trainers", [
+    if ($pm_id) {
+        $full_url .= '?pm_id=' . $pm_id;
+    }
+
+    $res = wp_remote_get($full_url, [
         'method' => 'GET',
         // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
     ]);
@@ -319,11 +335,16 @@ function get_trainers_new()
     return json_decode($trainers);
 }
 
-function get_trainees_new()
+function get_trainees_new($trainer_id = null)
 {
     global $url;
+    $full_url = $url . "/trainees";
 
-    $res = wp_remote_get($url . "/trainees", [
+    if ($trainer_id) {
+        $full_url .= '?trainer_id=' . $trainer_id;
+    }
+
+    $res = wp_remote_get($full_url, [
         'method' => 'GET',
         // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
     ]);
@@ -334,12 +355,15 @@ function get_trainees_new()
 
 function get_employees_new()
 {
-    $pms = get_program_managers();
-    $trainers = get_trainers_new();
-    $trainees = get_trainees_new();
+    global $url;
 
-    $employees = array_merge($pms, $trainers, $trainees);
-    return $employees;
+    $res = wp_remote_get($url . "/employees", [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $employees = wp_remote_retrieve_body($res);
+    return json_decode($employees);
 }
 
 function search_employees($q)

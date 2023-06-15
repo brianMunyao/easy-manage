@@ -30,20 +30,22 @@ get_header() ?>
 
     <?php
     if (is_user_admin_custom()) {
+        $latest_employees = get_employees_new();
+
         $dash1_icon = 'people-outline';
-        $dash1_val = count(get_employees_new());
+        $dash1_val = count($latest_employees);
         $dash1_label = "Total Employees";
 
         $dash2_icon = 'people';
-        $dash2_val = count(get_program_managers()); //count(get_users(['role' => 'program_manager']));
+        $dash2_val = count(get_program_managers());
         $dash2_label = "Program Managers";
 
         $dash3_icon = 'people';
-        $dash3_val =  count(get_trainers_new()); //count(get_users(['role' => 'trainer']));
+        $dash3_val =  count(get_trainers_new());
         $dash3_label = "Trainers";
 
         $dash4_icon = 'people-outline';
-        $dash4_val =   count(get_trainees_new()); //count(get_users(['role' => 'trainee']));
+        $dash4_val =   count(get_trainees_new());
         $dash4_label = "Trainees";
 
         $projects = get_all_projects();
@@ -54,21 +56,27 @@ get_header() ?>
             return $project->project_done == 1;
         });
     } else if (is_user_p_manager()) {
+        $latest_employees = get_trainers_new(get_current_user_id());
+
         $dash1_icon = 'file-tray-stacked-outline';
         $dash1_val = count(get_programs(get_current_user_id()));
         $dash1_label = "Total Programs";
 
+        $my_trainers = get_trainers_new(get_current_user_id());
+        $my_trainees = [];
+
+        foreach ($my_trainers as $trainer) {
+            $trainees  = get_trainees($trainer->id);
+            $my_trainees = array_merge($my_trainees, $trainees);
+        }
+
         $dash2_icon = 'people';
-        $dash2_val =  count(get_trainers_new()); //count(get_users(['role' => 'trainer']));
+        $dash2_val =  count($my_trainers);
         $dash2_label = "Trainers";
 
         $dash3_icon = 'people';
-        $dash3_val = count(get_trainees_new()); // count(get_users(['role' => 'program_manager']));
+        $dash3_val = count($my_trainees);
         $dash3_label = "Trainees";
-
-        // $dash4_icon = 'people-outline';
-        // $dash4_val = count(get_users(['role' => 'trainee']));
-        // $dash4_label = "Trainees";
 
         $projects = get_all_projects();
         $projects_ongoing = array_filter($projects, function ($project) {
@@ -82,11 +90,11 @@ get_header() ?>
         $dash_label = "Current Cohort";
 
         $dash1_icon = 'people-outline';
-        $dash1_val =  count(get_trainees_new()); //count(get_users(['role' => 'trainer']));
+        $dash1_val =  count(get_trainees_new());
         $dash1_label = "Registered Trainees";
 
         $dash2_icon = 'people-outline';
-        $dash2_val =  count(get_trainees_new()); //count(get_users(['role' => 'trainer']));
+        $dash2_val =  count(get_trainees_new());
         $dash2_label = "Active Trainees";
 
         $projects = get_all_projects();
@@ -118,6 +126,7 @@ get_header() ?>
     }
 
 
+    usort($latest_employees, 'sort_by_date_registered');
 
     ?>
 
@@ -185,11 +194,7 @@ get_header() ?>
              * 
              * TODO: get recent accounts here
              */
-            $recents = [
-                ["name" => "Drew Barrymore", "role" => "Program Manager", "created_on" => 'Jul 6'],
-                ["name" => "Drew Barrymore", "role" => "Program Manager", "created_on" => 'Jul 6'],
-                ["name" => "Drew Barrymore", "role" => "Program Manager", "created_on" => 'Jul 6'],
-            ];
+
             ?>
             <table>
                 <tr class="table-h">
@@ -197,20 +202,29 @@ get_header() ?>
                 </tr>
 
                 <tr class="table-h">
+                    <th style="width: 30px;">No.</th>
                     <th class="tr-flex">Name</th>
                     <!-- <th class="role">Role</th> -->
                     <th class="created-on">Created On</th>
                 </tr>
 
+                <?php if (count($latest_employees) == 0) { ?>
+                    <tr class="table-c">
+                        <td class="empty-row" colspan="5">No Recent Employee Data</td>
+                    </tr>
+                <?php } ?>
+
+
                 <?php
-                foreach ($recents as $recent) {
-                    $recent = (object)$recent;
+                $i = 0;
+                foreach ($latest_employees as $recent) {
                 ?>
                     <tr class="table-c">
-                        <td class="name tr-flex"><?php echo $recent->name ?></td>
+                        <th style="width: 30px;"><?php echo ++$i . '.'; ?></th>
+                        <td class="name tr-flex"><?php echo $recent->fullname ?></td>
                         <!-- <td class="role"><?php //echo $recent->role 
                                                 ?></td> -->
-                        <td class="created-on"><?php echo $recent->created_on ?></td>
+                        <td class="created-on"><?php echo date('F j', strtotime($recent->registered_on)) ?></td>
                     </tr>
                 <?php
                 }

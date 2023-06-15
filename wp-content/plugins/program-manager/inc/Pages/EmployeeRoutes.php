@@ -17,6 +17,13 @@ class EmployeeRoutes
 
     public function register_routes()
     {
+        register_rest_route('api/v1', '/employees', [
+            'methods' => "GET",
+            'callback' => [$this, 'get_employees'],
+            // 'permission_callback' => function () {
+            //     return current_user_can('read');
+            // }
+        ]);
         register_rest_route('api/v1', '/employees/search', [
             'methods' => "GET",
             'callback' => [$this, 'search_employees'],
@@ -62,6 +69,26 @@ class EmployeeRoutes
         ]);
     }
 
+    public function get_employees($request)
+    {
+        $users = get_users(['role__in' => ['program_manager', 'trainer', 'trainee'], 'fields' => ['ID', 'user_email', 'user_registered', 'roles']]);
+        $res = array_map(function ($user) {
+            $roles = get_user_meta($user->ID, 'wp_capabilities', true);
+            $role = array_keys($roles)[0];
+            return [
+                'id' => $user->ID,
+                'fullname' => get_user_meta($user->ID, 'fullname', true) ? get_user_meta($user->ID, 'fullname', true) : $user->user_email,
+                'email' => $user->user_email,
+                'registered_on' => $user->user_registered,
+                'role' => $role,
+                'is_deactivated' => get_user_meta($user->ID, 'is_deactivated', true) ? get_user_meta($user->ID, 'is_deactivated', true) : '0',
+                'is_deleted' => get_user_meta($user->ID, 'is_deleted', true) ? get_user_meta($user->ID, 'is_deleted', true) : '0',
+            ];
+        }, $users);
+
+        return $res;
+    }
+
     public function search_employees($request)
     {
         $res = [];
@@ -105,7 +132,8 @@ class EmployeeRoutes
             'meta_input' => [
                 'is_deactivated' => 0,
                 'is_deleted' => 0,
-                'fullname' => $request['fullname']
+                'fullname' => $request['fullname'],
+                'created_by' => $request['created_by']
             ]
         ]);
 
@@ -133,7 +161,7 @@ class EmployeeRoutes
         $meta_id = update_user_meta($id, "is_deactivated", 0);
 
         if (!$meta_id) {
-            return new WP_Error(400, 'Activation Successful ', $meta_id);
+            return new WP_Error(400, 'Activation Failed ', $meta_id);
         }
         return $meta_id;
     }
@@ -145,7 +173,7 @@ class EmployeeRoutes
         $meta_id = update_user_meta($id, "is_deleted", 1);
 
         if (!$meta_id) {
-            return new WP_Error(400, 'User Deleted Successfully', $meta_id);
+            return new WP_Error(400, 'User Deleted Failed', $meta_id);
         }
         return $meta_id;
     }
@@ -157,7 +185,7 @@ class EmployeeRoutes
         $meta_id = update_user_meta($id, "is_deleted", 0);
 
         if (!$meta_id) {
-            return new WP_Error(400, 'Restored Successfully ', $meta_id);
+            return new WP_Error(400, 'Restored Failed ', $meta_id);
         }
         return $meta_id;
     }

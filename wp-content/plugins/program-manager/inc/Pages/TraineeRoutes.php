@@ -48,8 +48,18 @@ class TraineeRoutes
                 'role' => 'trainee',
                 'is_deactivated' => get_user_meta($pm->ID, 'is_deactivated', true) ? get_user_meta($pm->ID, 'is_deactivated', true) : '0',
                 'is_deleted' => get_user_meta($pm->ID, 'is_deleted', true) ? get_user_meta($pm->ID, 'is_deleted', true) : '0',
+                'created_by' => get_user_meta($pm->ID, 'created_by', true) ? get_user_meta($pm->ID, 'created_by', true) : 1,
             ];
         }, $pms);
+
+        $pm_id = $request->get_param('pm_id');
+        if (isset($pm_id)) {
+            $res = array_filter($res, function ($user) use ($pm_id) {
+                return (string)$user['created_by'] == (string)$pm_id;
+            });
+        }
+
+        return $res;
 
         return $res;
     }
