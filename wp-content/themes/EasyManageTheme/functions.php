@@ -313,6 +313,23 @@ function is_response_error($obj)
 global $url;
 $url = 'http://localhost/easy-manage/wp-json/api/v1';
 
+
+function login($user)
+{
+    global $url;
+
+    $res = wp_remote_post($url . "/login", [
+        'method' => 'POST',
+        'data_format' => 'body',
+        'body' => $user,
+        // 'body' => $user
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
 function get_program_managers()
 {
     global $url;

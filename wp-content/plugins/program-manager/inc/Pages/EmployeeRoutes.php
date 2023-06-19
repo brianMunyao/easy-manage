@@ -55,6 +55,13 @@ class EmployeeRoutes
             //     return current_user_can('manage_options');
             // }
         ]);
+        register_rest_route('api/v1', '/login', [
+            'methods' => 'POST',
+            'callback' => [$this, 'login'],
+            // 'permission_callback' => function () {
+            //     return current_user_can('manage_options');
+            // }
+        ]);
         register_rest_route('api/v1', '/employees/(?P<id>\d+)', [
             'methods' => 'PUT',
             'callback' => [$this, 'update_employee'],
@@ -209,6 +216,19 @@ class EmployeeRoutes
             return new WP_Error(400, 'Employee Creation Failed', $result);
         }
         return $result;
+    }
+
+    public function login($request)
+    {
+        $user = wp_signon([
+            'user_login' => $request['email'],
+            'user_password' => $request['password']
+        ]);
+
+        if (is_wp_error($user)) {
+            return new WP_Error(400, $user->get_error_message());
+        }
+        return $user;
     }
 
     public function update_employee($request)

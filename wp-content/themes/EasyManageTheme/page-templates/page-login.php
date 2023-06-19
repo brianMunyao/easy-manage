@@ -1,13 +1,10 @@
-<?php if (!is_user_logged_in()) wp_redirect(site_url('/login')) ?>
+<?php if (is_user_logged_in()) {
+    wp_redirect(home_url());
+} ?>
 
 <?php
 
-global $form_error;
-$form_error = '';
-global $email_error;
-$email_error = '';
-global $pass_error;
-$pass_error = '';
+$form_error = $form_success = $email_error = $pass_error = '';
 
 if (isset($_POST['login'])) {
     $email = trim($_POST['email']);
@@ -29,7 +26,6 @@ if (isset($_POST['login'])) {
         }
     }
 }
-
 ?>
 
 
@@ -49,6 +45,7 @@ get_header() ?>
             <h2>Login</h2>
 
             <div class="error"><?php echo $form_error ?></div>
+            <div class="success"><?php echo $form_success ?></div>
 
             <?php
             $curr_email = $_POST["email"] ?? "";
