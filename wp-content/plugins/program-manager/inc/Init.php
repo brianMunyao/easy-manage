@@ -14,7 +14,7 @@ use Inc\Pages\TrainerRoutes;
 use Inc\Pages\CreateTables;
 use Inc\Pages\ManageProgram;
 use Inc\Pages\ProjectRoutes;
-use Inc\Pages\TrainerProgramAllocation;
+use Inc\Pages\TraineeProgramAllocation;
 
 class Init
 {
@@ -29,7 +29,7 @@ class Init
             CreateTables::class,
             ProjectRoutes::class,
             ManageProgram::class,
-            // TrainerProgramAllocation::class
+            TraineeProgramAllocation::class
         ];
     }
 

@@ -628,6 +628,38 @@ function get_all_projects()
     return json_decode($projects);
 }
 
+function assign_trainee_to_program($trainee_id, $program_id)
+{
+    global $url;
+
+    $res = wp_remote_post($url . "/trainees/allocate-program", [
+        'method' => 'POST',
+        'data_format' => 'body',
+        'body' => [
+            'trainee_id' => $trainee_id,
+            'program_id' => $program_id
+        ]
+        // 'body' => json_encode($user), //TODO: return to json_encode
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
+function get_trainees_in_program($program_id)
+{
+    global $url;
+
+    $res = wp_remote_get($url . "/trainees/" . $program_id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $projects = wp_remote_retrieve_body($res);
+    return json_decode($projects);
+}
+
 /**
  * 
  * ! OLD ROUTES
