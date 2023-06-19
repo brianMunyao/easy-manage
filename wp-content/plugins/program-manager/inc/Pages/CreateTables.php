@@ -17,7 +17,7 @@ class CreateTables
         global $wpdb;
         $table_name = $wpdb->prefix . 'projects';
 
-        $sql = "CREATE TABLE $table_name (
+        $sql = "CREATE TABLE IF NOT EXISTS $table_name (
             project_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
             project_name TEXT NOT NULL,
             project_category TEXT NOT NULL,

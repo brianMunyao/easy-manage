@@ -34,7 +34,7 @@ get_header() ?>
     </div>
 
     <?php
-    $trainers = get_trainers_new();
+    $trainers = get_trainers_new(get_current_user_id());
 
     $active_trainers = array_filter($trainers, function ($trainer) {
         return $trainer->is_deactivated == 0 && $trainer->is_deleted == 0;
@@ -56,7 +56,7 @@ get_header() ?>
             <th style="width: 30px">No.</th>
             <th class="tr-flex">Name</th>
             <th>Stack</th>
-            <th style="width:80px;">Status</th>
+            <th>Status</th>
             <th style="width:100px">Actions</th>
         </tr>
 
@@ -70,11 +70,11 @@ get_header() ?>
             foreach ($active_trainers as $trainer) {
             ?>
                 <tr class="table-c">
-                    <td style="width: 30px"><?php echo ++$i; ?></td>
+                    <td style="width: 30px"><?php echo ++$i; ?>.</td>
                     <td class="name tr-flex"><?php echo $trainer->fullname ?></td>
                     <td class=""><?php echo 'WordPress' //$trainer->stack 
                                     ?></td>
-                    <td style="width:80px;"><?php echo !$trainer->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
+                    <td><?php echo !$trainer->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                     <td style="width:100px" class="actions">
                         <a href="<?php echo site_url('/trainers/update-trainer?id=') . $trainer->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
 
@@ -116,7 +116,7 @@ get_header() ?>
             <th style="width: 30px">No.</th>
             <th class="tr-flex">Name</th>
             <th>Stack</th>
-            <th style="width:80px;">Status</th>
+            <th>Status</th>
             <th style="width:100px">Actions</th>
         </tr>
 
@@ -130,11 +130,11 @@ get_header() ?>
             foreach ($inactive_trainers as $trainer) {
             ?>
                 <tr class="table-c">
-                    <td style="width: 30px"><?php echo ++$i; ?></td>
+                    <td style="width: 30px"><?php echo ++$i; ?>.</td>
                     <td class="name tr-flex"><?php echo $trainer->fullname ?></td>
                     <td class=""><?php echo  'WordPress' //$trainer->stack 
                                     ?></td>
-                    <td style="width:80px;"><?php echo !$trainer->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
+                    <td><?php echo !$trainer->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                     <td style="width:100px" class="actions">
                         <a href="<?php echo site_url('/trainers/update-trainer?id=') . $trainer->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
 
