@@ -87,23 +87,25 @@ get_header() ?>
         });
     } else if (is_user_trainer()) {
         $trainer_has_program = false;
-        $assigned_cohort = get_program_assignee(get_current_user_id());
-        if (!is_response_error($assigned_cohort)) {
+        $assigned_program = get_program_assignee(get_current_user_id());
+        if (!is_response_error($assigned_program)) {
             $trainer_has_program = true;
         }
 
         if ($trainer_has_program) {
-
-            $dash_val = "WordPress Training";
+            $dash_val = $assigned_program->program_name;
             $dash_label = "Current Cohort";
 
+            $latest_employees = get_trainees_in_program($assigned_program->program_id);
+            usort($latest_employees, 'sort_by_date_registered');
+
             $dash1_icon = 'people-outline';
-            $dash1_val =  count(get_trainees_new());
+            $dash1_val =  count($latest_employees);
             $dash1_label = "Registered Trainees";
 
-            $dash2_icon = 'people-outline';
-            $dash2_val =  count(get_trainees_new());
-            $dash2_label = "Active Trainees";
+            // $dash2_icon = 'people-outline';
+            // $dash2_val =  count(get_trainees_new());
+            // $dash2_label = "Active Trainees";
 
             $projects = get_all_projects();
             $projects_ongoing = array_filter($projects, function ($project) {
@@ -157,7 +159,7 @@ get_header() ?>
             }
             ?>
             <?php echo do_shortcode('[dash_card icon="' . $dash1_icon . '" label="' . $dash1_label . '" value="' . $dash1_val . '"]') ?>
-            <?php echo do_shortcode('[dash_card icon="' . $dash2_icon . '" label="' . $dash2_label . '" value="' . $dash2_val . '"]') ?>
+            <?php echo isset($dash2_val) ? do_shortcode('[dash_card icon="' . $dash2_icon . '" label="' . $dash2_label . '" value="' . $dash2_val . '"]') : '' ?>
             <?php echo isset($dash3_val) ? do_shortcode('[dash_card icon="' . $dash3_icon . '" label="' . $dash3_label . '" value="' . $dash3_val . '"]') : '' ?>
             <?php echo isset($dash4_val) ? do_shortcode('[dash_card icon="' . $dash4_icon . '" label="' . $dash4_label . '" value="' . $dash4_val . '"]') : '' ?>
 
@@ -165,7 +167,7 @@ get_header() ?>
             <?php
             if (is_user_trainer() || is_user_trainee()) {
             ?>
-                <div class="overview">
+                <div class="overview overview-brief">
                     <p class="overview-title">Projects Status</p>
 
                     <div class="progress">
@@ -217,7 +219,7 @@ get_header() ?>
 
                     <tr class="table-h">
                         <th style="width: 30px;">No.</th>
-                        <th class="tr-flex">Name</th>
+                        <th>Name</th>
                         <!-- <th class="role">Role</th> -->
                         <th class="created-on">Created On</th>
                     </tr>
@@ -235,7 +237,7 @@ get_header() ?>
                     ?>
                         <tr class="table-c">
                             <th style="width: 30px;"><?php echo ++$i . '.'; ?></th>
-                            <td class="name tr-flex"><?php echo $recent->fullname ?></td>
+                            <td><?php echo $recent->fullname ?></td>
                             <!-- <td class="role"><?php //echo $recent->role 
                                                     ?></td> -->
                             <td class="created-on"><?php echo date('F j', strtotime($recent->registered_on)) ?></td>

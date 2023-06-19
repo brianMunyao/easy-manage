@@ -4,6 +4,17 @@
 
 <?php
 
+if (isset($_POST['deactivate-trainee'])) {
+    $res = deactivate_employee($_POST['id']);
+}
+if (isset($_POST['activate-trainee'])) {
+    $res = activate_employee($_POST['id']);
+}
+
+?>
+
+<?php
+
 /**
  * 
  * Template Name: Trainees Page Template
@@ -15,8 +26,8 @@ get_header() ?>
 
 
 $trainer_has_program = false;
-$assigned_cohort = get_program_assignee(get_current_user_id());
-if (!is_response_error($assigned_cohort)) {
+$assigned_program = get_program_assignee(get_current_user_id());
+if (!is_response_error($assigned_program)) {
     $trainer_has_program = true;
 }
 ?>
@@ -61,16 +72,13 @@ if (!is_response_error($assigned_cohort)) {
         </div>
 
         <?php
-        $trainees = get_trainees(get_current_user_id());
+        $trainees = get_trainees_in_program($assigned_program->program_id);
 
         $active_trainees = array_filter($trainees, function ($trainee) {
             return $trainee->is_deactivated == 0 && $trainee->is_deleted == 0;
         });
         $inactive_trainees = array_filter($trainees, function ($trainee) {
             return $trainee->is_deactivated == 1 && $trainee->is_deleted == 0;
-        });
-        $deleted_trainees = array_filter($trainees, function ($trainee) {
-            return $trainee->is_deleted == 1;
         });
         ?>
 
@@ -81,8 +89,8 @@ if (!is_response_error($assigned_cohort)) {
         <table style="width:100%">
             <tr class="table-h">
                 <th style="width: 30px">No.</th>
-                <th class="tr-flex">Name</th>
-                <th style="width:80px;">Status</th>
+                <th>Name</th>
+                <th>Status</th>
                 <th style="width:100px">Actions</th>
             </tr>
 
@@ -98,7 +106,7 @@ if (!is_response_error($assigned_cohort)) {
                     <tr class="table-c">
                         <td style="width: 30px"><?php echo ++$i; ?></td>
                         <td class="name tr-flex"><?php echo $trainee->fullname ?></td>
-                        <td style="width:80px;"><?php echo !$trainee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
+                        <td><?php echo !$trainee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                         <td style="width:100px" class="actions">
                             <a href="<?php echo site_url('/trainees/update-trainee?id=') . $trainee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
                             <span class="list-actions">
@@ -109,11 +117,17 @@ if (!is_response_error($assigned_cohort)) {
                                         <input type="hidden" name="id" value="<?php echo $trainee->id ?>">
                                         <button type="submit" name="deactivate-trainee" class="btn-text color-info"><ion-icon name='power'></ion-icon>Deactivate</button>
                                     </form>
-                                    <section class="separator"></section>
-                                    <form action="" method="post">
-                                        <input type="hidden" name="id" value="<?php echo $trainee->id ?>">
-                                        <button type="submit" name="delete-trainee" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
-                                    </form>
+                                    <?php
+                                    if (is_user_admin_custom()) {
+                                    ?>
+                                        <section class="separator"></section>
+                                        <form action="" method="post">
+                                            <input type="hidden" name="id" value="<?php echo $trainee->id ?>">
+                                            <button type="submit" name="delete-trainee" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
+                                        </form>
+                                    <?php
+                                    }
+                                    ?>
                                 </div>
                             </span>
                         </td>
@@ -130,13 +144,11 @@ if (!is_response_error($assigned_cohort)) {
             <span class="color-danger">Inactive Trainees (<?php echo count($inactive_trainees) ?>)</span>
         </div>
         <table style="width:100%">
-            <!-- <tr class="table-h">
-            <th colspan="5">Active Accounts</th>
-        </tr> -->
+
             <tr class="table-h">
                 <th style="width: 30px">No.</th>
-                <th class="tr-flex">Name</th>
-                <th style="width:80px;">Status</th>
+                <th>Name</th>
+                <th>Status</th>
                 <th style="width:100px">Actions</th>
             </tr>
 
@@ -152,7 +164,7 @@ if (!is_response_error($assigned_cohort)) {
                     <tr class="table-c">
                         <td style="width: 30px"><?php echo ++$i; ?></td>
                         <td class="name tr-flex"><?php echo $trainee->fullname ?></td>
-                        <td style="width:80px;"><?php echo !$trainee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
+                        <td><?php echo !$trainee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                         <td style="width:100px" class="actions">
                             <a href="<?php echo site_url('/trainees/update-trainee?id=') . $trainee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
                             <span class="list-actions">
@@ -163,11 +175,19 @@ if (!is_response_error($assigned_cohort)) {
                                         <input type="hidden" name="id" value="<?php echo $trainee->id ?>">
                                         <button type="submit" name="activate-trainee" class="btn-text color-info"><ion-icon name='power'></ion-icon>Activate</button>
                                     </form>
-                                    <section class="separator"></section>
-                                    <form action="" method="post">
-                                        <input type="hidden" name="id" value="<?php echo $trainee->id ?>">
-                                        <button type="submit" name="delete-trainee" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
-                                    </form>
+                                    <?php
+
+                                    if (is_user_admin_custom()) {
+                                    ?>
+                                        <section class="separator"></section>
+                                        <form action="" method="post">
+                                            <input type="hidden" name="id" value="<?php echo $trainee->id ?>">
+                                            <button type="submit" name="delete-trainee" class="btn-text color-danger"><ion-icon name='trash'></ion-icon>Delete</button>
+                                        </form>
+                                    <?php
+                                    }
+
+                                    ?>
                                 </div>
                             </span>
                         </td>
@@ -177,61 +197,6 @@ if (!is_response_error($assigned_cohort)) {
             }
             ?>
         </table>
-
-        <div class="spacer"></div>
-
-        <div class="table-h">
-            <span class="color-danger">Deleted Trainees (<?php echo count($deleted_trainees) ?>)</span>
-        </div>
-        <table style="width:100%">
-            <!-- <tr class="table-h">
-        <th colspan="5">Active Accounts</th>
-    </tr> -->
-            <tr class="table-h">
-                <th style="width: 30px">No.</th>
-                <th class="tr-flex">Name</th>
-                <th style="width:80px;">Status</th>
-                <th style="width:100px">Actions</th>
-            </tr>
-
-            <?php if (count($deleted_trainees) == 0) { ?>
-                <tr class="table-c">
-                    <td class="empty-row" colspan="5">No Deleted Trainees</td>
-                </tr>
-                <?php } else {
-
-                $i = 0;
-                foreach ($deleted_trainees as $trainee) {
-                ?>
-                    <tr class="table-c">
-                        <td style="width: 30px"><?php echo ++$i; ?></td>
-                        <td class="name tr-flex"><?php echo $trainee->fullname ?></td>
-                        <td style="width:80px;"><?php echo !$trainee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
-                        <td style="width:100px" class="actions">
-                            <a href="<?php echo site_url('/trainees/update-trainee?id=') . $trainee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
-                            <span class="list-actions">
-                                <ion-icon name='ellipsis-horizontal'></ion-icon>
-
-                                <div class="more-actions">
-                                    <form action="" method="post">
-                                        <input type="hidden" name="id" value="<?php echo $trainee->id ?>">
-                                        <button type="submit" name="activate-trainee" class="btn-text color-info"><ion-icon name='power'></ion-icon>Activate</button>
-                                    </form>
-                                    <section class="separator"></section>
-                                    <form action="" method="post">
-                                        <input type="hidden" name="id" value="<?php echo $trainee->id ?>">
-                                        <button type="submit" name="restore-trainee" class="btn-text color-blue"><ion-icon name="arrow-undo-circle-outline"></ion-icon>Restore</button>
-                                    </form>
-                                </div>
-                            </span>
-                        </td>
-                    </tr>
-            <?php
-                }
-            }
-            ?>
-        </table>
-
     <?php } ?>
 </div>
 <?php get_footer() ?>

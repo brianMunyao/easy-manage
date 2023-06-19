@@ -50,6 +50,13 @@ class ManageProgram
             //     return current_user_can('manage_options');
             // }
         ]);
+        register_rest_route('api/v1', '/programs/trainees/(?P<pg_id>\d+)', [
+            'methods' => "GET",
+            'callback' => [$this, 'get_program_trainees'],
+            // 'permission_callback' => function () {
+            //     return current_user_can('manage_options');
+            // }
+        ]);
         register_rest_route('api/v1', '/programs/assigned_to/(?P<trainer_id>\d+)', [
             'methods' => "GET",
             'callback' => [$this, 'get_trainer_program'],
@@ -86,6 +93,7 @@ class ManageProgram
             // }
         ]);
     }
+
 
     public function get_programs($request)
     {
@@ -135,6 +143,46 @@ class ManageProgram
         $programs = $wpdb->get_results("SELECT * FROM $table_name WHERE program_created_by=$id AND program_assigned_to IS NULL");
 
         return $programs;
+    }
+
+    public function get_program_trainees($request)
+    {
+        $pg_id = $request->get_param('pg_id');
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'programs';
+        $allocation_table = $wpdb->prefix . 'program_trainees_allocation';
+        $program_trainees = $wpdb->get_results("SELECT * FROM $allocation_table WHERE program_id=$pg_id");
+
+        $ids = array_map(function ($item) {
+            return $item->trainee_id;
+        }, $program_trainees);
+
+        $users = get_users([
+            'include' => $ids,
+            'role__in' => ['trainee'],
+            'fields' => ['ID', 'user_email', 'user_registered', 'roles']
+        ]);
+
+
+        $res = array_map(function ($user) {
+            $roles = get_user_meta($user->ID, 'wp_capabilities', true);
+            $role = array_keys($roles)[0];
+
+            return [
+                'id' => $user->ID,
+                'fullname' => get_user_meta($user->ID, 'fullname', true) ? get_user_meta($user->ID, 'fullname', true) : $user->user_email,
+                'email' => $user->user_email,
+                'registered_on' => $user->user_registered,
+                'role' => $role,
+                'is_deactivated' => get_user_meta($user->ID, 'is_deactivated', true) ? get_user_meta($user->ID, 'is_deactivated', true) : '0',
+                'is_deleted' => get_user_meta($user->ID, 'is_deleted', true) ? get_user_meta($user->ID, 'is_deleted', true) : '0',
+                'created_by' => get_user_meta($user->ID, 'created_by', true) ? get_user_meta($user->ID, 'created_by', true) : '0',
+            ];
+        }, $users);
+
+
+        return $res;
     }
 
 

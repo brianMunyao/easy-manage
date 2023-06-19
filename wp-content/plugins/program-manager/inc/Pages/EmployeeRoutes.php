@@ -205,7 +205,7 @@ class EmployeeRoutes
             'user_pass' => $request['password'],
             'role' => $request['role'],
             'meta_input' => [
-                'is_deactivated' => 0,
+                'is_deactivated' => $request['is_deactivated'] ?? 0,
                 'is_deleted' => 0,
                 'fullname' => $request['fullname'],
                 'created_by' => $request['created_by']

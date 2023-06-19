@@ -1,5 +1,7 @@
 <?php if (!is_user_logged_in()) wp_redirect(site_url('/login')) ?>
 
+<?php if (!is_user_trainer() && !is_user_trainee()) wp_redirect(home_url()) ?>
+
 <?php
 
 /**
@@ -16,16 +18,17 @@ if (is_user_trainer()) {
     if (!is_response_error($assigned_cohort)) {
         $trainer_has_program = true;
     }
+
+    $projects = get_all_projects(get_current_user_id());
 } else {
     // User is Trainee Here
-    $projects = get_projects();
-    $ongoing = array_filter($projects, function ($project) {
-        return $project->project_done == 0;
-    });
-    $completed = array_filter($projects, function ($project) {
-        return $project->project_done == 1;
-    });
 }
+$ongoing = array_filter($projects, function ($project) {
+    return $project->project_done == 0;
+});
+$completed = array_filter($projects, function ($project) {
+    return $project->project_done == 1;
+});
 
 
 ?>

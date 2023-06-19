@@ -679,6 +679,20 @@ table .created-on {
 .overview-row-h {
 	border-bottom: 1.5px solid rgb(203, 203, 203);
 }
+.overview-brief {
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+}
+.overview-brief .overview-row {
+	display: none;
+}
+.overview-brief .overview-row-h {
+	display: block;
+	border-bottom: 1.5px solid rgba(203, 203, 203, 0);
+}
 
 /***** End Homepage *****/
 

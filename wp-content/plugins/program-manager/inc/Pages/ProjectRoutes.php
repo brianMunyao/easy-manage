@@ -35,10 +35,32 @@ class ProjectRoutes
 
     public function get_all_projects($request)
     {
+        $trainer_id = $request->get_param('trainer_id');
+
         global $wpdb;
         $projects_table = $wpdb->prefix . 'projects';
-        $projects = $wpdb->get_results($wpdb->prepare("SELECT * FROM $projects_table"));
 
+        if ($trainer_id) {
+            $projects = $wpdb->get_results($wpdb->prepare("SELECT * FROM $projects_table WHERE project_created_by=$trainer_id"));
+        } else {
+            $projects = $wpdb->get_results($wpdb->prepare("SELECT * FROM $projects_table"));
+        }
+        return $projects;
+    }
+
+    public function get_trainee_projects($request)
+    {
+        $trainee_id = $request->get_param('trainee_id');
+
+        global $wpdb;
+        $projects_table = $wpdb->prefix . 'projects';
+        $allocation_table = $wpdb->prefix . 'project_trainees_allocation';
+
+        // if ($trainer_id) {
+        $projects = $wpdb->get_results($wpdb->prepare("SELECT * FROM $allocation_table JOIN $projects_table ON $allocation_table.project_id=$projects_table.project_id WHERE trainee_id=$trainee_id"));
+        // } else {
+        // $projects = $wpdb->get_results($wpdb->prepare("SELECT * FROM $projects_table"));
+        // }
         return $projects;
     }
 

@@ -19,18 +19,18 @@ class TraineeRoutes
     {
         register_rest_route('api/v1', '/trainees', [
             'methods' => "GET",
-            'callback' => [$this, 'get_trainee'],
+            'callback' => [$this, 'get_trainees'],
             // 'permission_callback' => function () {
             //     return current_user_can('manage_options');
             // }
         ]);
-        register_rest_route('api/v1', '/trainees/(?P<program_id>\d+)', [
-            'methods' => 'GET',
-            'callback' => [$this, 'get_trainees_in_program'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
-        ]);
+        // register_rest_route('api/v1', '/trainees/program/(?P<program_id>\d+)', [
+        //     'methods' => 'GET',
+        //     'callback' => [$this, 'get_trainees_in_program'],
+        //     // 'permission_callback' => function () {
+        //     //     return current_user_can('manage_options');
+        //     // }
+        // ]);
         register_rest_route('api/v1', '/trainees', [
             'methods' => 'POST',
             'callback' => [$this, 'create_trainee'],
@@ -40,7 +40,7 @@ class TraineeRoutes
         ]);
     }
 
-    public function get_trainee($request)
+    public function get_trainees($request)
     {
         $res = [];
 
@@ -67,8 +67,6 @@ class TraineeRoutes
         }
 
         return $res;
-
-        return $res;
     }
 
     public function create_trainee($request)
@@ -91,16 +89,16 @@ class TraineeRoutes
         return $result;
     }
 
-    public function get_trainees_in_program($request)
-    {
-        global $wpdb;
+    // public function get_trainees_in_program($request)
+    // {
+    //     global $wpdb;
 
-        $users_table = $wpdb->get_prefix . 'users';
-        $program_trainees_allocation_table = $wpdb->get_prefix . 'program_trainees_allocation';
-        $program_id = $request->get_param('program_id');
+    //     $users_table = $wpdb->prefix . 'users';
+    //     $program_trainees_allocation_table = $wpdb->prefix . 'program_trainees_allocation';
+    //     $program_id = $request->get_param('program_id');
 
-        $results = $wpdb->get_results("SELECT * FROM $users_table JOIN $program_trainees_allocation_table ON program_id=$program_id");
+    //     $results = $wpdb->get_results("SELECT * FROM $users_table JOIN $program_trainees_allocation_table ON program_id=$program_id");
 
-        return $results;
-    }
+    //     return $results;
+    // }
 }
