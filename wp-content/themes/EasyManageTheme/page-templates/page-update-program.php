@@ -2,8 +2,10 @@
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-
-    $program = get_single_program($id);
+    $program = get_single_program_new($id);
+    if (!$program) {
+        wp_redirect(site_url('/programs'));
+    }
 } else {
     wp_redirect(site_url('/programs'));
 }
@@ -25,17 +27,18 @@ if (isset($_POST['update-program'])) {
     $logo_error = empty($logo) ? 'Logo is required' : '';
 
     if (empty($program_name_error) && empty($description_error) && empty($logo_error)) {
-        $result = update_program([
-            'id' => $program->id,
+        $result = update_program_new([
+            'program_id' => $program->program_id,
             'program_name' => $program_name,
             'program_description' => $description,
-            'program_logo' => $logo,
-            'pm_id' => get_current_user_id(),
-            'program_assigned_to' => 0
+            'program_logo' => $logo
         ]);
 
-        //TODO: implement good error checking
-        $form_success = "Successfully updated";
+        if (is_response_error($result)) {
+            $form_error = $result->message ?? "Update Failed";
+        } else {
+            $form_success = "Successfully Updated";
+        }
     }
 }
 

@@ -12,7 +12,9 @@ use Inc\Pages\RoleManager;
 use Inc\Pages\TraineeRoutes;
 use Inc\Pages\TrainerRoutes;
 use Inc\Pages\CreateTables;
+use Inc\Pages\ManageProgram;
 use Inc\Pages\ProjectRoutes;
+use Inc\Pages\TrainerProgramAllocation;
 
 class Init
 {
@@ -25,7 +27,9 @@ class Init
             TraineeRoutes::class,
             EmployeeRoutes::class,
             CreateTables::class,
-            ProjectRoutes::class
+            ProjectRoutes::class,
+            ManageProgram::class,
+            // TrainerProgramAllocation::class
         ];
     }
 

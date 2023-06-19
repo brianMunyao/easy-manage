@@ -17,12 +17,12 @@ if (isset($_POST['create-program'])) {
     $logo_error = empty($logo) ? 'Logo is required' : '';
 
     if (empty($program_name_error) && empty($description_error) && empty($logo_error)) {
-        $result = create_program([
-            'program_name' => $program_name,
-            'program_description' => $description,
-            'program_logo' => $logo,
-            'pm_id' => get_current_user_id(),
-            'program_assigned_to' => 0
+        $result  = create_program_new([
+            'program_name' =>  $program_name,
+            'program_description' =>  $description,
+            'program_logo' =>  $logo,
+            // 'program_assigned_to'=>$request['program_assigned_to'],
+            'program_created_by' =>   get_current_user_id(),
         ]);
 
         //TODO: implement good error checking

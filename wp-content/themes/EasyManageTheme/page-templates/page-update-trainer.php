@@ -7,37 +7,42 @@ if (!isset($_GET['id'])) {
 }
 $id = $_GET['id'];
 
-$user_info = get_single_employee($id);
+$user_info = get_single_employees_new($id);
+$assigned_cohort = get_program_assignee($id);
 
-$fullname_error = '';
-$password_error = '';
+if (is_response_error($assigned_cohort)) {
+    $assigned_cohort = NULL;
+}
 
-$form_error = '';
-$form_success = '';
+$fullname_error = $password_error = '';
+
+$form_error = $form_success = '';
 
 
 if (isset($_POST['update-trainer'])) {
     $fullname = $_POST['fullname'];
     $password = $_POST['password'];
-    $program = $_POST['program'];
+    $program = isset($_POST['program']) ? $_POST['program'] : '';
 
     $fullname_error = validate_fullname_custom($fullname);
     $password_error = validate_password_custom($password);
 
     if (empty($fullname_error)  && empty($password_error)) {
-        $result = update_trainer([
+        $result = update_employee_new([
             'id' => $user_info->id,
             'fullname' => $fullname,
-            'email' => $user_info->email,
             'password' => $password,
-            'role' => $user_info->role,
-            'is_deactivated' => $user_info->is_deactivated,
-            'is_deleted' => $user_info->is_deleted,
-            'created_by' => $user_info->created_by,
-        ], !(empty($program)) ? $program : '');
+        ]);
 
-        //TODO: implement good error checking
-        $form_success = "Successfully updated";
+        if (!empty($program)) {
+            $result = allocate_program($user_info->id, $program);
+        }
+
+        if (is_response_error($result)) {
+            $form_error = $result->message;
+        } else {
+            $form_success = "Successfully updated";
+        }
     }
 }
 
@@ -63,9 +68,14 @@ get_header() ?>
                 <p class="error"><?php echo $form_error ?></p>
                 <p class="success"><?php echo $form_success ?></p>
 
-                <?php echo do_shortcode('[input_con name="fullname" label="Fullname" error="' . $fullname_error . '" placeholder="Enter their fullname" value="' . $user_info->fullname . '"]') ?>
+                <?php
+                $curr_fullname = $_POST["fullname"] ?? $user_info->fullname;
+                $curr_password = $_POST["password"] ?? "";
+                ?>
+
+                <?php echo do_shortcode('[input_con name="fullname" label="Fullname" error="' . $fullname_error . '" placeholder="Enter their fullname" value="' . $curr_fullname . '"]') ?>
                 <?php echo do_shortcode('[input_con name="email" label="Email Address" placeholder="Enter their email address" input_type="email" value="' . $user_info->email . '" disabled="true"]') ?>
-                <?php echo do_shortcode('[input_con name="password" label="Password" error="' . $password_error . '" placeholder="Enter their password" input_type="password" value=""]') ?>
+                <?php echo do_shortcode('[input_con name="password" label="Password" error="' . $password_error . '" placeholder="Enter their password" input_type="password" value="' . $curr_password . '"]') ?>
 
                 <div class="input-con">
                     <div>
@@ -73,11 +83,12 @@ get_header() ?>
                         <select name="program" id="program">
                             <option value="" selected disabled hidden>Select a training</option>
                             <?php
-                            $programs = get_unassigned_programs(get_current_user_id());
+                            $unassigned_programs = get_unassigned_programs_new(get_current_user_id());
+                            array_push($unassigned_programs, $assigned_cohort);
 
-                            foreach ($programs as $program) {
+                            foreach ($unassigned_programs as $program) {
                             ?>
-                                <option value="<?php echo $program->id ?>"><?php echo $program->program_name ?></option>
+                                <option value="<?php echo $program->program_id ?>" <?php echo isset($assigned_cohort) ? ($assigned_cohort->program_id == $program->program_id ? "selected" : "") : '' ?>><?php echo $program->program_name ?></option>
                             <?php
                             }
                             ?>

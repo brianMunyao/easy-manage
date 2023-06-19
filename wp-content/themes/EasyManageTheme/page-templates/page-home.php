@@ -56,22 +56,20 @@ get_header() ?>
             return $project->project_done == 1;
         });
     } else if (is_user_p_manager()) {
-        $latest_employees = get_trainers_new(get_current_user_id());
-
         $dash1_icon = 'file-tray-stacked-outline';
-        $dash1_val = count(get_programs(get_current_user_id()));
+        $dash1_val = count(get_programs_new(get_current_user_id()));
         $dash1_label = "Total Programs";
 
-        $my_trainers = get_trainers_new(get_current_user_id());
+        $latest_employees = get_users_created_by(get_current_user_id());
         $my_trainees = [];
 
-        foreach ($my_trainers as $trainer) {
-            $trainees  = get_trainees($trainer->id);
+        foreach ($latest_employees as $trainer) {
+            $trainees  = get_users_created_by($trainer->id);
             $my_trainees = array_merge($my_trainees, $trainees);
         }
 
         $dash2_icon = 'people';
-        $dash2_val =  count($my_trainers);
+        $dash2_val =  count($latest_employees);
         $dash2_label = "Trainers";
 
         $dash3_icon = 'people';
@@ -86,6 +84,8 @@ get_header() ?>
             return $project->project_done == 1;
         });
     } else if (is_user_trainer()) {
+        // $latest_employees = get_users_created_by(get_current_user_id());
+
         $dash_val = "WordPress Training";
         $dash_label = "Current Cohort";
 

@@ -8,6 +8,7 @@ if (!is_user_trainer() && !is_user_p_manager()) {
  * 
  * Template Name: Programs Page Template
  */
+
 get_header() ?>
 
 <div class="programs-page app-padding">
@@ -39,7 +40,13 @@ get_header() ?>
 
 
     <?php
-    $programs = get_programs(get_current_user_id());
+    $programs = get_programs_new(get_current_user_id());
+
+    if (count($programs) == 0) {
+    ?>
+        <p class="empty-list">No created programs</p>
+    <?php
+    }
     ?>
 
     <div class="programs-list">
@@ -54,11 +61,11 @@ get_header() ?>
                         <ion-icon name='ellipsis-horizontal'></ion-icon>
 
                         <div class="more-actions">
-                            <a href="<?php echo site_url('/programs/update-program?id=') . $program->id ?>" class="color-info"><ion-icon name='power'></ion-icon>Update</a>
+                            <a href="<?php echo site_url('/programs/update-program?id=') . $program->program_id ?>" class="color-info"><ion-icon name='power'></ion-icon>Update</a>
                             </form>
                             <section class="separator"></section>
                             <form action="" method="post">
-                                <input type="hidden" name="id" value="<?php echo $program->id ?>">
+                                <input type="hidden" name="id" value="<?php echo $program->program_id ?>">
                                 <button type="submit" name="delete-program" class="btn-text color-danger"><ion-icon name="trash-outline"></ion-icon>Delete</button>
                             </form>
                         </div>
@@ -73,12 +80,16 @@ get_header() ?>
                     <div>
                         <div>Trainer:</div>
                         <?php
-                        $user = get_single_employee($program->program_assigned_to);
+                        $user = get_single_employees_new($program->program_assigned_to);
                         echo $user->fullname ?? '--';
                         ?>
                     </div>
                     <div>
-                        <div>Trainees:</div> 8
+                        <div>Trainees:</div> TODO
+                        <?php
+                        // $trainees = get_trainees() 
+                        //TODO: work on this
+                        ?>
                     </div>
                 </div>
             </div>

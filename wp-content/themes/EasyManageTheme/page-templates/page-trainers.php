@@ -7,7 +7,22 @@ if (!is_user_p_manager()) {
  * 
  * Template Name: Trainers Page Template
  */
+
 get_header() ?>
+
+<?php
+$trainers = get_users_created_by(get_current_user_id());
+
+$active_trainers = array_filter($trainers, function ($trainer) {
+    return $trainer->is_deactivated == 0 && $trainer->is_deleted == 0;
+});
+$inactive_trainers = array_filter($trainers, function ($trainer) {
+    return $trainer->is_deactivated == 1 && $trainer->is_deleted == 0;
+});
+
+$programs = get_programs_new(get_current_user_id());
+?>
+
 <div class="app-padding trainers-page">
     <div class="nav-pages-links">
         <ion-icon name='home-outline'></ion-icon>
@@ -27,25 +42,11 @@ get_header() ?>
             </div>
         </div>
         <div class="table-heading-bottom">
-            <form action="" method="get">
-                <?php echo do_shortcode('[search_bar placeholder="search"]') ?>
+            <form action="<?php echo site_url('/search') ?>" method="get">
+                <?php echo do_shortcode('[search_bar placeholder="Employee Search"]') ?>
             </form>
         </div>
     </div>
-
-    <?php
-    $trainers = get_trainers_new(get_current_user_id());
-
-    $active_trainers = array_filter($trainers, function ($trainer) {
-        return $trainer->is_deactivated == 0 && $trainer->is_deleted == 0;
-    });
-    $inactive_trainers = array_filter($trainers, function ($trainer) {
-        return $trainer->is_deactivated == 1 && $trainer->is_deleted == 0;
-    });
-    $deleted_trainers = array_filter($trainers, function ($trainer) {
-        return $trainer->is_deleted == 1;
-    });
-    ?>
 
 
     <div class="table-h">
@@ -68,12 +69,14 @@ get_header() ?>
 
             $i = 0;
             foreach ($active_trainers as $trainer) {
+                $filtered_programs = array_filter($programs, function ($prog) use ($trainer) {
+                    return $prog->program_assigned_to == $trainer->id;
+                });
             ?>
                 <tr class="table-c">
                     <td style="width: 30px"><?php echo ++$i; ?>.</td>
                     <td class="name tr-flex"><?php echo $trainer->fullname ?></td>
-                    <td class=""><?php echo 'WordPress' //$trainer->stack 
-                                    ?></td>
+                    <td class=""><?php echo count($filtered_programs) > 0 ? $filtered_programs[0]->program_name : '--' ?></td>
                     <td><?php echo !$trainer->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                     <td style="width:100px" class="actions">
                         <a href="<?php echo site_url('/trainers/update-trainer?id=') . $trainer->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>

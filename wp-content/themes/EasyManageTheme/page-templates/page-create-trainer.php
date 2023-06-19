@@ -22,7 +22,7 @@ if (isset($_POST['create-trainer'])) {
     // $program_error = empty($program) ? 'Program is required' : '';
 
     if (empty($fullname_error) && empty($email_error) && empty($password_error)) {
-        $result = create_trainer([
+        $result = create_employee_new([
             'fullname' => $fullname,
             'email' => $email,
             'password' => $password,
@@ -32,9 +32,15 @@ if (isset($_POST['create-trainer'])) {
             'created_by' => get_current_user_id()
         ], $program);
 
+        if (is_numeric($result) && !empty($program)) {
+            $result = allocate_program($result, $program);
+        }
 
-        //TODO: implement good error checking
-        $form_success = "Successfully created";
+        if (is_response_error($result)) {
+            $form_error = $result->message ?? "Creation Failed";
+        } else {
+            $form_success = "Successfully Created";
+        }
     }
 }
 
@@ -53,7 +59,7 @@ get_header() ?>
     </div>
 
     <?php
-    $programs = get_unassigned_programs(get_current_user_id());
+    $programs = get_unassigned_programs_new(get_current_user_id());
     ?>
 
     <div class="form-container">
@@ -82,7 +88,7 @@ get_header() ?>
                         <?php
                         foreach ($programs as $pg) {
                         ?>
-                            <option value="<?php echo $pg->id ?>"><?php echo $pg->program_name ?></option>
+                            <option value="<?php echo $pg->program_id ?>"><?php echo $pg->program_name ?></option>
                         <?php
                         }
                         ?>

@@ -292,6 +292,15 @@ function validate_field_custom($field, $label = "Field")
 }
 
 
+function is_response_error($obj)
+{
+    try {
+        return property_exists($obj, 'code');
+    } catch (\Throwable $err) {
+        return false;
+    }
+}
+
 
 
 /**
@@ -366,6 +375,19 @@ function get_employees_new()
     return json_decode($employees);
 }
 
+function get_single_employees_new($id)
+{
+    global $url;
+
+    $res = wp_remote_get($url . "/employees/" . $id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $employee = wp_remote_retrieve_body($res);
+    return json_decode($employee);
+}
+
 function search_employees($q)
 {
     global $url;
@@ -379,17 +401,17 @@ function search_employees($q)
     return json_decode($trainees);
 }
 
-function get_all_projects()
+function get_users_created_by($id)
 {
     global $url;
 
-    $res = wp_remote_get($url . "/projects", [
+    $res = wp_remote_get($url . "/employees/created_by/" . $id . "?role=trainer", [
         'method' => 'GET',
         // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
     ]);
 
-    $projects = wp_remote_retrieve_body($res);
-    return json_decode($projects);
+    $users = wp_remote_retrieve_body($res);
+    return json_decode($users);
 }
 
 function create_employee_new($user)
@@ -401,6 +423,23 @@ function create_employee_new($user)
         'data_format' => 'body',
         'body' => $user, //TODO: return to json_encode
         // 'body' => $user
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
+function update_employee_new($user)
+{
+    $user_id = $user['id'];
+    global $url;
+
+    $res = wp_remote_post($url . "/employees/$user_id", [
+        'method' => 'PUT',
+        'data_format' => 'body',
+        'body' => $user
+        // 'body' => json_encode($user), //TODO: return to json_encode
         // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
     ]);
 
@@ -460,6 +499,116 @@ function restore_employee($id)
     ]);
     $res = wp_remote_retrieve_body($res);
     return json_decode($res);
+}
+
+function get_programs_new($pmanager_id)
+{
+    global $url;
+
+    $res = wp_remote_post($url . "/programs/" . $pmanager_id, [
+        'method' => 'GET',
+        // 'data_format' => 'body',
+        // 'body' => $user
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+function get_single_program_new($id)
+{
+    global $url;
+    $res = wp_remote_get($url . "/programs/single/" . $id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $program = wp_remote_retrieve_body($res);
+    return json_decode($program);
+}
+function get_program_assignee($id)
+{
+    global $url;
+    $res = wp_remote_get($url . "/programs/assigned_to/" . $id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $program = wp_remote_retrieve_body($res);
+    return json_decode($program);
+}
+function create_program_new($program)
+{
+    global $url;
+
+    $res = wp_remote_post($url . "/programs", [
+        'method' => 'POST',
+        'data_format' => 'body',
+        'body' => $program
+        // 'body' => json_encode($user), //TODO: return to json_encode
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+function get_unassigned_programs_new($pmanager_id)
+{
+    global $url;
+
+    $res = wp_remote_get($url . "/programs/unassigned/" . $pmanager_id, [
+        'method' => 'GET',
+        // 'data_format' => 'body',
+        // 'body' => $user
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
+function allocate_program($trainer_id, $program_id)
+{
+    global $url;
+
+    $res = wp_remote_post($url . "/programs/allocate", [
+        'method' => 'PUT',
+        'data_format' => 'body',
+        'body' => [
+            "trainer_id" => $trainer_id,
+            "program_id" => $program_id
+        ]
+        // 'body' => json_encode($user), //TODO: return to json_encode
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+function update_program_new($program)
+{
+    $program_id = $program['program_id'];
+    global $url;
+
+    $res = wp_remote_post($url . "/programs/$program_id", [
+        'method' => 'PUT',
+        'data_format' => 'body',
+        'body' => $program
+        // 'body' => json_encode($user), //TODO: return to json_encode
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
+function get_all_projects()
+{
+    global $url;
+
+    $res = wp_remote_get($url . "/projects", [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $projects = wp_remote_retrieve_body($res);
+    return json_decode($projects);
 }
 
 /**
@@ -666,6 +815,7 @@ function get_trainer_program($id)
 function create_trainer($user, $program_id)
 {
     $result = create_employee($user);
+
     if (!empty($program_id)) {
 
         // TODO: check error
