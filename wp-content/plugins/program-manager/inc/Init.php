@@ -13,6 +13,7 @@ use Inc\Pages\TraineeRoutes;
 use Inc\Pages\TrainerRoutes;
 use Inc\Pages\ManageProgram;
 use Inc\Pages\ProjectRoutes;
+use Inc\Pages\TaskRoutes;
 use Inc\Pages\TraineeProgramAllocation;
 use Inc\Pages\TraineeProjectAllocation;
 
@@ -29,7 +30,8 @@ class Init
             ProjectRoutes::class,
             ManageProgram::class,
             TraineeProgramAllocation::class,
-            TraineeProjectAllocation::class
+            TraineeProjectAllocation::class,
+            TaskRoutes::class
         ];
     }
 

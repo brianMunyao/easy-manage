@@ -685,6 +685,18 @@ function get_trainees_in_program($program_id)
     $projects = wp_remote_retrieve_body($res);
     return json_decode($projects);
 }
+function get_trainees_projects($trainee_id)
+{
+    global $base_url;
+
+    $res = wp_remote_get($base_url . "/projects/trainees/" . $trainee_id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $projects = wp_remote_retrieve_body($res);
+    return json_decode($projects);
+}
 
 function create_project($project)
 {
@@ -737,6 +749,102 @@ function delete_project($project_id)
 
     $res = wp_remote_get($base_url . "/projects/" . $project_id, [
         'method' => 'DELETE',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
+function get_tasks($project_id)
+{
+    global $base_url;
+
+    $res = wp_remote_get($base_url . "/tasks/" . $project_id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+function get_single_task($task_id)
+{
+    global $base_url;
+
+    $res = wp_remote_get($base_url . "/tasks/single/" . $task_id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
+function create_task($task)
+{
+    global $base_url;
+
+    $res = wp_remote_post($base_url . "/tasks", [
+        'method' => 'POST',
+        'data_format' => 'body',
+        'body' => $task
+        // 'body' => json_encode($user), //TODO: return to json_encode
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
+function update_task($task, $task_id)
+{
+    global $base_url;
+
+    $res = wp_remote_post($base_url . "/tasks/" . $task_id, [
+        'method' => 'PUT',
+        'data_format' => 'body',
+        'body' => $task
+        // 'body' => json_encode($user), //TODO: return to json_encode
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+function complete_task($task_id)
+{
+    global $base_url;
+
+    $res = wp_remote_post($base_url . "/tasks/complete/" . $task_id, [
+        'method' => 'PUT',
+        // 'body' => json_encode($user), //TODO: return to json_encode
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+function uncomplete_task($task_id)
+{
+    global $base_url;
+
+    $res = wp_remote_post($base_url . "/tasks/uncomplete/" . $task_id, [
+        'method' => 'PUT',
+        // 'body' => json_encode($user), //TODO: return to json_encode
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+function delete_task($task_id)
+{
+    global $base_url;
+
+    $res = wp_remote_post($base_url . "/tasks/" . $task_id, [
+        'method' => 'DELETE',
+        // 'body' => json_encode($user), //TODO: return to json_encode
         // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
     ]);
 

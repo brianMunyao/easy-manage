@@ -53,6 +53,13 @@ class ProjectRoutes
             //     return current_user_can('manage_options');
             // }
         ]);
+        register_rest_route('api/v1', '/projects/trainees/(?P<trainee_id>\d+)', [
+            'methods' => "GET",
+            'callback' => [$this, 'get_trainee_projects'],
+            // 'permission_callback' => function () {
+            //     return current_user_can('manage_options');
+            // }
+        ]);
         register_rest_route('api/v1', '/projects/(?P<project_id>\d+)', [
             'methods' => "DELETE",
             'callback' => [$this, 'delete_project'],
@@ -112,14 +119,25 @@ class ProjectRoutes
         $trainee_id = $request->get_param('trainee_id');
 
         global $wpdb;
-        $projects_table = $wpdb->prefix . 'projects';
-        $allocation_table = $wpdb->prefix . 'project_trainees_allocation';
+        // $projects_table = $wpdb->prefix . 'projects';
+        // $allocation_table = $wpdb->prefix . 'project_trainees_allocation';
 
-        // if ($trainer_id) {
-        $projects = $wpdb->get_results($wpdb->prepare("SELECT * FROM $allocation_table JOIN $projects_table ON $allocation_table.project_id=$projects_table.project_id WHERE trainee_id=$trainee_id"));
-        // } else {
-        // $projects = $wpdb->get_results($wpdb->prepare("SELECT * FROM $projects_table"));
-        // }
+
+
+
+        $projects = $wpdb->get_results($wpdb->prepare("SELECT
+                wp_projects.*,
+                GROUP_CONCAT(trainee_id) AS project_assignees
+            FROM
+                wp_projects
+            LEFT JOIN
+                wp_project_trainees_allocation ON wp_projects.project_id = wp_project_trainees_allocation.project_id
+            WHERE
+            wp_project_trainees_allocation.trainee_id = $trainee_id
+            GROUP BY
+                wp_projects.project_id;"));
+
+
         return $projects;
     }
 

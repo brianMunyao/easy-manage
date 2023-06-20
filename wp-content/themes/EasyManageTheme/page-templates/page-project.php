@@ -14,8 +14,7 @@ if (isset($_GET['id'])) {
         wp_redirect(site_url('/projects'));
     }
 
-
-    $tasks = []; //get_tasks($id);
+    $tasks = get_tasks($id);
 
     $ongoing = array_filter($tasks, function ($task) {
         return $task->task_done == 0;
@@ -26,8 +25,7 @@ if (isset($_GET['id'])) {
 
 
     if (isset($_GET['task_id'])) {
-        $opened_task = (object)[]; //TODO: work on this
-        // $opened_task = get_single_task($_GET['task_id']);
+        $opened_task = get_single_task($_GET['task_id']);
     }
 } else {
     wp_redirect(site_url('/projects'));
@@ -46,13 +44,113 @@ if (isset($_POST['delete-project'])) {
 }
 
 if (isset($_POST['add-task'])) {
+    $task = $_POST['task-name'];
+
+    $res = create_task([
+        'task_name' => $task,
+        'task_project_id' => $id,
+        'task_created_by' => get_current_user_id()
+    ]);
+
+    if (is_response_error($res)) {
+        $form_error = $res->message ?? "Creation Failed";
+    } else {
+        $form_success = "Successfully Created";
+
+        $tasks = get_tasks($id);
+
+        $ongoing = array_filter($tasks, function ($task) {
+            return $task->task_done == 0;
+        });
+        $completed = array_filter($tasks, function ($task) {
+            return $task->task_done == 1;
+        });
+    }
 }
 
 if (isset($_POST['update-task'])) {
+    $task = $_POST['task-name'];
+
+    $res = update_task([
+        'task_name' => $task,
+    ], $_POST['task-id']);
+
+    if (is_response_error($res)) {
+        $form_error = $res->message ?? "Update Failed";
+    } else {
+        $form_success = "Successfully Updated";
+        $tasks = get_tasks($id);
+
+        $ongoing = array_filter($tasks, function ($task) {
+            return $task->task_done == 0;
+        });
+        $completed = array_filter($tasks, function ($task) {
+            return $task->task_done == 1;
+        });
+    }
 }
 
-if (isset($_POST['delete-task'])) {
+
+
+if (isset($_POST['check-task'])) {
+    $task_id = $_POST['task-id'];
+
+    $res = complete_task($task_id);
+
+    if (is_response_error($res)) {
+        $form_error = $res->message ?? "Update Failed";
+    } else {
+        $form_success = "Successfully Updated";
+        $tasks = get_tasks($id);
+
+        $ongoing = array_filter($tasks, function ($task) {
+            return $task->task_done == 0;
+        });
+        $completed = array_filter($tasks, function ($task) {
+            return $task->task_done == 1;
+        });
+    }
 }
+
+if (isset($_POST['uncheck-task'])) {
+    $task_id = $_POST['task-id'];
+
+    $res = uncomplete_task($task_id);
+
+    if (is_response_error($res)) {
+        $form_error = $res->message ?? "Update Failed";
+    } else {
+        $form_success = "Successfully Updated";
+        $tasks = get_tasks($id);
+
+        $ongoing = array_filter($tasks, function ($task) {
+            return $task->task_done == 0;
+        });
+        $completed = array_filter($tasks, function ($task) {
+            return $task->task_done == 1;
+        });
+    }
+}
+if (isset($_POST['delete-task'])) {
+    $task_id = $_POST['task-id'];
+
+    $res = delete_task($task_id);
+
+    if (is_response_error($res)) {
+        $form_error = $res->message ?? "Delete Failed";
+    } else {
+        $form_success = "Successfully Deleted";
+        $tasks = get_tasks($id);
+
+        $ongoing = array_filter($tasks, function ($task) {
+            return $task->task_done == 0;
+        });
+        $completed = array_filter($tasks, function ($task) {
+            return $task->task_done == 1;
+        });
+    }
+}
+
 
 
 /**
@@ -198,6 +296,10 @@ get_header() ?>
         </form>
     </div>
 
+
+    <p class="error"><?php echo $form_error ?></p>
+    <p class="success"><?php echo $form_success ?></p>
+
     <div class="table-heading">
         <div class="table-heading-top">
             <h3>Task</h3>
@@ -234,7 +336,7 @@ get_header() ?>
             ?>
                 <div class="task">
                     <form action="" method="post">
-                        <input type="hidden" name="id" value="<?php echo $task->task_id ?>">
+                        <input type="hidden" name="task-id" value="<?php echo $task->task_id ?>">
                         <button name="check-task" type="submit" class="btn-text"><ion-icon name="square-outline" style="color:grey"></ion-icon></button>
                     </form>
                     <p class="task-name"><?php echo $task->task_name ?></p>
@@ -243,7 +345,7 @@ get_header() ?>
                         <div class="task-options">
                             <button class="btn-text color-blue icon-text-link update-task-btn" onclick="setUpdateID(<?php echo $task->task_id ?>)"><ion-icon name='create-outline'></ion-icon> Update</button>
                             <form action="" method="post">
-                                <input type="hidden" name="id" value="<?php echo $task->task_id ?>">
+                                <input type="hidden" name="task-id" value="<?php echo $task->task_id ?>">
                                 <button name="delete-task" type="submit" class="btn-text color-danger icon-text-link"><ion-icon name='trash-outline'></ion-icon> Delete</butt>
                             </form>
                         </div>
@@ -270,8 +372,8 @@ get_header() ?>
             ?>
                 <div class="task">
                     <form action="" method="post">
-                        <input type="hidden" name="id" value="<?php echo $task->task_id ?>">
-                        <button name="check-task" type="submit" class="btn-text"><ion-icon name="checkbox" style="color:grey"></ion-icon></button>
+                        <input type="hidden" name="task-id" value="<?php echo $task->task_id ?>">
+                        <button name="uncheck-task" type="submit" class="btn-text"><ion-icon name="checkbox" style="color:grey"></ion-icon></button>
                     </form>
                     <p class="task-name"><?php echo $task->task_name ?></p>
 
@@ -301,10 +403,10 @@ get_header() ?>
             </div>
 
             <div class="modal-content">
-                <?php echo do_shortcode('[input_con name="task" label="Task name" error="" placeholder="Enter the task"]') ?>
+                <?php echo do_shortcode('[input_con name="task-name" label="Task name" error="" placeholder="Enter the task"]') ?>
             </div>
 
-            <button type="submit" class="app-btn primary-btn">Add</button>
+            <button type="submit" name="add-task" class="app-btn primary-btn">Add</button>
         </div>
     </div>
 </form>
@@ -321,8 +423,8 @@ get_header() ?>
 
             ?>
                 <div class="modal-content">
-                    <input type="hidden" name="id" value="<?php echo $opened_task->task_id ?>">
-                    <?php echo do_shortcode('[input_con name="task" label="Task name" error="" placeholder="Enter the task" value="' . $opened_task->task_name . '"]') ?>
+                    <input type="hidden" name="task-id" value="<?php echo $opened_task->task_id ?>">
+                    <?php echo do_shortcode('[input_con name="task-name" label="Task name" error="" placeholder="Enter the task" value="' . $opened_task->task_name . '"]') ?>
                 </div>
 
                 <button type="submit" class="app-btn primary-btn" name="update-task">Update</button>

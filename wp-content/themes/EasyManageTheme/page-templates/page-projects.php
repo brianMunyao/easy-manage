@@ -23,7 +23,7 @@ if (is_user_trainer()) {
 
     $projects = get_all_projects(get_current_user_id());
 } else {
-    // User is Trainee Here
+    $projects = get_trainees_projects(get_current_user_id());
 }
 $ongoing = array_filter($projects, function ($project) {
     return $project->project_done == 0;
