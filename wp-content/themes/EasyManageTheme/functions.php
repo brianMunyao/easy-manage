@@ -37,14 +37,14 @@ function redirect_on_logout()
 }
 add_action('wp_logout', 'redirect_on_logout');
 
-function restrict_wp_admin_access()
-{
-    if (is_admin() && !current_user_can('administrator') && !wp_doing_ajax()) {
-        wp_redirect(home_url());
-        exit;
-    }
-}
-add_action('init', 'restrict_wp_admin_access');
+// function restrict_wp_admin_access()
+// {
+//     if (is_admin() && !current_user_can('administrator') && !wp_doing_ajax()) {
+//         wp_redirect(home_url());
+//         exit;
+//     }
+// }
+// add_action('init', 'restrict_wp_admin_access');
 
 
 function search_bar_shortcode($attrs)

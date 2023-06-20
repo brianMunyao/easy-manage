@@ -9,7 +9,7 @@ if (!isset($_GET['id'])) {
 }
 $id = $_GET['id'];
 
-$user_info = get_single_employee($id);
+$user_info = get_single_employees_new($id);
 
 $fullname_error = '';
 $password_error = '';
@@ -26,7 +26,7 @@ if (isset($_POST['update-pm'])) {
     $password_error = validate_password_custom($password);
 
     if (empty($fullname_error)  && empty($password_error)) {
-        $result = update_employee([
+        $result = update_employee_new([
             'id' => $user_info->id,
             'fullname' => $fullname,
             'email' => $user_info->email,
@@ -36,8 +36,11 @@ if (isset($_POST['update-pm'])) {
             'is_deleted' => $user_info->is_deleted
         ]);
 
-        //TODO: implement good error checking
-        $form_success = "Successfully updated";
+        if (is_response_error($result)) {
+            $form_error = "Update Failed";
+        } else {
+            $form_success = "Successfully updated";
+        }
     }
 }
 

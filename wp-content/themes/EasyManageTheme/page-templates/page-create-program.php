@@ -27,8 +27,11 @@ if (isset($_POST['create-program'])) {
             'program_created_by' =>   get_current_user_id(),
         ]);
 
-        //TODO: implement good error checking
-        $form_success = "Successfully created";
+        if (is_response_error($result)) {
+            $form_error = "Creation Failed";
+        } else {
+            $form_success = "Successfully created";
+        }
     }
 }
 
