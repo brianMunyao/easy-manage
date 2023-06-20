@@ -743,6 +743,19 @@ function get_available_trainees($program_id)
     return json_decode($res);
 }
 
+function complete_project($project_id)
+{
+    global $base_url;
+
+    $res = wp_remote_get($base_url . "/projects/complete/" . $project_id, [
+        'method' => 'PUT',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
 function delete_project($project_id)
 {
     global $base_url;

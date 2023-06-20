@@ -46,6 +46,13 @@ class ProjectRoutes
             //     return current_user_can('read');
             // }
         ]);
+        register_rest_route('api/v1', '/projects/complete/(?P<project_id>\d+)', [
+            'methods' => "PUT",
+            'callback' => [$this, 'complete_project'],
+            // 'permission_callback' => function () {
+            //     return current_user_can('read');
+            // }
+        ]);
         register_rest_route('api/v1', '/projects/trainees/available/(?P<pg_id>\d+)', [
             'methods' => "GET",
             'callback' => [$this, 'get_available_trainees'],
@@ -409,6 +416,27 @@ class ProjectRoutes
         return $res;
     }
 
+    public function complete_project($request)
+    {
+        $project_id = $request->get_param('project_id');
+
+        global $wpdb;
+        $projects_table = $wpdb->prefix . 'projects';
+        $tasks_table = $wpdb->prefix . 'tasks';
+
+        $res = $wpdb->update($projects_table, ['project_done' => 1], ['project_id' => $project_id]);
+
+        if (is_wp_error($res)) {
+            return new WP_Error(400, "Error deleting project from project");
+        } else {
+            $res = $wpdb->update($tasks_table, ['task_done' => 1], ['task_project_id' => $project_id]);
+        }
+
+        if (is_wp_error($res)) {
+            return new WP_Error(400, "Error completing tasks", $res);
+        }
+        return $res;
+    }
     public function delete_project($request)
     {
         $project_id = $request->get_param('project_id');

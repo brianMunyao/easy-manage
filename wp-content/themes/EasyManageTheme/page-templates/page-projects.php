@@ -87,12 +87,10 @@ $completed = array_filter($projects, function ($project) {
             <div class="projects-list">
                 <?php
                 foreach ($ongoing as $project) {
-                    // $project_tasks = get_tasks($project->project_id);
-                    $project_task = [];
-                    $completed_tasks  = [];
-                    // $completed_tasks = array_filter($project_tasks, function ($task) {
-                    //     return $task->task_done == 1;
-                    // });
+                    $project_tasks = get_tasks($project->project_id);
+                    $completed_tasks = array_filter($project_tasks, function ($task) {
+                        return $task->task_done == 1;
+                    });
                 ?>
                     <a href="<?php echo site_url('/projects/project?id=') . $project->project_id ?>">
                         <div class="project">
@@ -106,12 +104,12 @@ $completed = array_filter($projects, function ($project) {
 
                             <div class="project-progress-con">
                                 <div class="project-progress">
-                                    <div style="width: <?php echo '50%'; //calculate_percentage($completed_tasks, $project_tasks) 
+                                    <div style="width: <?php echo calculate_percentage($completed_tasks, $project_tasks)
                                                         ?>;"></div>
                                 </div>
 
 
-                                <div><?php echo '50%'; //calculate_percentage($completed_tasks, $project_tasks) 
+                                <div><?php echo calculate_percentage($completed_tasks, $project_tasks)
                                         ?></div>
                             </div>
 
@@ -160,11 +158,9 @@ $completed = array_filter($projects, function ($project) {
             <div class="projects-list">
                 <?php
                 foreach ($completed as $project) {
-                    $project_tasks = []; //TODO: work on this
-                    // $project_tasks = get_tasks($project->project_id);
-
+                    $project_tasks = get_tasks($project->project_id);
                     $completed_tasks = array_filter($project_tasks, function ($task) {
-                        return $task->task_id == 1;
+                        return $task->task_done == 1;
                     });
                 ?>
                     <a href="<?php echo site_url('/projects/project?id=') . $project->project_id ?>">

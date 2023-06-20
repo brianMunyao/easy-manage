@@ -31,6 +31,17 @@ if (isset($_GET['id'])) {
     wp_redirect(site_url('/projects'));
 }
 
+if (isset($_POST['complete-project'])) {
+    $res = complete_project($id);
+
+    if (is_response_error($res)) {
+        $form_error = $res->message ?? "Update Failed";
+    } else {
+        $form_success = "Successfully Updated";
+    }
+
+    do_action('on_project_delete');
+}
 if (isset($_POST['delete-project'])) {
     $res = delete_project($id);
 
@@ -286,7 +297,9 @@ get_header() ?>
             <div class="s-project-details">
                 <span>Actions:</span>
                 <div class="s-links">
-                    <button class="btn-text color-success icon-text-link"><ion-icon name='checkmark-circle-outline'></ion-icon>Mark As Complete</button>
+                    <form action="" method="post">
+                        <button type="submit" name="complete-project" class="btn-text color-success icon-text-link"><ion-icon name='checkmark-circle-outline'></ion-icon>Mark As Complete</button>
+                    </form>
                     <?php if (is_user_trainer()) { ?>
                         <a href="<?php echo site_url('/projects/update-project?id=') . $project->project_id ?>" class="color-blue icon-text-link"><ion-icon name='create-outline'></ion-icon>Update</a>
                         <button type='submit' class="btn-text color-danger icon-text-link" name="delete-project"><ion-icon name='trash-outline'></ion-icon>Delete</button>
