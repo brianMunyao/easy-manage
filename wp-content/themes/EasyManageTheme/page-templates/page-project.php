@@ -4,9 +4,18 @@
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
-    $project = get_single_project($id);
 
-    $tasks = get_tasks($id);
+    $form_error = '';
+    $form_success = '';
+
+
+    $project = get_single_project_new($id);
+    if (is_response_error($project)) {
+        wp_redirect(site_url('/projects'));
+    }
+
+
+    $tasks = []; //get_tasks($id);
 
     $ongoing = array_filter($tasks, function ($task) {
         return $task->task_done == 0;
@@ -17,21 +26,23 @@ if (isset($_GET['id'])) {
 
 
     if (isset($_GET['task_id'])) {
-        $opened_task = get_single_task($_GET['task_id']);
+        $opened_task = (object)[]; //TODO: work on this
+        // $opened_task = get_single_task($_GET['task_id']);
     }
 } else {
     wp_redirect(site_url('/projects'));
 }
 
-
-/**
- * 
- * Template Name: Single Project Page Template
- */
-get_header() ?>
-
-<?php
 if (isset($_POST['delete-project'])) {
+    $res = delete_project($id);
+
+    if (is_response_error($res)) {
+        $form_error = $res->message ?? "Deletion Failed";
+    } else {
+        $form_success = "Successfully Deleted";
+    }
+
+    do_action('on_project_delete');
 }
 
 if (isset($_POST['add-task'])) {
@@ -42,7 +53,14 @@ if (isset($_POST['update-task'])) {
 
 if (isset($_POST['delete-task'])) {
 }
-?>
+
+
+/**
+ * 
+ * Template Name: Single Project Page Template
+ */
+get_header() ?>
+
 
 <script>
     const setUpdateID = (id) => {
@@ -132,8 +150,20 @@ if (isset($_POST['delete-task'])) {
         <div class="s-project-details">
             <span>Assignees:</span>
             <div>
-                <div class="user-icon">BK</div>
-                <div class="user-icon">TJ</div>
+                <?php
+                $assignees = explode(",", $project->project_assignees);
+                foreach ($assignees as $assignee) {
+                ?>
+                    <div class="user-icon">
+                        <?php
+                        $temp = get_user_by('id', (int)$assignee);
+                        $temp = get_user_meta($assignee, 'fullname', true);
+                        echo get_initials($temp);
+                        ?>
+                    </div>
+                <?php
+                }
+                ?>
             </div>
         </div>
         <div class="s-project-details">
@@ -154,16 +184,18 @@ if (isset($_POST['delete-task'])) {
                 <?php echo $project->project_description ?>
             </div>
         </div>
-        <div class="s-project-details">
-            <span>Actions:</span>
-            <div class="s-links">
-                <button class="btn-text color-success icon-text-link"><ion-icon name='checkmark-circle-outline'></ion-icon>Mark As Complete</button>
-                <?php if (is_user_trainer()) { ?>
-                    <a href="<?php echo site_url('/projects/update-project?id=') . $project->project_id ?>" class="color-blue icon-text-link"><ion-icon name='create-outline'></ion-icon>Update</a>
-                    <button class="btn-text color-danger icon-text-link" name="delete-project"><ion-icon name='trash-outline'></ion-icon>Delete</button>
-                <?php } ?>
+        <form action="" method="post">
+            <div class="s-project-details">
+                <span>Actions:</span>
+                <div class="s-links">
+                    <button class="btn-text color-success icon-text-link"><ion-icon name='checkmark-circle-outline'></ion-icon>Mark As Complete</button>
+                    <?php if (is_user_trainer()) { ?>
+                        <a href="<?php echo site_url('/projects/update-project?id=') . $project->project_id ?>" class="color-blue icon-text-link"><ion-icon name='create-outline'></ion-icon>Update</a>
+                        <button type='submit' class="btn-text color-danger icon-text-link" name="delete-project"><ion-icon name='trash-outline'></ion-icon>Delete</button>
+                    <?php } ?>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 
     <div class="table-heading">

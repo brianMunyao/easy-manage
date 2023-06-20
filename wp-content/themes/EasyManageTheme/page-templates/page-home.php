@@ -203,50 +203,48 @@ get_header() ?>
         </div>
 
         <div class="dash-bottom">
-            <div class="dash-recent">
-                <?php
-
-                /**
-                 * 
-                 * TODO: get recent accounts here
-                 */
-
-                ?>
-                <table>
-                    <tr class="table-h">
-                        <th colspan="3">Recent Accounts</th>
-                    </tr>
-
-                    <tr class="table-h">
-                        <th style="width: 30px;">No.</th>
-                        <th>Name</th>
-                        <!-- <th class="role">Role</th> -->
-                        <th class="created-on">Created On</th>
-                    </tr>
-
-                    <?php if (count($latest_employees) == 0) { ?>
-                        <tr class="table-c">
-                            <td class="empty-row" colspan="5">No Recent Employee Data</td>
+            <?php
+            if (!is_user_trainee()) {
+            ?>
+                <div class="dash-recent">
+                    <table>
+                        <tr class="table-h">
+                            <th colspan="3">Recent Accounts</th>
                         </tr>
-                    <?php } ?>
 
-
-                    <?php
-                    $i = 0;
-                    foreach ($latest_employees as $recent) {
-                    ?>
-                        <tr class="table-c">
-                            <th style="width: 30px;"><?php echo ++$i . '.'; ?></th>
-                            <td><?php echo $recent->fullname ?></td>
-                            <!-- <td class="role"><?php //echo $recent->role 
-                                                    ?></td> -->
-                            <td class="created-on"><?php echo date('F j', strtotime($recent->registered_on)) ?></td>
+                        <tr class="table-h">
+                            <th style="width: 30px;">No.</th>
+                            <th>Name</th>
+                            <!-- <th class="role">Role</th> -->
+                            <th class="created-on">Created On</th>
                         </tr>
-                    <?php
-                    }
-                    ?>
-                </table>
-            </div>
+
+                        <?php if (count($latest_employees) == 0) { ?>
+                            <tr class="table-c">
+                                <td class="empty-row" colspan="5">No Recent Employee Data</td>
+                            </tr>
+                        <?php } ?>
+
+
+                        <?php
+                        $i = 0;
+                        foreach ($latest_employees as $recent) {
+                        ?>
+                            <tr class="table-c">
+                                <th style="width: 30px;"><?php echo ++$i . '.'; ?></th>
+                                <td><?php echo $recent->fullname ?></td>
+                                <!-- <td class="role"><?php //echo $recent->role 
+                                                        ?></td> -->
+                                <td class="created-on"><?php echo date('F j', strtotime($recent->registered_on)) ?></td>
+                            </tr>
+                        <?php
+                        }
+                        ?>
+                    </table>
+                </div>
+            <?php
+            }
+            ?>
 
             <?php
             if (is_user_admin_custom() || is_user_p_manager()) {

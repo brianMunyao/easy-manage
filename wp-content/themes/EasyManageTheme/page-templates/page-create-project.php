@@ -1,40 +1,69 @@
 <?php if (!is_user_logged_in()) wp_redirect(site_url('/login')) ?>
 
 <?php
+$form_error = '';
+$form_success = '';
 
-$project_name_error = '';
-$project_category_error = '';
-$project_description_error = '';
-$project_duedate_error = '';
-$project_assignees_error = '';
+$project_name_error = $project_category_error = $project_description_error = $project_duedate_error = $project_assignees_error = '';
+$assigned_program = get_program_assignee(get_current_user_id());
+
+$available_assignees = get_available_trainees($assigned_program->program_id);
 
 if (isset($_POST['create-project'])) {
+
     $project_name = $_POST['project_name'];
     $project_category = $_POST['project_category'];
     $project_description = $_POST['project_description'];
     $project_duedate = $_POST['project_duedate'];
-    $project_assignees = isset($_POST['project_assignees']) ? $_POST['project_assignees'] : "";
+    $project_assignees = isset($_POST['project_assignees']) ? $_POST['project_assignees'] : [];
 
     $project_name_error = validate_field_custom($project_name);
     $project_category_error = validate_field_custom($project_category);
     $project_description_error = validate_field_custom($project_description);
     $project_duedate_error = validate_field_custom($project_duedate);
-    $project_assignees_error = validate_field_custom(json_encode($project_assignees));
 
+    if (gettype($project_assignees) === 'array' && count($project_assignees) > 0) {
+        $project_assignees_error = "";
+    } else {
+        $project_assignees_error = "Field is required";
+    }
 
     if (empty($project_name_error) && empty($project_category_error) && empty($project_description_error) && empty($project_duedate_error) && empty($project_assignees_error)) {
         $project_assignees = array_values($project_assignees);
 
-        echo "
-    <pre>
-    $project_name,
-    $project_category,
-    $project_description,
-    $project_duedate ,
-    " . json_encode($project_assignees) . ",
-    </pre>
-    ";
+        $result = create_project([
+            'project_name' => $project_name,
+            'project_category' => $project_category,
+            'project_description' => $project_description,
+            'project_due_date' => $project_duedate,
+            'project_created_by' => get_current_user_id(),
+            'project_program_id' => $assigned_program->program_id,
+            'project_assignees' => $project_assignees
+        ]);
+
+        var_dump($result);
+
+        // if (is_numeric($result)) {
+        //     foreach ($project_assignees as $trainee) {
+        //         $res = allocate_trainee_to_project($trainee, $result);
+        //     }
+        // }
+
+        if (is_response_error($result)) {
+            $form_error = $result->message ?? "Creation Failed";
+        } else {
+            $form_success = "Successfully Created";
+        }
     }
+
+    // 'project_name' => $request['project_name'],
+    // 'project_category' => $request['project_category'],
+    // 'project_description' => $request['project_description'],
+    // 'project_due_date' => $request['project_due_date'],
+    // 'project_created_by' => $request['project_created_by'],
+    // 'project_program_id' => $request['project_program_id']
+
+
 }
 
 
@@ -52,27 +81,13 @@ get_header() ?>
         <span>/ Create Project</span>
     </div>
 
-    <?php
-
-
-    $assignees = [];
-
-    $available_assignees = [
-        ['id' => 1, 'name' => 'brian'],
-        ['id' => 2, 'name' => 'brian 2'],
-        ['id' => 3, 'name' => 'brian 3']
-    ];
-
-
-
-
-    ?>
-
 
     <div class="form-container">
         <form action="" method="post">
             <div class="form">
                 <h2>Create Project</h2>
+                <p class="success"><?php echo $form_success ?></p>
+                <p class="error"><?php echo $form_error ?></p>
 
                 <?php
                 $curr_project_name = $_POST['project_name'] ?? "";
@@ -98,19 +113,18 @@ get_header() ?>
                             $curr_project_assignees = [];
                         }
                         foreach ($available_assignees as $assignee) {
-                            $assignee = (object)$assignee;
                         ?>
                             <label for="<?php echo $assignee->id ?>" class="trainees-option">
                                 <input type="checkbox" name="project_assignees[]" value="<?php echo $assignee->id ?>" id="<?php echo $assignee->id ?>" <?php echo in_array((string)$assignee->id, $curr_project_assignees) ? 'checked' : ''; ?>>
 
-                                <span><?php echo $assignee->name ?></span>
+                                <span><?php echo $assignee->fullname ?></span>
                             </label>
 
                         <?php
                         }
                         ?>
                     </div>
-                    <p class="form-error"><?php echo $project_assignees_error ?></p>
+                    <p class="form-error color-danger"><?php echo $project_assignees_error ?></p>
                 </div>
 
 

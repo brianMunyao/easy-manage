@@ -53,7 +53,7 @@ get_header() ?>
             ?>
 
             <?php echo do_shortcode('[input_con name="email" label="Email Address" error="' . $email_error . '" placeholder="Enter your email address" input_type="email" value="' . $curr_email . '"]') ?>
-            <?php echo do_shortcode('[input_con name="password" label="Password" error="' . $pass_error . '" placeholder="Enter your email password" input_type="password" value="' . $curr_password . '"]') ?>
+            <?php echo do_shortcode('[input_con name="password" label="Password" error="' . $pass_error . '" placeholder="Enter your password" input_type="password" value="' . $curr_password . '"]') ?>
 
             <button type="submit" class="app-btn primary-btn" name="login">Login</button>
         </div>

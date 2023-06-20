@@ -11,7 +11,6 @@ use Inc\Pages\PMRoutes;
 use Inc\Pages\RoleManager;
 use Inc\Pages\TraineeRoutes;
 use Inc\Pages\TrainerRoutes;
-use Inc\Pages\CreateTables;
 use Inc\Pages\ManageProgram;
 use Inc\Pages\ProjectRoutes;
 use Inc\Pages\TraineeProgramAllocation;
@@ -27,7 +26,6 @@ class Init
             TrainerRoutes::class,
             TraineeRoutes::class,
             EmployeeRoutes::class,
-            CreateTables::class,
             ProjectRoutes::class,
             ManageProgram::class,
             TraineeProgramAllocation::class,

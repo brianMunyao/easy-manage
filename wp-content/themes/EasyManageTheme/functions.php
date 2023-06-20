@@ -244,6 +244,18 @@ function calculate_percentage($completed, $total)
     return $res;
 }
 
+function get_initials($name)
+{
+    $words = explode(' ', $name);
+    $initials = '';
+
+    foreach ($words as $word) {
+        $initials .= strtoupper(substr($word, 0, 1));
+    }
+
+    return $initials;
+}
+
 /**
  * 
  * 
@@ -365,14 +377,6 @@ function get_trainees_new($trainer_id = NULL, $program_id = NULL)
 {
     global $base_url;
     $full_url = $base_url . "/trainees";
-
-    // if ($trainer_id) {
-    //     $full_url .= '?trainer_id=' . $trainer_id;
-    // }
-
-    // if ($program_id) {
-    //     $full_url .= ($trainer_id ? "&" : "?") . 'program_id=' . $program_id;
-    // }
 
     $res = wp_remote_get($full_url, [
         'method' => 'GET',
@@ -637,6 +641,19 @@ function get_all_projects($trainer_id = NULL)
     return json_decode($projects);
 }
 
+function get_single_project_new($p_id)
+{
+    global $base_url;
+
+    $res = wp_remote_get($base_url . "/projects/" . $p_id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $projects = wp_remote_retrieve_body($res);
+    return json_decode($projects);
+}
+
 function assign_trainee_to_program($trainee_id, $program_id)
 {
     global $base_url;
@@ -669,246 +686,76 @@ function get_trainees_in_program($program_id)
     return json_decode($projects);
 }
 
+function create_project($project)
+{
+    global $base_url;
+
+    $res = wp_remote_post($base_url . "/projects", [
+        'method' => 'POST',
+        'data_format' => 'body',
+        'body' => $project
+        // 'body' => json_encode($user), //TODO: return to json_encode
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
+function update_project($project)
+{
+    global $base_url;
+
+    $res = wp_remote_post($base_url . "/projects", [
+        'method' => 'PUT',
+        'data_format' => 'body',
+        'body' => $project
+        // 'body' => json_encode($user), //TODO: return to json_encode
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
+function get_available_trainees($program_id)
+{
+    global $base_url;
+
+    $res = wp_remote_get($base_url . "/projects/trainees/available/" . $program_id, [
+        'method' => 'GET',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
+function delete_project($project_id)
+{
+    global $base_url;
+
+    $res = wp_remote_get($base_url . "/projects/" . $project_id, [
+        'method' => 'DELETE',
+        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
 /**
  * 
- * ! OLD ROUTES
+ * Custom Actions
  */
 
-function get_projects()
+function on_project_delete()
 {
-    $res = wp_remote_get("http://localhost:3000/projects", [
-        'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-    $projects = wp_remote_retrieve_body($res);
-    return json_decode($projects);
+    wp_redirect(site_url('/projects'));
+    exit();
 }
+add_action('on_project_delete', 'on_project_delete');
 
-function get_single_project($id)
-{
-    $res = wp_remote_get("http://localhost:3000/projects?project_id=" . $id, [
-        'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-    $projects = wp_remote_retrieve_body($res);
-    $projects = json_decode($projects);
-
-    $project = reset($projects);
-    return $project;
-}
-
-function get_tasks($id)
-{
-    $res = wp_remote_get("http://localhost:3000/tasks", [
-        'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-    $tasks = wp_remote_retrieve_body($res);
-    $tasks = json_decode($tasks);
-
-    $filtered_tasks = array_filter($tasks, function ($task) use ($id) {
-        return $task->task_project_id == $id;
-    });
-
-    return $filtered_tasks;
-}
-
-function get_single_task($id)
-{
-    $res = wp_remote_get("http://localhost:3000/tasks?task_id=" . $id, [
-        'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-    $tasks = wp_remote_retrieve_body($res);
-    $tasks = json_decode($tasks);
-
-    $task = reset($tasks);
-    return $task;
-}
-
-function get_employees()
-{
-    $res = wp_remote_get("http://localhost:3000/employees", [
-        'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-    $employees = wp_remote_retrieve_body($res);
-    return json_decode($employees);
-}
-function get_single_employee($id)
-{
-    $res = wp_remote_get("http://localhost:3000/employees/" . $id, [
-        'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-    $employees = wp_remote_retrieve_body($res);
-    return json_decode($employees);
-}
-
-function create_employee($user)
-{
-    $res = wp_remote_post("http://localhost:3000/employees", [
-        'method' => 'POST',
-        'data_format' => 'body',
-        'body' => $user
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-
-    $res = wp_remote_retrieve_body($res);
-    return json_decode($res);
-}
-
-function update_employee($user)
-{
-    $res = wp_remote_post("http://localhost:3000/employees/" . $user['id'], [
-        'method' => 'PUT',
-        'data_format' => 'body',
-        'body' => $user
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-
-    $res = wp_remote_retrieve_body($res);
-    return json_decode($res);
-}
-
-function get_programs($id)
-{
-    $res = wp_remote_get("http://localhost:3000/programs?pm_id=" . $id, [
-        'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-    $programs = wp_remote_retrieve_body($res);
-    return json_decode($programs);
-}
-function get_single_program($id)
-{
-    $res = wp_remote_get("http://localhost:3000/programs/" . $id, [
-        'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-    $program = wp_remote_retrieve_body($res);
-    return json_decode($program);
-}
-function create_program($program)
-{
-    $res = wp_remote_post("http://localhost:3000/programs", [
-        'method' => 'POST',
-        'data_format' => 'body',
-        'body' => $program
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-
-    $res = wp_remote_retrieve_body($res);
-    return json_decode($res);
-}
-function update_program($program)
-{
-    $res = wp_remote_post("http://localhost:3000/programs/" . $program['id'], [
-        'method' => 'PUT',
-        'data_format' => 'body',
-        'body' => $program
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-
-    $res = wp_remote_retrieve_body($res);
-    return json_decode($res);
-}
-function get_unassigned_programs($id)
-{
-    $res = wp_remote_get('http://localhost:3000/programs?program_assigned_to=0&pm_id=' . $id, [
-        'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-    $programs = wp_remote_retrieve_body($res);
-    return json_decode($programs);
-}
-function assign_program($program_id, $assignee)
-{
-    $program = get_single_program($program_id);
-    $program->program_assigned_to = $assignee;
-    $program = json_decode(json_encode($program), true); //! POTENTIAL ERROR POINT
-
-    $res = wp_remote_post("http://localhost:3000/programs/" . $program_id, [
-        'method' => 'PUT',
-        'data_format' => 'body',
-        'body' => $program
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-
-    $res = wp_remote_retrieve_body($res);
-    return json_decode($res);
-}
-
-function get_trainers($id)
-{
-    $res = wp_remote_get("http://localhost:3000/employees?role=trainer&created_by=" . $id, [
-        'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-    $trainers = wp_remote_retrieve_body($res);
-    $trainers = json_decode($trainers);
-
-    for ($i = 0; $i < count($trainers); $i++) {
-        $program = get_trainer_program($trainers[$i]->id);
-        $trainers[$i]->stack = count($program) > 0  ? $program[0]->program_name : '--';
-    }
-
-    return $trainers;
-}
-function get_trainer_program($id)
-{
-    $res = wp_remote_get("http://localhost:3000/programs?program_assigned_to=" . $id, [
-        'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-    $program = wp_remote_retrieve_body($res);
-    return json_decode($program);
-}
-
-function create_trainer($user, $program_id)
-{
-    $result = create_employee($user);
-
-    if (!empty($program_id)) {
-
-        // TODO: check error
-        $user_id = $result->id;
-        $result = assign_program($program_id, $user_id);
-
-        // $res = wp_remote_retrieve_body($res); //! POTENTIAL ERROR POINT
-    }
-    return $result;
-}
-function update_trainer($user, $program_id)
-{
-    $result = update_employee($user);
-    if (!empty($program_id)) {
-
-        // TODO: check error
-        $user_id = $result->id;
-        $result = assign_program($program_id, $user_id);
-
-        // $res = wp_remote_retrieve_body($res); //! POTENTIAL ERROR POINT
-    }
-    return $result;
-}
-
-function get_trainees($id)
-{
-    $res = wp_remote_get("http://localhost:3000/employees?role=trainee&created_by=" . $id, [
-        'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-    ]);
-    $trainers = wp_remote_retrieve_body($res);
-    $trainers = json_decode($trainers);
-
-    return $trainers;
-}
 
 /**
  * 

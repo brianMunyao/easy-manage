@@ -13,6 +13,8 @@ get_header() ?>
 <?php
 
 $trainer_has_program = false;
+$projects = [];
+
 if (is_user_trainer()) {
     $assigned_cohort = get_program_assignee(get_current_user_id());
     if (!is_response_error($assigned_cohort)) {
@@ -85,11 +87,12 @@ $completed = array_filter($projects, function ($project) {
             <div class="projects-list">
                 <?php
                 foreach ($ongoing as $project) {
-                    $project_tasks = get_tasks($project->project_id);
-
-                    $completed_tasks = array_filter($project_tasks, function ($task) {
-                        return $task->task_done == 1;
-                    });
+                    // $project_tasks = get_tasks($project->project_id);
+                    $project_task = [];
+                    $completed_tasks  = [];
+                    // $completed_tasks = array_filter($project_tasks, function ($task) {
+                    //     return $task->task_done == 1;
+                    // });
                 ?>
                     <a href="<?php echo site_url('/projects/project?id=') . $project->project_id ?>">
                         <div class="project">
@@ -103,11 +106,13 @@ $completed = array_filter($projects, function ($project) {
 
                             <div class="project-progress-con">
                                 <div class="project-progress">
-                                    <div style="width: <?php echo calculate_percentage($completed_tasks, $project_tasks) ?>;"></div>
+                                    <div style="width: <?php echo '50%'; //calculate_percentage($completed_tasks, $project_tasks) 
+                                                        ?>;"></div>
                                 </div>
 
 
-                                <div><?php echo calculate_percentage($completed_tasks, $project_tasks) ?></div>
+                                <div><?php echo '50%'; //calculate_percentage($completed_tasks, $project_tasks) 
+                                        ?></div>
                             </div>
 
                             <div class="project-bottom-con">
@@ -120,7 +125,20 @@ $completed = array_filter($projects, function ($project) {
                                     </span>
 
                                     <div class="project-assignees">
-                                        <div class="user-icon">BK</div>
+                                        <?php
+                                        $assignees = explode(",", $project->project_assignees);
+                                        foreach ($assignees as $assignee) {
+                                        ?>
+                                            <div class="user-icon">
+                                                <?php
+                                                $temp = get_user_by('id', (int)$assignee);
+                                                $temp = get_user_meta($assignee, 'fullname', true);
+                                                echo get_initials($temp);
+                                                ?>
+                                            </div>
+                                        <?php
+                                        }
+                                        ?>
                                     </div>
                                 </div>
                             </div>
@@ -142,7 +160,8 @@ $completed = array_filter($projects, function ($project) {
             <div class="projects-list">
                 <?php
                 foreach ($completed as $project) {
-                    $project_tasks = get_tasks($project->project_id);
+                    $project_tasks = []; //TODO: work on this
+                    // $project_tasks = get_tasks($project->project_id);
 
                     $completed_tasks = array_filter($project_tasks, function ($task) {
                         return $task->task_id == 1;

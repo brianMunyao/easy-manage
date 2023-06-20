@@ -37,7 +37,7 @@ class TraineeProjectAllocation
 
     public function register_routes()
     {
-        register_rest_route('api/v1', '/trainees/allocate-project', [
+        register_rest_route('api/v1', '/projects/allocate', [
             'methods' => 'POST',
             'callback' => [$this, 'allocate_trainee'],
             // 'permission_callback' => function () {
@@ -46,7 +46,7 @@ class TraineeProjectAllocation
         ]);
     }
 
-    public function register_in_project($request)
+    public function allocate_trainee($request)
     {
         $project_id = $request['project_id'];
         $trainee_id = $request['trainee_id'];
