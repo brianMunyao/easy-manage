@@ -11,7 +11,7 @@ use Inc\Pages\PMRoutes;
 use Inc\Pages\RoleManager;
 use Inc\Pages\TraineeRoutes;
 use Inc\Pages\TrainerRoutes;
-use Inc\Pages\ManageProgram;
+use Inc\Pages\ProgramRoutes;
 use Inc\Pages\ProjectRoutes;
 use Inc\Pages\TaskRoutes;
 use Inc\Pages\TraineeProgramAllocation;
@@ -28,7 +28,7 @@ class Init
             TraineeRoutes::class,
             EmployeeRoutes::class,
             ProjectRoutes::class,
-            ManageProgram::class,
+            ProgramRoutes::class,
             TraineeProgramAllocation::class,
             TraineeProjectAllocation::class,
             TaskRoutes::class

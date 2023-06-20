@@ -60,6 +60,8 @@ define('NONCE_SALT',       'Y!@},i0vl>a~_ugnTuJE#g]fRj}[xR=c#E$x,vWNBNUmC#N?k4;w
 
 /**#@-*/
 
+define('JWT_AUTH_SECRET_KEY', 'SIRI_YANGU');
+
 /**
  * WordPress database table prefix.
  *

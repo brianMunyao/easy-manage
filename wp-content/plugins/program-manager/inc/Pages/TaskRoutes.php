@@ -21,51 +21,51 @@ class TaskRoutes
         register_rest_route('api/v1', '/tasks/(?P<project_id>\d+)', [
             'methods' => "GET",
             'callback' => [$this, 'get_project_tasks'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/tasks/single/(?P<task_id>\d+)', [
             'methods' => "GET",
             'callback' => [$this, 'get_single_task'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/tasks', [
             'methods' => "POST",
             'callback' => [$this, 'create_task'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/tasks/(?P<task_id>\d+)', [
             'methods' => "PUT",
             'callback' => [$this, 'update_task'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/tasks/complete/(?P<task_id>\d+)', [
             'methods' => "PUT",
             'callback' => [$this, 'complete_task'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/tasks/uncomplete/(?P<task_id>\d+)', [
             'methods' => "PUT",
             'callback' => [$this, 'uncomplete_task'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/tasks/(?P<task_id>\d+)', [
             'methods' => "DELETE",
             'callback' => [$this, 'delete_task'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
     }
 
@@ -103,9 +103,12 @@ class TaskRoutes
 
         global $wpdb;
         $tasks_table = $wpdb->prefix . 'tasks';
-        $tasks = $wpdb->get_row($wpdb->prepare("SELECT * FROM $tasks_table WHERE task_id=$task_id"));
+        $task = $wpdb->get_row($wpdb->prepare("SELECT * FROM $tasks_table WHERE task_id=$task_id"));
 
-        return $tasks;
+        if (!$task) {
+            return new WP_Error(404, "Task $task_id does not exist");
+        }
+        return $task;
     }
 
     public function create_task($request)
@@ -141,7 +144,7 @@ class TaskRoutes
         if (is_wp_error($res)) {
             return new WP_Error(400, "Error creating task", $res);
         } else {
-            return $res;
+            return "Task Created Successfully";
         }
     }
 
@@ -168,10 +171,10 @@ class TaskRoutes
 
         ], ['task_id' => $task_id]);
 
-        if (is_wp_error($res)) {
+        if (is_wp_error($res) || $res == 0) {
             return new WP_Error(400, "Error updating task", $res);
         } else {
-            return $res;
+            return "Task Updated Successfully";
         }
     }
 
@@ -185,10 +188,10 @@ class TaskRoutes
             'task_done' => 1
         ], ['task_id' => $task_id]);
 
-        if (is_wp_error($res)) {
+        if (is_wp_error($res) || $res == 0) {
             return new WP_Error(400, "Error updating task", $res);
         } else {
-            return $res;
+            return "Task Updated Successfully";
         }
     }
     public function uncomplete_task($request)
@@ -201,10 +204,10 @@ class TaskRoutes
             'task_done' => 0
         ], ['task_id' => $task_id]);
 
-        if (is_wp_error($res)) {
+        if (is_wp_error($res) || $res == 0) {
             return new WP_Error(400, "Error updating task", $res);
         } else {
-            return $res;
+            return "Task Updated Successfully";
         }
     }
     public function delete_task($request)
@@ -215,10 +218,10 @@ class TaskRoutes
         $tasks_table = $wpdb->prefix . 'tasks';
         $res = $wpdb->delete($tasks_table, ['task_id' => $task_id]);
 
-        if (is_wp_error($res)) {
-            return new WP_Error(400, "Error de;eting task", $res);
+        if (is_wp_error($res) || $res == 0) {
+            return new WP_Error(400, "Error deleting task", $res);
         } else {
-            return $res;
+            return "Task Deleted Successfully";
         }
     }
 }

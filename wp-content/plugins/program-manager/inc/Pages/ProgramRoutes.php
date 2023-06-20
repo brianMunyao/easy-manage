@@ -8,7 +8,7 @@ namespace Inc\Pages;
 
 use WP_Error;
 
-class ManageProgram
+class ProgramRoutes
 {
     public function register()
     {
@@ -25,7 +25,7 @@ class ManageProgram
             program_name TEXT NOT NULL,
             program_description TEXT NOT NULL,
             program_logo TEXT NOT NULL,
-            program_assigned_to TEXT,
+            program_assigned_to BIGINT(11) UNSIGNED,
             program_created_by INT NOT NULL,
             program_created_on DATE NOT NULL DEFAULT CURRENT_DATE,
             program_done INT NOT NULL DEFAULT 0
@@ -39,58 +39,58 @@ class ManageProgram
         register_rest_route('api/v1', '/programs/(?P<id>\d+)', [
             'methods' => "GET",
             'callback' => [$this, 'get_programs'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/programs/single/(?P<pg_id>\d+)', [
             'methods' => "GET",
             'callback' => [$this, 'get_single_program'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/programs/trainees/(?P<pg_id>\d+)', [
             'methods' => "GET",
             'callback' => [$this, 'get_program_trainees'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/programs/assigned_to/(?P<trainer_id>\d+)', [
             'methods' => "GET",
             'callback' => [$this, 'get_trainer_program'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/programs', [
             'methods' => 'POST',
             'callback' => [$this, 'create_program'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/programs/unassigned/(?P<id>\d+)', [
             'methods' => "GET",
             'callback' => [$this, 'get_unassigned_programs'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/programs/allocate', [
             'methods' => "PUT",
             'callback' => [$this, 'allocate_program'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/programs/(?P<id>\d+)', [
             'methods' => "PUT",
             'callback' => [$this, 'update_program'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
     }
 
@@ -137,7 +137,6 @@ class ManageProgram
     {
         global $wpdb;
         $table_name = $wpdb->prefix . 'programs';
-        // $allocation_table = $wpdb->prefix . 'program_trainers_allocation';
         $id = $request->get_param('id');
 
         $programs = $wpdb->get_results("SELECT * FROM $table_name WHERE program_created_by=$id AND program_assigned_to IS NULL");
@@ -191,18 +190,43 @@ class ManageProgram
         global $wpdb;
         $table_name = $wpdb->prefix . 'programs';
 
+        $program_name = $request['program_name'];
+        $program_description = $request['program_description'];
+        $program_logo = $request['program_logo'];
+        $program_created_by = $request['program_created_by'];
+
+        $missingParams = array();
+
+        if (!isset($program_name)) {
+            $missingParams[] = "program_name";
+        }
+        if (!isset($program_description)) {
+            $missingParams[] = "program_description";
+        }
+        if (!isset($program_logo)) {
+            $missingParams[] = "program_logo";
+        }
+        if (!isset($program_created_by)) {
+            $missingParams[] = "program_created_by";
+        }
+        if (!empty($missingParams)) {
+            $missingParamsString = implode(", ", $missingParams);
+            return new WP_Error(400, "Missing parameters: " . $missingParamsString);
+        }
+
+
         $res = $wpdb->insert($table_name, [
-            'program_name' => $request['program_name'],
-            'program_description' => $request['program_description'],
-            'program_logo' => $request['program_logo'],
+            'program_name' => $program_name,
+            'program_description' => $program_description,
+            'program_logo' => $program_logo,
             // 'program_assigned_to'=>$request['program_assigned_to'],
-            'program_created_by' => $request['program_created_by']
+            'program_created_by' => $program_created_by
         ]);
 
-        if ($res > 0) {
-            return "Program Added Successfully";
+        if (is_wp_error($res)) {
+            return new WP_Error(400, "Error creating program", $res);
         }
-        return new WP_Error(400, "Error creating program", $res);
+        return "Program Added Successfully";
     }
 
     public function allocate_program($request)
@@ -210,27 +234,39 @@ class ManageProgram
         $program_id = $request['program_id'];
         $trainer_id = $request['trainer_id'];
 
+        $missingParams = array();
+
+        if (!isset($program_id)) {
+            $missingParams[] = "program_id";
+        }
+        if (!isset($trainer_id)) {
+            $missingParams[] = "trainer_id";
+        }
+        if (!empty($missingParams)) {
+            $missingParamsString = implode(", ", $missingParams);
+            return new WP_Error(400, "Missing parameters: " . $missingParamsString);
+        }
+
+
         global $wpdb;
         $programs_table = $wpdb->prefix . 'programs';
 
-        //TODO: Update this incase a program is completed
+        $current_allocations = $wpdb->get_results("SELECT program_assigned_to FROM $programs_table WHERE program_assigned_to=$trainer_id");
+
+        if (count($current_allocations) > 0) {
+            return new WP_Error(400, "Trainer already has an ongoing program");
+        }
+
         $res = $wpdb->update($programs_table, [
             'program_assigned_to' => $trainer_id
         ], ['program_id' => $program_id]);
-        // $current_allocations = $wpdb->get_results("SELECT * FROM $TPA_table JOIN $programs_table WHERE trainer_id=$trainer_id");
-
-        // if (count($current_allocations) > 0) {
-        //     return new WP_Error(400, "Trainer already has an ongoing program");
-        // }
-        // $res = $wpdb->insert($TPA_table, [
-        //     'program_id' => $program_id,
-        //     'trainer_id' => $trainer_id
-        // ]);
 
         if (is_wp_error($res)) {
             return new WP_Error(400, "Error allocating program", $res);
+        } elseif (!$res) {
+            return new WP_Error(400, "Invalid Trainer ID", $res);
         }
-        return $res;
+        return "Trainer Allocated Successfully";
     }
 
     public function update_program($request)
@@ -240,10 +276,30 @@ class ManageProgram
         global $wpdb;
         $table_name = $wpdb->prefix . 'programs';
 
+        $program_name = $request['program_name'];
+        $program_description = $request['program_description'];
+        $program_logo = $request['program_logo'];
+
+        $missingParams = array();
+
+        if (!isset($program_name)) {
+            $missingParams[] = "program_name";
+        }
+        if (!isset($program_description)) {
+            $missingParams[] = "program_description";
+        }
+        if (!isset($program_logo)) {
+            $missingParams[] = "program_logo";
+        }
+        if (!empty($missingParams)) {
+            $missingParamsString = implode(", ", $missingParams);
+            return new WP_Error(400, "Missing parameters: " . $missingParamsString);
+        }
+
         $res = $wpdb->update($table_name, [
-            'program_name' => $request['program_name'],
-            'program_description' => $request['program_description'],
-            'program_logo' => $request['program_logo'],
+            'program_name' => $program_name,
+            'program_description' => $program_description,
+            'program_logo' => $program_logo,
         ], ['program_id' => $id]);
 
         if ($res > 0) {

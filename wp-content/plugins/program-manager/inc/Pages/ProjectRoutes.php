@@ -21,58 +21,58 @@ class ProjectRoutes
         register_rest_route('api/v1', '/projects', [
             'methods' => "GET",
             'callback' => [$this, 'get_all_projects'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('read');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/projects/(?P<id>\d+)', [
             'methods' => "GET",
             'callback' => [$this, 'get_single_project'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('read');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/projects', [
             'methods' => "POST",
             'callback' => [$this, 'create_project'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('read');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/projects', [
             'methods' => "PUT",
             'callback' => [$this, 'update_project'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('read');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/projects/complete/(?P<project_id>\d+)', [
             'methods' => "PUT",
             'callback' => [$this, 'complete_project'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('read');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/projects/trainees/available/(?P<pg_id>\d+)', [
             'methods' => "GET",
             'callback' => [$this, 'get_available_trainees'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/projects/trainees/(?P<trainee_id>\d+)', [
             'methods' => "GET",
             'callback' => [$this, 'get_trainee_projects'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/projects/(?P<project_id>\d+)', [
             'methods' => "DELETE",
             'callback' => [$this, 'delete_project'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
     }
 
@@ -87,7 +87,7 @@ class ProjectRoutes
             project_category TEXT NOT NULL,
             project_description TEXT NOT NULL,
             project_due_date DATE NOT NULL DEFAULT CURRENT_DATE,
-            project_created_by INT NOT NULL,
+            project_created_by BIGINT(11) UNSIGNED,
             project_program_id INT NOT NULL,
             project_created_on DATE NOT NULL DEFAULT CURRENT_DATE,
             project_done INT NOT NULL DEFAULT 0
@@ -175,7 +175,7 @@ class ProjectRoutes
         $project_due_date = $request['project_due_date'];
         $project_created_by = $request['project_created_by'];
         $pg_id = $request['project_program_id'];
-        $assigned_trainees = $request['project_assignees'];
+        $project_assignees = $request['project_assignees'];
 
         $missingParams = array();
 
@@ -185,8 +185,8 @@ class ProjectRoutes
         if (!isset($project_category)) {
             $missingParams[] = "project_category";
         }
-        if (!isset($assigned_trainees)) {
-            $missingParams[] = "assigned_trainees";
+        if (!isset($project_assignees) || count($project_assignees) == 0) {
+            $missingParams[] = "project_assignees";
         }
         if (!isset($project_description)) {
             $missingParams[] = "project_description";
@@ -215,7 +215,7 @@ class ProjectRoutes
 
         $available_ids = array_column($available_trainees, 'id');
 
-        foreach ($assigned_trainees as $assigned) {
+        foreach ($project_assignees as $assigned) {
             if (!in_array($assigned, $available_ids)) {
                 $user = get_user_meta($assigned, 'fullname', true);
                 return new WP_Error(400, $user . " has a maximum value of tasks");
@@ -223,11 +223,11 @@ class ProjectRoutes
         }
 
         $res = $wpdb->insert($table_name, [
-            'project_name' => $request['project_name'],
-            'project_category' => $request['project_category'],
-            'project_description' => $request['project_description'],
-            'project_due_date' => $request['project_due_date'],
-            'project_created_by' => $request['project_created_by'],
+            'project_name' => $project_name,
+            'project_category' => $project_category,
+            'project_description' => $project_description,
+            'project_due_date' => $project_due_date,
+            'project_created_by' => $project_created_by,
             'project_program_id' => $pg_id
         ]);
 
@@ -236,10 +236,10 @@ class ProjectRoutes
         } else {
             $project_id = $wpdb->insert_id;
 
-            foreach ($assigned_trainees as $assigned) {
+            foreach ($project_assignees as $assigned) {
                 $this->allocate_trainee_to_project($project_id, $assigned);
             }
-            return $project_id;
+            return "Project Successfully Created";
         }
     }
 
@@ -251,7 +251,7 @@ class ProjectRoutes
         $project_due_date = $request['project_due_date'];
         $pg_id = $request['project_program_id'];
         $project_id = $request['project_id'];
-        $assigned_trainees = $request['project_assignees'];
+        $project_assignees = $request['project_assignees'];
 
         $missingParams = array();
 
@@ -261,8 +261,8 @@ class ProjectRoutes
         if (!isset($project_category)) {
             $missingParams[] = "project_category";
         }
-        if (!isset($assigned_trainees)) {
-            $missingParams[] = "assigned_trainees";
+        if (!isset($project_assignees) || count($project_assignees) == 0) {
+            $missingParams[] = "project_assignees";
         }
         if (!isset($project_description)) {
             $missingParams[] = "project_description";
@@ -285,7 +285,7 @@ class ProjectRoutes
 
         $available_ids = array_column($available_trainees, 'id');
 
-        foreach ($assigned_trainees as $assigned) {
+        foreach ($project_assignees as $assigned) {
             if (!in_array($assigned, $available_ids)) {
                 $was_assigned = $wpdb->get_row("SELECT id FROM $allocation_table WHERE trainee_id=$assigned AND project_id=$project_id");
                 if (!$was_assigned) {
@@ -309,10 +309,10 @@ class ProjectRoutes
         } else {
             $this->unallocate_trainees_from_project($project_id);
 
-            foreach ($assigned_trainees as $assigned) {
+            foreach ($project_assignees as $assigned) {
                 $this->allocate_trainee_to_project($project_id, $assigned);
             }
-            return $project_id;
+            return "Project Updated Successfully";
         }
     }
 
@@ -435,7 +435,7 @@ class ProjectRoutes
         if (is_wp_error($res)) {
             return new WP_Error(400, "Error completing tasks", $res);
         }
-        return $res;
+        return "Project Completed Sucessfully";
     }
     public function delete_project($request)
     {
@@ -452,6 +452,6 @@ class ProjectRoutes
             $this->unallocate_trainees_from_project($project_id);
         }
 
-        return $res;
+        return "Project Deleted";
     }
 }

@@ -22,80 +22,80 @@ class EmployeeRoutes
         register_rest_route('api/v1', '/employees', [
             'methods' => "GET",
             'callback' => [$this, 'get_employees'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('read');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('manage_options');
+            }
         ]);
         register_rest_route('api/v1', '/employees/(?P<id>\d+)', [
             'methods' => "GET",
             'callback' => [$this, 'get_single_employee'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('read');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/employees/search', [
             'methods' => "GET",
             'callback' => [$this, 'search_employees'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('read');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/employees/created_by/(?P<id>\d+)', [
             'methods' => "GET",
             'callback' => [$this, 'get_employees_created_by'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('read');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
 
         register_rest_route('api/v1', '/employees', [
             'methods' => 'POST',
             'callback' => [$this, 'create_employee'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/login', [
             'methods' => 'POST',
             'callback' => [$this, 'login'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/employees/(?P<id>\d+)', [
             'methods' => 'PUT',
             'callback' => [$this, 'update_employee'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/employees/deactivate/(?P<id>\d+)', [
             'methods' => 'PUT',
             'callback' => [$this, 'deactivate_employee'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/employees/activate/(?P<id>\d+)', [
             'methods' => 'PUT',
             'callback' => [$this, 'activate_employee'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/employees/delete/(?P<id>\d+)', [
             'methods' => 'PUT',
             'callback' => [$this, 'delete_employee'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
         register_rest_route('api/v1', '/employees/restore/(?P<id>\d+)', [
             'methods' => 'PUT',
             'callback' => [$this, 'restore_employee'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
     }
 
@@ -118,8 +118,17 @@ class EmployeeRoutes
 
     public function get_employees($request)
     {
+        $role = $request->get_param('role');
+        $roles = [];
+
+        if ($role) {
+            $roles = [$role];
+        } else {
+            $roles = ['program_manager', 'trainer', 'trainee'];
+        }
+
         $users = get_users([
-            'role__in' => ['program_manager', 'trainer', 'trainee'],
+            'role__in' => $roles,
             'fields' => $this->fields
         ]);
         $res = array_map([$this, 'format_user_data'], $users);
@@ -199,16 +208,45 @@ class EmployeeRoutes
 
     public function create_employee($request)
     {
+        $email = $request['email'];
+        $password = $request['password'];
+        $fullname = $request['fullname'];
+        $role = $request['role'];
+        $created_by = $request['created_by'];
+
+        $missingParams = array();
+
+        if (!isset($email)) {
+            $missingParams[] = "email";
+        }
+        if (!isset($password)) {
+            $missingParams[] = "password";
+        }
+        if (!isset($fullname)) {
+            $missingParams[] = "fullname";
+        }
+        if (!isset($role)) {
+            $missingParams[] = "role";
+        }
+        if (!isset($created_by)) {
+            $missingParams[] = "created_by";
+        }
+
+        if (!empty($missingParams)) {
+            $missingParamsString = implode(", ", $missingParams);
+            return new WP_Error(400, "Missing parameters: " . $missingParamsString);
+        }
+
         $result = wp_insert_user([
-            'user_login' => $request['email'],
-            'user_email' => $request['email'],
-            'user_pass' => $request['password'],
-            'role' => $request['role'],
+            'user_login' => $email,
+            'user_email' => $email,
+            'user_pass' => $password,
+            'role' => $role,
             'meta_input' => [
                 'is_deactivated' => $request['is_deactivated'] ?? 0,
                 'is_deleted' => 0,
-                'fullname' => $request['fullname'],
-                'created_by' => $request['created_by']
+                'fullname' => $fullname,
+                'created_by' => $created_by
             ]
         ]);
 
@@ -235,11 +273,28 @@ class EmployeeRoutes
     {
         $user_id = $request->get_param('id');
 
+        $password = $request['password'];
+        $fullname = $request['fullname'];
+
+        $missingParams = array();
+
+        if (!isset($password)) {
+            $missingParams[] = "password";
+        }
+        if (!isset($fullname)) {
+            $missingParams[] = "fullname";
+        }
+
+        if (!empty($missingParams)) {
+            $missingParamsString = implode(", ", $missingParams);
+            return new WP_Error(400, "Missing parameters: " . $missingParamsString);
+        }
+
         $result = wp_update_user([
             'ID' => $user_id,
-            'user_pass' => $request['password'],
+            'user_pass' => $password,
             'meta_input' => [
-                'fullname' => $request['fullname'],
+                'fullname' => $fullname,
             ]
         ]);
 
