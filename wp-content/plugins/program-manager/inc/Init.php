@@ -7,10 +7,7 @@
 namespace Inc;
 
 use Inc\Pages\EmployeeRoutes;
-use Inc\Pages\PMRoutes;
 use Inc\Pages\RoleManager;
-use Inc\Pages\TraineeRoutes;
-use Inc\Pages\TrainerRoutes;
 use Inc\Pages\ProgramRoutes;
 use Inc\Pages\ProjectRoutes;
 use Inc\Pages\TaskRoutes;
@@ -23,9 +20,6 @@ class Init
     {
         return [
             RoleManager::class,
-            PMRoutes::class,
-            TrainerRoutes::class,
-            TraineeRoutes::class,
             EmployeeRoutes::class,
             ProjectRoutes::class,
             ProgramRoutes::class,

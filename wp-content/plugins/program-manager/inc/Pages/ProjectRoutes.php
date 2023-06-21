@@ -88,7 +88,7 @@ class ProjectRoutes
             project_category TEXT NOT NULL,
             project_description TEXT NOT NULL,
             project_due_date DATE NOT NULL DEFAULT CURRENT_DATE,
-            project_created_by BIGINT(11) UNSIGNED,
+            project_created_by BIGINT(20) UNSIGNED,
             project_program_id INT NOT NULL,
             project_created_on DATE NOT NULL DEFAULT CURRENT_DATE,
             project_done INT NOT NULL DEFAULT 0
