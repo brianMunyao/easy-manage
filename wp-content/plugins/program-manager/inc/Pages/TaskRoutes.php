@@ -7,6 +7,7 @@
 namespace Inc\Pages;
 
 use WP_Error;
+use WP_REST_Response;
 
 class TaskRoutes
 {
@@ -69,6 +70,20 @@ class TaskRoutes
         ]);
     }
 
+    public function get_response_object($code, $message, $data = null)
+    {
+        $res = ["code" => $code];
+
+        if (isset($message)) {
+            $res['message'] = $message;
+        }
+
+        if ($data !== null) {
+            $res['data'] = $data;
+        }
+        return $res;
+    }
+
     public function create_tasks_table()
     {
         global $wpdb;
@@ -94,7 +109,7 @@ class TaskRoutes
         $tasks_table = $wpdb->prefix . 'tasks';
         $tasks = $wpdb->get_results($wpdb->prepare("SELECT * FROM $tasks_table WHERE task_project_id=$project_id"));
 
-        return $tasks;
+        return new WP_REST_Response($this->get_response_object(200, null, $tasks));
     }
 
     public function get_single_task($request)
@@ -106,9 +121,9 @@ class TaskRoutes
         $task = $wpdb->get_row($wpdb->prepare("SELECT * FROM $tasks_table WHERE task_id=$task_id"));
 
         if (!$task) {
-            return new WP_Error(404, "Task $task_id does not exist");
+            return new WP_REST_Response($this->get_response_object(404, "Task $task_id does not exist"), 404);
         }
-        return $task;
+        return new WP_REST_Response($this->get_response_object(200, null, $task));
     }
 
     public function create_task($request)
@@ -131,7 +146,7 @@ class TaskRoutes
 
         if (!empty($missingParams)) {
             $missingParamsString = implode(", ", $missingParams);
-            return new WP_Error(400, "Missing parameters: " . $missingParamsString);
+            return new WP_REST_Response($this->get_response_object(400, "Missing parameters: " . $missingParamsString), 400);
         }
 
         global $wpdb;
@@ -142,10 +157,9 @@ class TaskRoutes
             'task_created_by' => $task_created_by,
         ]);
         if (is_wp_error($res)) {
-            return new WP_Error(400, "Error creating task", $res);
-        } else {
-            return "Task Created Successfully";
+            return new WP_REST_Response($this->get_response_object(500, "Error creating task"), 500);
         }
+        return new WP_REST_Response($this->get_response_object(201, "Task Created Successfully", $wpdb->insert_id), 201);
     }
 
     public function update_task($request)
@@ -161,7 +175,7 @@ class TaskRoutes
 
         if (!empty($missingParams)) {
             $missingParamsString = implode(", ", $missingParams);
-            return new WP_Error(400, "Missing parameters: " . $missingParamsString);
+            return new WP_REST_Response($this->get_response_object(400, "Missing parameters: " . $missingParamsString), 400);
         }
 
         global $wpdb;
@@ -172,10 +186,9 @@ class TaskRoutes
         ], ['task_id' => $task_id]);
 
         if (is_wp_error($res) || $res == 0) {
-            return new WP_Error(400, "Error updating task", $res);
-        } else {
-            return "Task Updated Successfully";
+            return new WP_REST_Response($this->get_response_object(500, "Error updating task"), 500);
         }
+        return new WP_REST_Response($this->get_response_object(200, "Task Updated Successfully"));
     }
 
     public function complete_task($request)
@@ -189,10 +202,9 @@ class TaskRoutes
         ], ['task_id' => $task_id]);
 
         if (is_wp_error($res) || $res == 0) {
-            return new WP_Error(400, "Error updating task", $res);
-        } else {
-            return "Task Updated Successfully";
+            return new WP_REST_Response($this->get_response_object(500, "Error updating task"), 500);
         }
+        return new WP_REST_Response($this->get_response_object(200, "Task Updated Successfully"));
     }
     public function uncomplete_task($request)
     {
@@ -205,10 +217,9 @@ class TaskRoutes
         ], ['task_id' => $task_id]);
 
         if (is_wp_error($res) || $res == 0) {
-            return new WP_Error(400, "Error updating task", $res);
-        } else {
-            return "Task Updated Successfully";
+            return new WP_REST_Response($this->get_response_object(500, "Error updating task"), 500);
         }
+        return new WP_REST_Response($this->get_response_object(200, "Task Updated Successfully"));
     }
     public function delete_task($request)
     {
@@ -219,9 +230,8 @@ class TaskRoutes
         $res = $wpdb->delete($tasks_table, ['task_id' => $task_id]);
 
         if (is_wp_error($res) || $res == 0) {
-            return new WP_Error(400, "Error deleting task", $res);
-        } else {
-            return "Task Deleted Successfully";
+            return new WP_REST_Response($this->get_response_object(500, "Error deleting task"), 500);
         }
+        return new WP_REST_Response($this->get_response_object(204, "Task Deleted Successfully"), 204);
     }
 }

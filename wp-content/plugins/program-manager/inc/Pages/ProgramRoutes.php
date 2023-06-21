@@ -7,6 +7,7 @@
 namespace Inc\Pages;
 
 use WP_Error;
+use WP_REST_Response;
 
 class ProgramRoutes
 {
@@ -68,7 +69,7 @@ class ProgramRoutes
             'methods' => 'POST',
             'callback' => [$this, 'create_program'],
             'permission_callback' => function () {
-                return current_user_can('read');
+                return current_user_can('publish_posts');
             }
         ]);
         register_rest_route('api/v1', '/programs/unassigned/(?P<id>\d+)', [
@@ -82,18 +83,38 @@ class ProgramRoutes
             'methods' => "PUT",
             'callback' => [$this, 'allocate_program'],
             'permission_callback' => function () {
-                return current_user_can('read');
+                return current_user_can('publish_posts');
             }
         ]);
         register_rest_route('api/v1', '/programs/(?P<id>\d+)', [
             'methods' => "PUT",
             'callback' => [$this, 'update_program'],
             'permission_callback' => function () {
-                return current_user_can('read');
+                return current_user_can('publish_posts');
+            }
+        ]);
+        register_rest_route('api/v1', '/programs/(?P<program_id>\d+)', [
+            'methods' => "DELETE",
+            'callback' => [$this, 'delete_program'],
+            'permission_callback' => function () {
+                return current_user_can('publish_posts');
             }
         ]);
     }
 
+    public function get_response_object($code, $message, $data = null)
+    {
+        $res = ["code" => $code];
+
+        if (isset($message)) {
+            $res['message'] = $message;
+        }
+
+        if ($data !== null) {
+            $res['data'] = $data;
+        }
+        return $res;
+    }
 
     public function get_programs($request)
     {
@@ -103,7 +124,7 @@ class ProgramRoutes
 
         $programs = $wpdb->get_results("SELECT * FROM $table_name WHERE program_created_by=$id");
 
-        return $programs;
+        return new WP_REST_Response($this->get_response_object(200, null, $programs));
     }
 
     public function get_single_program($request)
@@ -114,7 +135,10 @@ class ProgramRoutes
 
         $program = $wpdb->get_row("SELECT * FROM $table_name WHERE program_id=$pg_id");
 
-        return $program;
+        if (!$program) {
+            return new WP_REST_Response($this->get_response_object(404, 'Program Not Found'), 404);
+        }
+        return new WP_REST_Response($this->get_response_object(200, null, $program));
     }
 
     public function get_trainer_program($request)
@@ -125,12 +149,10 @@ class ProgramRoutes
 
         $program = $wpdb->get_row("SELECT * FROM $table_name WHERE program_assigned_to=$trainer_id");
 
-        // $program = ;
         if (!$program) {
-            return new WP_Error(404, "Trainer Not Assigned A Program");
+            return new WP_REST_Response($this->get_response_object(204, "Trainer Not Assigned A Program"), 204);
         }
-
-        return $program;
+        return new WP_REST_Response($this->get_response_object(200, null, $program));
     }
 
     public function get_unassigned_programs($request)
@@ -141,7 +163,7 @@ class ProgramRoutes
 
         $programs = $wpdb->get_results("SELECT * FROM $table_name WHERE program_created_by=$id AND program_assigned_to IS NULL");
 
-        return $programs;
+        return new WP_REST_Response($this->get_response_object(200, null, $programs));
     }
 
     public function get_program_trainees($request)
@@ -181,7 +203,7 @@ class ProgramRoutes
         }, $users);
 
 
-        return $res;
+        return new WP_REST_Response($this->get_response_object(200, null, $res));
     }
 
 
@@ -211,7 +233,7 @@ class ProgramRoutes
         }
         if (!empty($missingParams)) {
             $missingParamsString = implode(", ", $missingParams);
-            return new WP_Error(400, "Missing parameters: " . $missingParamsString);
+            return new WP_REST_Response($this->get_response_object(400, "Missing parameters: " . $missingParamsString), 400);
         }
 
 
@@ -224,9 +246,9 @@ class ProgramRoutes
         ]);
 
         if (is_wp_error($res)) {
-            return new WP_Error(400, "Error creating program", $res);
+            return new WP_REST_Response($this->get_response_object(500, "Error creating program"), 500);
         }
-        return "Program Added Successfully";
+        return new WP_REST_Response($this->get_response_object(201, "Program Added Successfully", $wpdb->insert_id), 201);
     }
 
     public function allocate_program($request)
@@ -244,7 +266,7 @@ class ProgramRoutes
         }
         if (!empty($missingParams)) {
             $missingParamsString = implode(", ", $missingParams);
-            return new WP_Error(400, "Missing parameters: " . $missingParamsString);
+            return new WP_REST_Response($this->get_response_object(400, "Missing parameters: " . $missingParamsString), 400);
         }
 
 
@@ -254,7 +276,7 @@ class ProgramRoutes
         $current_allocations = $wpdb->get_results("SELECT program_assigned_to FROM $programs_table WHERE program_assigned_to=$trainer_id");
 
         if (count($current_allocations) > 0) {
-            return new WP_Error(400, "Trainer already has an ongoing program");
+            return new WP_REST_Response($this->get_response_object(409, "Trainer already has an ongoing program"), 409);
         }
 
         $res = $wpdb->update($programs_table, [
@@ -262,11 +284,11 @@ class ProgramRoutes
         ], ['program_id' => $program_id]);
 
         if (is_wp_error($res)) {
-            return new WP_Error(400, "Error allocating program", $res);
+            return new WP_REST_Response($this->get_response_object(500, "Error allocating program"), 500);
         } elseif (!$res) {
-            return new WP_Error(400, "Invalid Trainer ID", $res);
+            return new WP_REST_Response($this->get_response_object(400, "Invalid Trainer ID or Program ID"), 400);
         }
-        return "Trainer Allocated Successfully";
+        return new WP_REST_Response($this->get_response_object(200, "Trainer Allocated Successfully"));
     }
 
     public function update_program($request)
@@ -293,7 +315,7 @@ class ProgramRoutes
         }
         if (!empty($missingParams)) {
             $missingParamsString = implode(", ", $missingParams);
-            return new WP_Error(400, "Missing parameters: " . $missingParamsString);
+            return new WP_REST_Response($this->get_response_object(400, "Missing parameters: " . $missingParamsString), 400);
         }
 
         $res = $wpdb->update($table_name, [
@@ -303,8 +325,20 @@ class ProgramRoutes
         ], ['program_id' => $id]);
 
         if ($res > 0) {
-            return "Program Updated Successfully";
+            return new WP_REST_Response($this->get_response_object(200, "Program Updated Successfully"));
         }
-        return new WP_Error(400, "Error updating program", $res);
+        return new WP_REST_Response($this->get_response_object(500, "Error updating program"), 500);
+    }
+
+    public function delete_program($request)
+    {
+        $program_id = $request->get_param('program_id');
+
+        global $wpdb;
+        $programs_table = $wpdb->prefix . 'programs';
+
+        $res = $wpdb->delete($programs_table, ['program_id' => $program_id]);
+
+        return new WP_REST_Response($this->get_response_object(204, "Program Deleted", $program_id), 204);
     }
 }

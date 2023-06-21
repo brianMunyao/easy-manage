@@ -7,6 +7,7 @@
 namespace Inc\Pages;
 
 use WP_Error;
+use WP_REST_Response;
 
 class ProjectRoutes
 {
@@ -36,14 +37,14 @@ class ProjectRoutes
             'methods' => "POST",
             'callback' => [$this, 'create_project'],
             'permission_callback' => function () {
-                return current_user_can('read');
+                return current_user_can('edit_posts');
             }
         ]);
         register_rest_route('api/v1', '/projects', [
             'methods' => "PUT",
             'callback' => [$this, 'update_project'],
             'permission_callback' => function () {
-                return current_user_can('read');
+                return current_user_can('edit_posts');
             }
         ]);
         register_rest_route('api/v1', '/projects/complete/(?P<project_id>\d+)', [
@@ -71,7 +72,7 @@ class ProjectRoutes
             'methods' => "DELETE",
             'callback' => [$this, 'delete_project'],
             'permission_callback' => function () {
-                return current_user_can('read');
+                return current_user_can('edit_posts');
             }
         ]);
     }
@@ -96,6 +97,20 @@ class ProjectRoutes
         dbDelta($sql);
     }
 
+    public function get_response_object($code, $message, $data = null)
+    {
+        $res = ["code" => $code];
+
+        if (isset($message)) {
+            $res['message'] = $message;
+        }
+
+        if ($data !== null) {
+            $res['data'] = $data;
+        }
+        return $res;
+    }
+
     public function get_all_projects($request)
     {
         $trainer_id = $request->get_param('trainer_id');
@@ -118,7 +133,7 @@ class ProjectRoutes
         } else {
             $projects = $wpdb->get_results($wpdb->prepare("SELECT * FROM $projects_table"));
         }
-        return $projects;
+        return new WP_REST_Response($this->get_response_object(200, null, $projects));
     }
 
     public function get_trainee_projects($request)
@@ -126,11 +141,6 @@ class ProjectRoutes
         $trainee_id = $request->get_param('trainee_id');
 
         global $wpdb;
-        // $projects_table = $wpdb->prefix . 'projects';
-        // $allocation_table = $wpdb->prefix . 'project_trainees_allocation';
-
-
-
 
         $projects = $wpdb->get_results($wpdb->prepare("SELECT
                 wp_projects.*,
@@ -144,14 +154,12 @@ class ProjectRoutes
             GROUP BY
                 wp_projects.project_id;"));
 
-
-        return $projects;
+        return new WP_REST_Response($this->get_response_object(200, null, $projects));
     }
 
     public function get_single_project($request)
     {
         global $wpdb;
-        $projects_table = $wpdb->prefix . 'projects';
         $project = $wpdb->get_row($wpdb->prepare("SELECT
                 wp_projects.*,
                 GROUP_CONCAT(trainee_id) AS project_assignees
@@ -164,7 +172,10 @@ class ProjectRoutes
             GROUP BY
                 wp_projects.project_id;"));
 
-        return $project ?? new WP_Error(404, 'Project does not exist');
+        if (!$project) {
+            return new WP_REST_Response($this->get_response_object(404, 'Project does not exist'), 404);
+        }
+        return new WP_REST_Response($this->get_response_object(200, null, $project));
     }
 
     public function create_project($request)
@@ -203,7 +214,7 @@ class ProjectRoutes
 
         if (!empty($missingParams)) {
             $missingParamsString = implode(", ", $missingParams);
-            return new WP_Error(400, "Missing parameters: " . $missingParamsString);
+            return new WP_REST_Response($this->get_response_object(400, "Missing parameters: " . $missingParamsString), 400);
         }
 
 
@@ -218,7 +229,7 @@ class ProjectRoutes
         foreach ($project_assignees as $assigned) {
             if (!in_array($assigned, $available_ids)) {
                 $user = get_user_meta($assigned, 'fullname', true);
-                return new WP_Error(400, $user . " has a maximum value of tasks");
+                return new WP_REST_Response($this->get_response_object(409, $user . " has a maximum value of tasks"), 409);
             }
         }
 
@@ -232,14 +243,14 @@ class ProjectRoutes
         ]);
 
         if (is_wp_error($res)) {
-            return new WP_Error(400, "Error creating project", $res);
+            return new WP_REST_Response($this->get_response_object(500, "Error creating project"), 500);
         } else {
             $project_id = $wpdb->insert_id;
 
             foreach ($project_assignees as $assigned) {
                 $this->allocate_trainee_to_project($project_id, $assigned);
             }
-            return "Project Successfully Created";
+            return new WP_REST_Response($this->get_response_object(201, "Project Created Successfully", $project_id), 201);
         }
     }
 
@@ -273,7 +284,7 @@ class ProjectRoutes
 
         if (!empty($missingParams)) {
             $missingParamsString = implode(", ", $missingParams);
-            return new WP_Error(400, "Missing parameters: " . $missingParamsString);
+            return new WP_REST_Response($this->get_response_object(400, "Missing parameters: " . $missingParamsString), 400);
         }
 
         global $wpdb;
@@ -290,7 +301,7 @@ class ProjectRoutes
                 $was_assigned = $wpdb->get_row("SELECT id FROM $allocation_table WHERE trainee_id=$assigned AND project_id=$project_id");
                 if (!$was_assigned) {
                     $user = get_user_meta($assigned, 'fullname', true);
-                    return new WP_Error(400, $user . " has a maximum value of tasks" . json_encode($was_assigned));
+                    return new WP_REST_Response($this->get_response_object(409, $user . " has a maximum value of tasks"), 409);
                 }
             }
         }
@@ -305,14 +316,14 @@ class ProjectRoutes
         ]);
 
         if (is_wp_error($res)) {
-            return new WP_Error(400, "Error creating project", $res);
+            return new WP_REST_Response($this->get_response_object(500, "Error updating project"), 500);
         } else {
             $this->unallocate_trainees_from_project($project_id);
 
             foreach ($project_assignees as $assigned) {
                 $this->allocate_trainee_to_project($project_id, $assigned);
             }
-            return "Project Updated Successfully";
+            return new WP_REST_Response($this->get_response_object(200, "Project Updated Successfully"));
         }
     }
 
@@ -410,7 +421,7 @@ class ProjectRoutes
         $res = $wpdb->delete($allocation_table, ['project_id' => $project_id]);
 
         if (is_wp_error($res)) {
-            return new WP_Error(400, "Error removing from project", $res);
+            return new WP_REST_Response($this->get_response_object(500, 'Error removing from project'), 500);
         }
 
         return $res;
@@ -427,15 +438,15 @@ class ProjectRoutes
         $res = $wpdb->update($projects_table, ['project_done' => 1], ['project_id' => $project_id]);
 
         if (is_wp_error($res)) {
-            return new WP_Error(400, "Error deleting project from project");
+            return new WP_REST_Response($this->get_response_object(500, "Error deleting project from project"), 500);
         } else {
             $res = $wpdb->update($tasks_table, ['task_done' => 1], ['task_project_id' => $project_id]);
         }
 
         if (is_wp_error($res)) {
-            return new WP_Error(400, "Error completing tasks", $res);
+            return new WP_REST_Response($this->get_response_object(500, "Error completing tasks"), 500);
         }
-        return "Project Completed Sucessfully";
+        return new WP_REST_Response($this->get_response_object(204, "Project Completed Sucessfully"), 204);
     }
     public function delete_project($request)
     {
@@ -447,11 +458,11 @@ class ProjectRoutes
         $res = $wpdb->delete($projects_table, ['project_id' => $project_id]);
 
         if (is_wp_error($res)) {
-            return new WP_Error(400, "Error deleting project from project");
+            return new WP_REST_Response($this->get_response_object(400, "Error deleting project from project"), 400);
         } else {
             $this->unallocate_trainees_from_project($project_id);
         }
 
-        return "Project Deleted";
+        return new WP_REST_Response($this->get_response_object(204, "Project Deleted", $project_id), 204);
     }
 }

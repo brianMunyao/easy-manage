@@ -7,6 +7,7 @@
 namespace Inc\Pages;
 
 use WP_Error;
+use WP_REST_Response;
 
 class TraineeProjectAllocation
 {
@@ -40,10 +41,26 @@ class TraineeProjectAllocation
         register_rest_route('api/v1', '/projects/allocate', [
             'methods' => 'POST',
             'callback' => [$this, 'allocate_trainee'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
+    }
+
+    public function get_response_object($code, $message, $data = NULL)
+    {
+        $res = ["code" => $code];
+
+        if ($message) {
+            $res['message'] = $message;
+            return $res;
+        }
+
+        if ($data) {
+            $res['data'] = $data;
+            return $res;
+        }
+        return $res;
     }
 
     public function allocate_trainee($request)
@@ -60,9 +77,9 @@ class TraineeProjectAllocation
         ]);
 
         if (is_wp_error($res)) {
-            return new WP_Error(400, "Error registering to project", $res);
+            return new WP_REST_Response($this->get_response_object(400, "Error registering to project"), 400);
         }
 
-        return $res;
+        return new WP_REST_Response($this->get_response_object(201, "Trainee Allocated Project"), 201);
     }
 }

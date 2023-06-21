@@ -6,7 +6,7 @@
 
 namespace Inc\Pages;
 
-use WP_Error;
+use WP_REST_Response;
 
 class EmployeeRoutes
 {
@@ -52,7 +52,7 @@ class EmployeeRoutes
             'methods' => 'POST',
             'callback' => [$this, 'create_employee'],
             'permission_callback' => function () {
-                return current_user_can('read');
+                return current_user_can('edit_posts');
             }
         ]);
         register_rest_route('api/v1', '/login', [
@@ -66,35 +66,35 @@ class EmployeeRoutes
             'methods' => 'PUT',
             'callback' => [$this, 'update_employee'],
             'permission_callback' => function () {
-                return current_user_can('read');
+                return current_user_can('edit_posts');
             }
         ]);
         register_rest_route('api/v1', '/employees/deactivate/(?P<id>\d+)', [
             'methods' => 'PUT',
             'callback' => [$this, 'deactivate_employee'],
             'permission_callback' => function () {
-                return current_user_can('read');
+                return current_user_can('edit_posts');
             }
         ]);
         register_rest_route('api/v1', '/employees/activate/(?P<id>\d+)', [
             'methods' => 'PUT',
             'callback' => [$this, 'activate_employee'],
             'permission_callback' => function () {
-                return current_user_can('read');
+                return current_user_can('edit_posts');
             }
         ]);
         register_rest_route('api/v1', '/employees/delete/(?P<id>\d+)', [
             'methods' => 'PUT',
             'callback' => [$this, 'delete_employee'],
             'permission_callback' => function () {
-                return current_user_can('read');
+                return current_user_can('manage_options');
             }
         ]);
         register_rest_route('api/v1', '/employees/restore/(?P<id>\d+)', [
             'methods' => 'PUT',
             'callback' => [$this, 'restore_employee'],
             'permission_callback' => function () {
-                return current_user_can('read');
+                return current_user_can('manage_options');
             }
         ]);
     }
@@ -116,6 +116,20 @@ class EmployeeRoutes
         ];
     }
 
+    public function get_response_object($code, $message, $data = null)
+    {
+        $res = ["code" => $code];
+
+        if (isset($message)) {
+            $res['message'] = $message;
+        }
+
+        if ($data !== null) {
+            $res['data'] = $data;
+        }
+        return $res;
+    }
+
     public function get_employees($request)
     {
         $role = $request->get_param('role');
@@ -133,7 +147,7 @@ class EmployeeRoutes
         ]);
         $res = array_map([$this, 'format_user_data'], $users);
 
-        return $res;
+        return new WP_REST_Response($this->get_response_object(200, null, $res));
     }
 
     public function get_single_employee($request)
@@ -150,9 +164,9 @@ class EmployeeRoutes
 
         $res = reset($res);
         if (!$res) {
-            return new WP_Error(404, 'User Not Found ');
+            return new WP_REST_Response($this->get_response_object(404, "User Not Found"), 404);
         }
-        return $res;
+        return new WP_REST_Response($this->get_response_object(200, null, $res));
     }
 
 
@@ -176,8 +190,7 @@ class EmployeeRoutes
             return (strpos($fullname_lower, $q) !== false || strpos($email_lower, $q) !== false) && $user['is_deactivated'] == '0' && $user['is_deleted'] == '0';
         });
 
-        // return count($filtered_users);
-        return array_values($filtered_users);
+        return new WP_REST_Response($this->get_response_object(200, null, array_values($filtered_users)));
     }
 
 
@@ -203,7 +216,7 @@ class EmployeeRoutes
             return $user['created_by'] == $created_by;
         });
 
-        return array_values($filtered_users);
+        return new WP_REST_Response($this->get_response_object(200, null, array_values($filtered_users)));
     }
 
     public function create_employee($request)
@@ -234,7 +247,7 @@ class EmployeeRoutes
 
         if (!empty($missingParams)) {
             $missingParamsString = implode(", ", $missingParams);
-            return new WP_Error(400, "Missing parameters: " . $missingParamsString);
+            return new WP_REST_Response($this->get_response_object(400, "Missing parameters: " . $missingParamsString), 400);
         }
 
         $result = wp_insert_user([
@@ -251,9 +264,9 @@ class EmployeeRoutes
         ]);
 
         if (is_wp_error($result)) {
-            return new WP_Error(400, 'Employee Creation Failed', $result);
+            return new WP_REST_Response($this->get_response_object(500, 'Employee Creation Failed'), 500);
         }
-        return $result;
+        return new WP_REST_Response($this->get_response_object(201, "User Created", $result), 201);
     }
 
     public function login($request)
@@ -264,9 +277,9 @@ class EmployeeRoutes
         ]);
 
         if (is_wp_error($user)) {
-            return new WP_Error(400, $user->get_error_message());
+            return new WP_REST_Response($user->get_error_message(), 500);
         }
-        return $user;
+        return new WP_REST_Response($user);
     }
 
     public function update_employee($request)
@@ -287,7 +300,7 @@ class EmployeeRoutes
 
         if (!empty($missingParams)) {
             $missingParamsString = implode(", ", $missingParams);
-            return new WP_Error(400, "Missing parameters: " . $missingParamsString);
+            return new WP_REST_Response($this->get_response_object(400, "Missing parameters: " . $missingParamsString), 400);
         }
 
         $result = wp_update_user([
@@ -299,20 +312,23 @@ class EmployeeRoutes
         ]);
 
         if (is_wp_error($result)) {
-            return new WP_Error(400, 'Employee Update Failed', $result);
+            return new WP_REST_Response($this->get_response_object(500, 'Employee Update Failed'), 500);
         }
-        return $result;
+        return new WP_REST_Response($this->get_response_object(200, "User Updated Successfully", $user_id));
     }
 
     public function deactivate_employee($request)
     {
         $id = $request->get_param('id');
+        if ($id == 1) {
+            return new WP_REST_Response($this->get_response_object(500, 'Admin Cannot Be Deactivated'), 500);
+        }
         $meta_id = update_user_meta($id, "is_deactivated", 1);
 
         if (!$meta_id) {
-            return new WP_Error(400, 'Deactivation Failed ', $meta_id);
+            return new WP_REST_Response($this->get_response_object(500, 'Deactivation Failed'), 500);
         }
-        return $meta_id;
+        return new WP_REST_Response($this->get_response_object(200, "User Deactivated Successfully"));
     }
 
 
@@ -322,21 +338,24 @@ class EmployeeRoutes
         $meta_id = update_user_meta($id, "is_deactivated", 0);
 
         if (!$meta_id) {
-            return new WP_Error(400, 'Activation Failed ', $meta_id);
+            return new WP_REST_Response($this->get_response_object(500, 'Activation Failed'), 500);
         }
-        return $meta_id;
+        return new WP_REST_Response($this->get_response_object(200, "User Activated"));
     }
 
     public function delete_employee($request)
     {
         $id = $request->get_param('id');
+        if ($id == 1) {
+            return new WP_REST_Response($this->get_response_object(500, 'Admin Cannot Be Deleted'), 500);
+        }
         $meta_id_deactivate = update_user_meta($id, "is_deactivated", 1);
         $meta_id = update_user_meta($id, "is_deleted", 1);
 
         if (!$meta_id) {
-            return new WP_Error(400, 'User Deleted Failed', $meta_id);
+            return new WP_REST_Response($this->get_response_object(500, 'Deletion Failed'), 500);
         }
-        return $meta_id;
+        return new WP_REST_Response($this->get_response_object(200, "User Deleted"));
     }
 
 
@@ -346,8 +365,8 @@ class EmployeeRoutes
         $meta_id = update_user_meta($id, "is_deleted", 0);
 
         if (!$meta_id) {
-            return new WP_Error(400, 'Restored Failed ', $meta_id);
+            return new WP_REST_Response($this->get_response_object(500, 'Restoration Failed'), 500);
         }
-        return $meta_id;
+        return new WP_REST_Response($this->get_response_object(200, "User Restored"));
     }
 }

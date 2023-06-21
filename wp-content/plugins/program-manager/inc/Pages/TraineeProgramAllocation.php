@@ -7,6 +7,7 @@
 namespace Inc\Pages;
 
 use WP_Error;
+use WP_REST_Response;
 
 class TraineeProgramAllocation
 {
@@ -40,9 +41,9 @@ class TraineeProgramAllocation
         register_rest_route('api/v1', '/trainees/allocate-program', [
             'methods' => 'POST',
             'callback' => [$this, 'register_in_program'],
-            // 'permission_callback' => function () {
-            //     return current_user_can('manage_options');
-            // }
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
         ]);
     }
 
@@ -60,9 +61,9 @@ class TraineeProgramAllocation
         ]);
 
         if (is_wp_error($res)) {
-            return new WP_Error(400, "Error registering to program", $res);
+            return new WP_REST_Response("Error registering to program", 500);
         }
 
-        return $res;
+        return new WP_REST_Response("Trainee Added To Program", 201);
     }
 }
