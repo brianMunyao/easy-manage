@@ -259,7 +259,7 @@ function get_initials($name)
 /**
  * 
  * 
- * Validation Functions
+ * ===== Input Validation Functions =====
  * 
  */
 
@@ -307,40 +307,91 @@ function validate_field_custom($field, $label = "Field")
 function is_response_error($obj)
 {
     try {
-        return property_exists($obj, 'code');
+        $code = $obj->code;
+        if ($code > 300) {
+            return true;
+        }
+        return false;
     } catch (\Throwable $err) {
         return false;
     }
 }
 
+/**
+ * 
+ * 
+ * ===== Cookie Management =====
+ * 
+ */
+global $token_name;
+$token_name = "em_token";
+
+function add_token_cookie($token)
+{
+    global $token_name;
+    $expiration_time = time() + (24 * 60 * 60); // 24 hours
+    return setcookie($token_name, $token, $expiration_time, '/easy-manage');
+}
+function get_token_cookie()
+{
+    global $token_name;
+
+    if (isset($_COOKIE[$token_name])) {
+        return $_COOKIE[$token_name];
+    }
+    wp_logout();
+}
+
+function remove_token_cookie()
+{
+    global $token_name;
+    $expiration_time = time() - (60 * 60); // 1 hour ago
+    setcookie($token_name, "", $expiration_time, '/easy-manage');
+}
 
 
 /**
  * 
  * 
- * Rest API functions
- * 
+ * ===== Rest API functions =====
  * 
  */
 global $base_url;
 $base_url = 'http://localhost/easy-manage/wp-json/api/v1';
 
 
-function login($user)
+function get_token($email, $password)
 {
     global $base_url;
 
-    $res = wp_remote_post($base_url . "/login", [
+    $res = wp_remote_post($base_url . "/token", [
         'method' => 'POST',
         'data_format' => 'body',
-        'body' => $user,
-        // 'body' => $user
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'body' => [
+            'email' => $email,
+            'password' => $password
+        ]
     ]);
 
     $res = wp_remote_retrieve_body($res);
     return json_decode($res);
 }
+
+// function login($user)
+// {
+//     global $base_url;
+
+//     $res = wp_remote_post($base_url . "/login", [
+//         'method' => 'POST',
+//         'data_format' => 'body',
+//         'body' => $user,
+//         // 'body' => $user
+//         // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+//     ]);
+
+//     $res = wp_remote_retrieve_body($res);
+//     return json_decode($res);
+// }
 
 function get_program_managers()
 {
@@ -867,7 +918,9 @@ function delete_task($task_id)
 
 /**
  * 
- * Custom Actions
+ *
+ * ===== Custom Actions =====
+ * 
  */
 
 function on_project_delete()
@@ -880,7 +933,8 @@ add_action('on_project_delete', 'on_project_delete');
 
 /**
  * 
- * Login Limits
+ * 
+ * ===== Login Limits =====
  * 
  */
 

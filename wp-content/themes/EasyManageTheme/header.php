@@ -1,4 +1,9 @@
-<?php if (isset($_POST['logout'])) wp_logout(); ?>
+<?php if (isset($_POST['logout'])) {
+    $success = remove_token_cookie();
+    if ($success) {
+        wp_logout();
+    }
+} ?>
 
 <!DOCTYPE html>
 <html lang="en">

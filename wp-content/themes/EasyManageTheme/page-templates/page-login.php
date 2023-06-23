@@ -14,15 +14,24 @@ if (isset($_POST['login'])) {
     $pass_error = validate_password_custom($password);
 
     if (empty($email_error) && empty($pass_error)) {
-        // TODO: Change this to api
+        $is_token = get_token($email, $password);
 
-        $user = wp_signon([
-            'user_login' => $email,
-            'user_password' => $password
-        ]);
-
-        if (is_wp_error($user)) {
-            $form_error = $user->get_error_message();
+        if (is_response_error($is_token)) {
+            $form_error = $is_token->message;
+        } else {
+            if (property_exists($is_token, 'data')) {
+                $token_set = add_token_cookie($is_token->data);
+                if ($token_set) {
+                    $user = wp_signon([
+                        'user_login' => $email,
+                        'user_password' => $password
+                    ]);
+                } else {
+                    wp_logout();
+                }
+            } else {
+                $form_error = "Error getting token. Try Again Later.";
+            }
         }
     }
 }

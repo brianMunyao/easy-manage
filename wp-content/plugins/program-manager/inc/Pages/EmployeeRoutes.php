@@ -55,12 +55,12 @@ class EmployeeRoutes
                 return current_user_can('edit_posts');
             }
         ]);
-        register_rest_route('api/v1', '/login', [
+        register_rest_route('api/v1', '/token', [
             'methods' => 'POST',
-            'callback' => [$this, 'login'],
-            'permission_callback' => function () {
-                return current_user_can('read');
-            }
+            'callback' => [$this, 'get_user_token'],
+            // 'permission_callback' => function () {
+            //     return current_user_can('read');
+            // }
         ]);
         register_rest_route('api/v1', '/employees/(?P<id>\d+)', [
             'methods' => 'PUT',
@@ -124,7 +124,7 @@ class EmployeeRoutes
             $res['message'] = $message;
         }
 
-        if ($data !== null) {
+        if (isset($data)) {
             $res['data'] = $data;
         }
         return $res;
@@ -269,17 +269,43 @@ class EmployeeRoutes
         return new WP_REST_Response($this->get_response_object(201, "User Created", $result), 201);
     }
 
-    public function login($request)
+    public function get_user_token($request)
     {
-        $user = wp_signon([
-            'user_login' => $request['email'],
-            'user_password' => $request['password']
-        ]);
+        $email = $request['email'];
+        $password = $request['password'];
 
-        if (is_wp_error($user)) {
-            return new WP_REST_Response($user->get_error_message(), 500);
+        $missingParams = array();
+
+        if (!isset($email)) {
+            $missingParams[] = "email";
         }
-        return new WP_REST_Response($user);
+        if (!isset($password)) {
+            $missingParams[] = "password";
+        }
+
+        if (!empty($missingParams)) {
+            $missingParamsString = implode(", ", $missingParams);
+            return new WP_REST_Response($this->get_response_object(400, "Missing parameters: " . $missingParamsString), 400);
+        }
+
+        $user = get_user_by('email', $email);
+        if ($user) {
+            $hashed_password = $user->user_pass;
+
+            if (wp_check_password($password, $hashed_password)) {
+                $res = wp_remote_post("http://localhost/easy-manage/wp-json/jwt-auth/v1/token", [
+                    'method' => 'POST',
+                    'data_format' => 'body',
+                    'body' => ['username' => $email, 'password' => $password]
+                ]);
+
+                $res = wp_remote_retrieve_body($res);
+                $res =  json_decode($res);
+
+                return new WP_REST_Response($this->get_response_object(200, null, $res->token));
+            }
+        }
+        return new WP_REST_Response($this->get_response_object(404, "Invalid username or password"), 404);
     }
 
     public function update_employee($request)
