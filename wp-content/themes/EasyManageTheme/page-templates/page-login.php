@@ -26,8 +26,6 @@ if (isset($_POST['login'])) {
                         'user_login' => $email,
                         'user_password' => $password
                     ]);
-                } else {
-                    wp_logout();
                 }
             } else {
                 $form_error = "Error getting token. Try Again Later.";

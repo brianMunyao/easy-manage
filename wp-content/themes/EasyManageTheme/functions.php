@@ -307,13 +307,19 @@ function validate_field_custom($field, $label = "Field")
 function is_response_error($obj)
 {
     try {
-        $code = $obj->code;
-        if ($code > 300) {
-            return true;
+        if (isset($obj->code)) {
+            if (gettype($obj->code) == 'integer') {
+                $code = $obj->code;
+                if ($code > 300) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
         }
-        return false;
+        return true;
     } catch (\Throwable $err) {
-        return false;
+        return true;
     }
 }
 
@@ -332,6 +338,7 @@ function add_token_cookie($token)
     $expiration_time = time() + (24 * 60 * 60); // 24 hours
     return setcookie($token_name, $token, $expiration_time, '/easy-manage');
 }
+
 function get_token_cookie()
 {
     global $token_name;
@@ -339,7 +346,7 @@ function get_token_cookie()
     if (isset($_COOKIE[$token_name])) {
         return $_COOKIE[$token_name];
     }
-    wp_logout();
+    // wp_logout(); // TODO: Find another way to redirect if cookie does not exist
 }
 
 function remove_token_cookie()
@@ -359,6 +366,8 @@ function remove_token_cookie()
 global $base_url;
 $base_url = 'http://localhost/easy-manage/wp-json/api/v1';
 
+global $authHeaders;
+$authHeaders = ['Authorization' => 'Bearer ' . get_token_cookie()];
 
 function get_token($email, $password)
 {
@@ -377,39 +386,27 @@ function get_token($email, $password)
     return json_decode($res);
 }
 
-// function login($user)
-// {
-//     global $base_url;
-
-//     $res = wp_remote_post($base_url . "/login", [
-//         'method' => 'POST',
-//         'data_format' => 'body',
-//         'body' => $user,
-//         // 'body' => $user
-//         // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
-//     ]);
-
-//     $res = wp_remote_retrieve_body($res);
-//     return json_decode($res);
-// }
-
 function get_program_managers()
 {
     global $base_url;
+    global $authHeaders;
 
-    $res = wp_remote_get($base_url . "/program-managers", [
+    $res = wp_remote_get($base_url . "/employees?role=program_manager", [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
-    $project_managers = wp_remote_retrieve_body($res);
-    return json_decode($project_managers);
+    $program_managers = wp_remote_retrieve_body($res);
+    $program_managers = json_decode($program_managers);
+
+    return is_response_error($program_managers) ? [] : $program_managers->data;
 }
 
 function get_trainers_new($pm_id = null)
 {
     global $base_url;
-    $full_url = $base_url . "/trainers";
+    global $authHeaders;
+    $full_url = $base_url . "/employees?role=trainer";
 
     if ($pm_id) {
         $full_url .= '?pm_id=' . $pm_id;
@@ -417,47 +414,56 @@ function get_trainers_new($pm_id = null)
 
     $res = wp_remote_get($full_url, [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
     $trainers = wp_remote_retrieve_body($res);
-    return json_decode($trainers);
+    $trainers =  json_decode($trainers);
+
+    return is_response_error($trainers) ? [] : $trainers->data;
 }
 
 function get_trainees_new($trainer_id = NULL, $program_id = NULL)
 {
     global $base_url;
-    $full_url = $base_url . "/trainees";
+    global $authHeaders;
+    $full_url = $base_url . "/employees?role=trainee";
 
     $res = wp_remote_get($full_url, [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
     $trainees = wp_remote_retrieve_body($res);
-    return json_decode($trainees);
+    $trainees = json_decode($trainees);
+
+    return is_response_error($trainees) ? [] : $trainees->data;
 }
 
 function get_employees_new()
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_get($base_url . "/employees", [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
     $employees = wp_remote_retrieve_body($res);
-    return json_decode($employees);
+    $employees = json_decode($employees);
+
+    return is_response_error($employees) ? [] : $employees->data;
 }
 
 function get_single_employees_new($id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_get($base_url . "/employees/" . $id, [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
     $employee = wp_remote_retrieve_body($res);
@@ -467,39 +473,45 @@ function get_single_employees_new($id)
 function search_employees($q)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_get($base_url . "/employees/search?q=" . $q, [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
-    $trainees = wp_remote_retrieve_body($res);
-    return json_decode($trainees);
+    $results = wp_remote_retrieve_body($res);
+    $results = json_decode($results);
+
+    return is_response_error($results) ? [] : $results->data;
 }
 
 function get_users_created_by($id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_get($base_url . "/employees/created_by/" . $id . "?role=trainer", [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
     $users = wp_remote_retrieve_body($res);
-    return json_decode($users);
+    $users = json_decode($users);
+
+    return is_response_error($users) ? [] : $users->data;
 }
 
 function create_employee_new($user)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/employees", [
         'method' => 'POST',
         'data_format' => 'body',
-        'body' => $user, //TODO: return to json_encode
-        // 'body' => $user
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'body' => $user,
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -510,13 +522,13 @@ function update_employee_new($user)
 {
     $user_id = $user['id'];
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/employees/$user_id", [
         'method' => 'PUT',
         'data_format' => 'body',
-        'body' => $user
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'body' => $user,
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -526,12 +538,12 @@ function update_employee_new($user)
 function activate_employee($id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/employees/activate/" . $id, [
         'method' => 'PUT',
         'data_format' => 'body',
-        // 'body' => $user
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
     $res = wp_remote_retrieve_body($res);
     return json_decode($res);
@@ -539,12 +551,12 @@ function activate_employee($id)
 function deactivate_employee($id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/employees/deactivate/" . $id, [
         'method' => 'PUT',
         'data_format' => 'body',
-        // 'body' => $user
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
     $res = wp_remote_retrieve_body($res);
     return json_decode($res);
@@ -553,12 +565,12 @@ function deactivate_employee($id)
 function delete_employee($id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/employees/delete/" . $id, [
         'method' => 'PUT',
         'data_format' => 'body',
-        // 'body' => $user
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
     $res = wp_remote_retrieve_body($res);
     return json_decode($res);
@@ -566,12 +578,12 @@ function delete_employee($id)
 function restore_employee($id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/employees/restore/" . $id, [
         'method' => 'PUT',
         'data_format' => 'body',
-        // 'body' => $user
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
     $res = wp_remote_retrieve_body($res);
     return json_decode($res);
@@ -580,12 +592,11 @@ function restore_employee($id)
 function get_programs_new($pmanager_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/programs/" . $pmanager_id, [
         'method' => 'GET',
-        // 'data_format' => 'body',
-        // 'body' => $user
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
     $res = wp_remote_retrieve_body($res);
     return json_decode($res);
@@ -593,9 +604,11 @@ function get_programs_new($pmanager_id)
 function get_single_program_new($id)
 {
     global $base_url;
+    global $authHeaders;
+
     $res = wp_remote_get($base_url . "/programs/single/" . $id, [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
     $program = wp_remote_retrieve_body($res);
     return json_decode($program);
@@ -603,9 +616,11 @@ function get_single_program_new($id)
 function get_program_assignee($id)
 {
     global $base_url;
+    global $authHeaders;
+
     $res = wp_remote_get($base_url . "/programs/assigned_to/" . $id, [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
     $program = wp_remote_retrieve_body($res);
     return json_decode($program);
@@ -613,13 +628,13 @@ function get_program_assignee($id)
 function create_program_new($program)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/programs", [
         'method' => 'POST',
         'data_format' => 'body',
-        'body' => $program
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'body' => $program,
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -628,20 +643,22 @@ function create_program_new($program)
 function get_unassigned_programs_new($pmanager_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_get($base_url . "/programs/unassigned/" . $pmanager_id, [
         'method' => 'GET',
-        // 'data_format' => 'body',
-        // 'body' => $user
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
     $res = wp_remote_retrieve_body($res);
-    return json_decode($res);
+    $res = json_decode($res);
+
+    return is_response_error($res) ? [] : $res->data;
 }
 
 function allocate_program($trainer_id, $program_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/programs/allocate", [
         'method' => 'PUT',
@@ -649,9 +666,8 @@ function allocate_program($trainer_id, $program_id)
         'body' => [
             "trainer_id" => $trainer_id,
             "program_id" => $program_id
-        ]
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        ],
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -661,13 +677,13 @@ function update_program_new($program)
 {
     $program_id = $program['program_id'];
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/programs/$program_id", [
         'method' => 'PUT',
         'data_format' => 'body',
-        'body' => $program
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'body' => $program,
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -676,6 +692,7 @@ function update_program_new($program)
 
 function get_all_projects($trainer_id = NULL)
 {
+    global $authHeaders;
     global $base_url;
     $full_url = $base_url . "/projects";
 
@@ -685,29 +702,33 @@ function get_all_projects($trainer_id = NULL)
 
     $res = wp_remote_get($full_url, [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
     $projects = wp_remote_retrieve_body($res);
-    return json_decode($projects);
+    $projects = json_decode($projects);
+
+    return is_response_error($projects) ? [] : $projects->data;
 }
 
 function get_single_project_new($p_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_get($base_url . "/projects/" . $p_id, [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
-    $projects = wp_remote_retrieve_body($res);
-    return json_decode($projects);
+    $project = wp_remote_retrieve_body($res);
+    return json_decode($project);
 }
 
 function assign_trainee_to_program($trainee_id, $program_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/trainees/allocate-program", [
         'method' => 'POST',
@@ -715,9 +736,8 @@ function assign_trainee_to_program($trainee_id, $program_id)
         'body' => [
             'trainee_id' => $trainee_id,
             'program_id' => $program_id
-        ]
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        ],
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -727,38 +747,44 @@ function assign_trainee_to_program($trainee_id, $program_id)
 function get_trainees_in_program($program_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_get($base_url . "/programs/trainees/" . $program_id, [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
-    $projects = wp_remote_retrieve_body($res);
-    return json_decode($projects);
+    $trainees = wp_remote_retrieve_body($res);
+    $trainees = json_decode($trainees);
+
+    return is_response_error($trainees) ? [] : $trainees->data;
 }
 function get_trainees_projects($trainee_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_get($base_url . "/projects/trainees/" . $trainee_id, [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
     $projects = wp_remote_retrieve_body($res);
-    return json_decode($projects);
+    $projects = json_decode($projects);
+
+    return is_response_error($projects) ? [] : $projects->data;
 }
 
 function create_project($project)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/projects", [
         'method' => 'POST',
         'data_format' => 'body',
-        'body' => $project
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'body' => $project,
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -768,13 +794,13 @@ function create_project($project)
 function update_project($project)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/projects", [
         'method' => 'PUT',
         'data_format' => 'body',
-        'body' => $project
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'body' => $project,
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -784,23 +810,27 @@ function update_project($project)
 function get_available_trainees($program_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_get($base_url . "/projects/trainees/available/" . $program_id, [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
-    return json_decode($res);
+    $res = json_decode($res);
+
+    return is_response_error($res) ? [] : $res->data;
 }
 
 function complete_project($project_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_get($base_url . "/projects/complete/" . $project_id, [
         'method' => 'PUT',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -810,10 +840,11 @@ function complete_project($project_id)
 function delete_project($project_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_get($base_url . "/projects/" . $project_id, [
         'method' => 'DELETE',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -823,22 +854,26 @@ function delete_project($project_id)
 function get_tasks($project_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_get($base_url . "/tasks/" . $project_id, [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
-    return json_decode($res);
+    $res = json_decode($res);
+
+    return is_response_error($res) ? [] : $res->data;
 }
 function get_single_task($task_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_get($base_url . "/tasks/single/" . $task_id, [
         'method' => 'GET',
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -848,13 +883,13 @@ function get_single_task($task_id)
 function create_task($task)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/tasks", [
         'method' => 'POST',
         'data_format' => 'body',
-        'body' => $task
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'body' => $task,
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -864,13 +899,13 @@ function create_task($task)
 function update_task($task, $task_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/tasks/" . $task_id, [
         'method' => 'PUT',
         'data_format' => 'body',
-        'body' => $task
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'body' => $task,
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -879,11 +914,11 @@ function update_task($task, $task_id)
 function complete_task($task_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/tasks/complete/" . $task_id, [
         'method' => 'PUT',
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -892,11 +927,11 @@ function complete_task($task_id)
 function uncomplete_task($task_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/tasks/uncomplete/" . $task_id, [
         'method' => 'PUT',
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -905,11 +940,11 @@ function uncomplete_task($task_id)
 function delete_task($task_id)
 {
     global $base_url;
+    global $authHeaders;
 
     $res = wp_remote_post($base_url . "/tasks/" . $task_id, [
         'method' => 'DELETE',
-        // 'body' => json_encode($user), //TODO: return to json_encode
-        // 'headers' => ['Authorization' => 'Bearer ' . $GLOBALS['token']]
+        'headers' => $authHeaders
     ]);
 
     $res = wp_remote_retrieve_body($res);
@@ -929,6 +964,14 @@ function on_project_delete()
     exit();
 }
 add_action('on_project_delete', 'on_project_delete');
+
+// function move_to_previous_page()
+// {
+//     wp_redirect(wp_get_referer());
+//     exit();
+// }
+
+// add_action('move_to_previous_page', 'move_to_previous_page');
 
 
 /**

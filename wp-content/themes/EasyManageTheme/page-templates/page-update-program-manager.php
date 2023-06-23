@@ -1,15 +1,15 @@
 <?php if (!is_user_logged_in()) wp_redirect(site_url('/login')) ?>
 
 <?php
-if (!is_user_admin_custom()) {
-    wp_redirect(home_url());
-}
-if (!isset($_GET['id'])) {
-    wp_redirect(site_url('/employees'));
-}
+if (!is_user_admin_custom())     wp_redirect(home_url());
+
+if (!isset($_GET['id'])) wp_redirect(site_url('/employees'));
 $id = $_GET['id'];
 
 $user_info = get_single_employees_new($id);
+if (is_response_error($user_info)) wp_redirect('/employees');
+
+$user_info = $user_info->data;
 
 $fullname_error = '';
 $password_error = '';

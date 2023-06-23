@@ -1,12 +1,9 @@
 <?php if (!is_user_logged_in()) wp_redirect(site_url('/login')) ?>
 
 <?php
-$fullname_error = '';
-$email_error = '';
-$password_error = '';
+$fullname_error = $email_error = $password_error = '';
 
-$form_error = '';
-$form_success = '';
+$form_error = $form_success = '';
 
 
 if (isset($_POST['create-pm'])) {
@@ -29,9 +26,10 @@ if (isset($_POST['create-pm'])) {
             'created_by' => get_current_user_id()
         ]);
         if (is_response_error($result)) {
-            $form_error = "Creation Failed";
+            $form_error = $result->message;
         } else {
             $form_success = "Successfully created";
+            // do_action('move_to_previous_page');
         }
     }
 }

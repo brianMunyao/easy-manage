@@ -264,7 +264,7 @@ class EmployeeRoutes
         ]);
 
         if (is_wp_error($result)) {
-            return new WP_REST_Response($this->get_response_object(500, 'Employee Creation Failed'), 500);
+            return new WP_REST_Response($this->get_response_object(500, $result->get_error_message()), 500);
         }
         return new WP_REST_Response($this->get_response_object(201, "User Created", $result), 201);
     }
@@ -338,7 +338,7 @@ class EmployeeRoutes
         ]);
 
         if (is_wp_error($result)) {
-            return new WP_REST_Response($this->get_response_object(500, 'Employee Update Failed'), 500);
+            return new WP_REST_Response($this->get_response_object(500, $result->get_error_message()), 500);
         }
         return new WP_REST_Response($this->get_response_object(200, "User Updated Successfully", $user_id));
     }
