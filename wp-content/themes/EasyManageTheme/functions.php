@@ -176,23 +176,50 @@ function is_user_admin_custom()
 {
     return get_user_role() == 'administrator';
 }
+/**
+ * Checks if the current user has the role of program manager.
+ *
+ * @return bool
+ */
 function is_user_p_manager()
 {
     return get_user_role() == 'program_manager';
 }
+/**
+ * Checks if the current user has the role of a trainer.
+ *
+ * @return bool
+ */
 function is_user_trainer()
 {
     return get_user_role() == 'trainer';
 }
+/**
+ * Checks if the current user has the role of trainee.
+ *
+ * @return bool
+ */
 function is_user_trainee()
 {
     return get_user_role() == 'trainee';
 }
+/**
+ * Retrieve a specific meta data field for a user.
+ *
+ * @param int $user_id The ID of the user.
+ * @param string $key The meta data field key.
+ * @return mixed The value of the meta data field.
+ */
 function get_user_meta_custom($user_id, $key = 'fullname')
 {
     return get_user_meta($user_id, $key, true);
 }
 
+/**
+ * Returns a greeting based on the current time of day.
+ *
+ * @return string
+ */
 function get_greeting()
 {
     $currentHour = date('G');
@@ -205,11 +232,24 @@ function get_greeting()
     }
 }
 
+/**
+ * Formats a date string into a good format.
+ *
+ * @param string $date The date string to format.
+ * @return string The formatted date string.
+ */
 function format_date($date)
 {
     return date('jS F Y', strtotime($date));
 }
 
+/**
+ * Sorts an array of objects by their date of registration in descending order.
+ *
+ * @param  object  $a
+ * @param  object  $b
+ * @return int
+ */
 function sort_by_date_registered($a, $b)
 {
     $dateA = strtotime($a->registered_on);
@@ -221,6 +261,13 @@ function sort_by_date_registered($a, $b)
     return ($dateA > $dateB) ? -1 : 1;
 }
 
+/**
+ * Calculates the completion percentage of projects.
+ *
+ * @param array $arr1 The array containing ongoing tasks.
+ * @param array $arr2 The array containing completed tasks.
+ * @return string The completion percentage in the format of "ongoing% completed%".
+ */
 function calculate_completion_percentage($arr1, $arr2)
 {
     $res = "100% 0%";
@@ -234,6 +281,13 @@ function calculate_completion_percentage($arr1, $arr2)
     return $res;
 }
 
+/**
+ * Calculates the percentage of completed items out of total items.
+ *
+ * @param array $completed The number of completed items.
+ * @param array $total The total number of items.
+ * @return string The percentage of completed items out of total items.
+ */
 function calculate_percentage($completed, $total)
 {
     $res = "0%";
@@ -244,6 +298,12 @@ function calculate_percentage($completed, $total)
     return $res;
 }
 
+/**
+ * Returns the initials of a given name.
+ *
+ * @param string $name The name to get the initials from.
+ * @return string The initials of the name.
+ */
 function get_initials($name)
 {
     $words = explode(' ', $name);
@@ -263,6 +323,12 @@ function get_initials($name)
  * 
  */
 
+/**
+ * Validates an email address 
+ *
+ * @param string $email The email address to validate.
+ * @return string An error message if the email is invalid or empty, otherwise an empty string.
+ */
 function validate_email_custom($email)
 {
     $email = trim($email);
@@ -275,6 +341,12 @@ function validate_email_custom($email)
     return '';
 }
 
+/**
+ * Validates a password string.
+ *
+ * @param string $password The password string to validate.
+ * @return string Returns an empty string if the password is valid, otherwise returns an error message.
+ */
 function validate_password_custom($password)
 {
     $password = trim($password);
@@ -284,6 +356,12 @@ function validate_password_custom($password)
     return '';
 }
 
+/**
+ * Validates a full name string.
+ *
+ * @param string $fullname The full name string to be validated.
+ * @return string Returns an error message if the full name is empty, otherwise returns an empty string.
+ */
 function validate_fullname_custom($fullname)
 {
     $fullname = trim($fullname);
@@ -294,6 +372,13 @@ function validate_fullname_custom($fullname)
 }
 
 
+/**
+ * Validates a given field and returns an error message if it is empty.
+ *
+ * @param string $field The field to validate.
+ * @param string $label The label to use in the error message.
+ * @return string Returns an error message if the field is empty, otherwise an empty string.
+ */
 function validate_field_custom($field, $label = "Field")
 {
     $field = trim($field);
@@ -304,6 +389,12 @@ function validate_field_custom($field, $label = "Field")
 }
 
 
+/**
+ * Determines if the given object is an error response.
+ *
+ * @param mixed $obj The object to check.
+ * @return bool Returns true if the object is an error response, false otherwise.
+ */
 function is_response_error($obj)
 {
     try {
@@ -332,6 +423,12 @@ function is_response_error($obj)
 global $token_name;
 $token_name = "em_token";
 
+/**
+ * Adds a token cookie to the user's browser.
+ * @global string $token_name
+ * @param string $token The token to be added to the cookie.
+ * @return bool Returns true if the cookie was successfully set, false otherwise.
+ */
 function add_token_cookie($token)
 {
     global $token_name;
@@ -339,6 +436,12 @@ function add_token_cookie($token)
     return setcookie($token_name, $token, $expiration_time, '/easy-manage');
 }
 
+/**
+ * Retrieves the value of the token cookie, if it exists.
+ *
+ * @global string $token_name
+ * @return string The value of the token cookie, or an empty string if it does not exist.
+ */
 function get_token_cookie()
 {
     global $token_name;
@@ -346,9 +449,16 @@ function get_token_cookie()
     if (isset($_COOKIE[$token_name])) {
         return $_COOKIE[$token_name];
     }
+    return "";
     // wp_logout(); // TODO: Find another way to redirect if cookie does not exist
 }
 
+/**
+ * Removes the token cookie.
+ *
+ * @global string $token_name
+ * @return void
+ */
 function remove_token_cookie()
 {
     global $token_name;
@@ -369,6 +479,13 @@ $base_url = 'http://localhost/easy-manage/wp-json/api/v1';
 global $authHeaders;
 $authHeaders = ['Authorization' => 'Bearer ' . get_token_cookie()];
 
+/**
+ * Retrieves a token from the API using the provided email and password.
+ *
+ * @param string $email The email of the user.
+ * @param string $password The password of the user.
+ * @return mixed|null Returns the token as a JSON object or null if the request fails.
+ */
 function get_token($email, $password)
 {
     global $base_url;
@@ -386,6 +503,11 @@ function get_token($email, $password)
     return json_decode($res);
 }
 
+/**
+ * Retrieves all program managers from the API endpoint.
+ *
+ * @return array An array of program managers.
+ */
 function get_program_managers()
 {
     global $base_url;
@@ -402,6 +524,12 @@ function get_program_managers()
     return is_response_error($program_managers) ? [] : $program_managers->data;
 }
 
+/**
+ * Retrieves a list of trainers from the API.
+ *
+ * @param int|null $pm_id - Optional project manager ID to filter trainers by.
+ * @return array - An array of trainers, or an empty array if there was an error.
+ */
 function get_trainers_new($pm_id = null)
 {
     global $base_url;
@@ -423,6 +551,13 @@ function get_trainers_new($pm_id = null)
     return is_response_error($trainers) ? [] : $trainers->data;
 }
 
+/**
+ * Retrieves the list of trainees filtered by trainer and program.
+ *
+ * @param int|null $trainer_id
+ * @param int|null $program_id
+ * @return array
+ */
 function get_trainees_new($trainer_id = NULL, $program_id = NULL)
 {
     global $base_url;
@@ -440,6 +575,11 @@ function get_trainees_new($trainer_id = NULL, $program_id = NULL)
     return is_response_error($trainees) ? [] : $trainees->data;
 }
 
+/**
+ * Retrieves the list of employees from the API endpoint.
+ *
+ * @return array The list of employees retrieved from the API endpoint.
+ */
 function get_employees_new()
 {
     global $base_url;
@@ -456,6 +596,12 @@ function get_employees_new()
     return is_response_error($employees) ? [] : $employees->data;
 }
 
+/**
+ * Retrieves a single employee from the API using the provided ID.
+ *
+ * @param int $id The ID of the employee to retrieve.
+ * @return object Returns the employee object if found, error object otherwise.
+ */
 function get_single_employees_new($id)
 {
     global $base_url;
@@ -470,6 +616,12 @@ function get_single_employees_new($id)
     return json_decode($employee);
 }
 
+/**
+ * Search for employees based on the given query string.
+ *
+ * @param string $q The query string to search for.
+ * @return array An array of employee objects matching the query string.
+ */
 function search_employees($q)
 {
     global $base_url;
@@ -486,6 +638,12 @@ function search_employees($q)
     return is_response_error($results) ? [] : $results->data;
 }
 
+/**
+ * Retrieves the users created by the given ID.
+ *
+ * @param int $id The ID of the user who created the employees.
+ * @return array An array of users created by the given ID.
+ */
 function get_users_created_by($id)
 {
     global $base_url;
@@ -502,6 +660,12 @@ function get_users_created_by($id)
     return is_response_error($users) ? [] : $users->data;
 }
 
+/**
+ * Creates a new employee by sending a POST request to the API endpoint.
+ *
+ * @param array $user An array containing the details of the employee to be created.
+ * @return object The response from the API endpoint in JSON format.
+ */
 function create_employee_new($user)
 {
     global $base_url;
@@ -518,6 +682,12 @@ function create_employee_new($user)
     return json_decode($res);
 }
 
+/**
+ * Updates an employee with the given user data.
+ *
+ * @param array $user An array containing the user data to update.
+ * @return object Returns an object with employee id if successful, or an error object if the update failed.
+ */
 function update_employee_new($user)
 {
     $user_id = $user['id'];
@@ -983,6 +1153,14 @@ add_action('on_project_delete', 'on_project_delete');
  * 
  */
 
+/**
+ * Checks the number of login attempts for a user and returns an error message if the maximum number of attempts has been reached.
+ *
+ * @param mixed $user
+ * @param string $username
+ * @param string $password
+ * @return mixed|WP_Error
+ */
 function check_login_attempts($user, $username, $password)
 {
     $attempted_login = get_transient('attempted_login');
@@ -1002,6 +1180,12 @@ function check_login_attempts($user, $username, $password)
 
 add_filter('authenticate', 'check_login_attempts', 30, 3);
 
+/**
+ * Increments the login attempts for a given username.
+ *
+ * @param string $username The username for which to increment the login attempts.
+ * @return void
+ */
 function increment_login_attempts($username)
 {
     $attempted_login = get_transient('attempted_login') ?: ['tried' => 0];
@@ -1016,6 +1200,12 @@ function increment_login_attempts($username)
 
 add_action('wp_login_failed', 'increment_login_attempts', 10, 1);
 
+/**
+ * Calculates the time left between the given timestamp and the current time.
+ *
+ * @param int $timestamp The timestamp to calculate the time left from.
+ * @return string|null Returns a string representing the time left or null if the difference is zero.
+ */
 function calculate_time_left($timestamp)
 {
     $periods = [
