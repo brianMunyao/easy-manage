@@ -27,16 +27,24 @@ if (isset($_POST['create-trainee'])) {
             'created_by' => get_current_user_id()
         ]);
 
-        $assigned_program = get_program_assignee(get_current_user_id());
-
-        if (is_numeric($result)) {
-            $result = assign_trainee_to_program($result, $assigned_program->program_id);
-        }
-
         if (is_response_error($result)) {
             $form_error = $result->message ?? "Creation Failed";
         } else {
-            $form_success = "Successfully Created";
+            $result = $result->data; // ? New trainee id
+
+            $assigned_program = get_program_assignee(get_current_user_id());
+            if (!is_response_error($assigned_program)) {
+                $assigned_program = $assigned_program->data; // ? current program object
+                $result = assign_trainee_to_program($result, $assigned_program->program_id);
+
+                if (is_response_error($result)) {
+                    $form_error = $result->message ?? "Creation Failed";
+                } else {
+                    $form_success = "Successfully Created";
+                }
+            } else {
+                $form_error = $result->message ?? "Creation Failed";
+            }
         }
     }
 }

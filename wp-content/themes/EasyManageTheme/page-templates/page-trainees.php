@@ -28,6 +28,7 @@ get_header() ?>
 $trainer_has_program = false;
 $assigned_program = get_program_assignee(get_current_user_id());
 if (!is_response_error($assigned_program)) {
+    $assigned_program = $assigned_program->data;
     $trainer_has_program = true;
 }
 ?>

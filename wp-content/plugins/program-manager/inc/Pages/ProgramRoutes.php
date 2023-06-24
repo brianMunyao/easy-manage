@@ -22,14 +22,16 @@ class ProgramRoutes
         $table_name = $wpdb->prefix . 'programs';
 
         $sql = "CREATE TABLE IF NOT EXISTS $table_name (
-            program_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            program_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
             program_name TEXT NOT NULL,
             program_description TEXT NOT NULL,
             program_logo TEXT NOT NULL,
-            program_assigned_to BIGINT(11) UNSIGNED,
+            program_assigned_to BIGINT(20) UNSIGNED,
             program_created_by INT NOT NULL,
             program_created_on DATE NOT NULL DEFAULT CURRENT_DATE,
-            program_done INT NOT NULL DEFAULT 0
+            program_done INT NOT NULL DEFAULT 0,
+            program_start_date DATE NOT NULL DEFAULT CURRENT_DATE,
+            program_end_date DATE NOT NULL DEFAULT DATE_ADD(CURRENT_DATE(), INTERVAL 3 MONTH)
         )";
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
@@ -171,7 +173,7 @@ class ProgramRoutes
         $pg_id = $request->get_param('pg_id');
 
         global $wpdb;
-        $table_name = $wpdb->prefix . 'programs';
+        // $table_name = $wpdb->prefix . 'programs';
         $allocation_table = $wpdb->prefix . 'program_trainees_allocation';
         $program_trainees = $wpdb->get_results("SELECT * FROM $allocation_table WHERE program_id=$pg_id");
 
@@ -179,31 +181,30 @@ class ProgramRoutes
             return $item->trainee_id;
         }, $program_trainees);
 
-        $users = get_users([
-            'include' => $ids,
-            'role__in' => ['trainee'],
-            'fields' => ['ID', 'user_email', 'user_registered', 'roles']
-        ]);
+        if (count($ids) > 0) {
+            $users = get_users([
+                'include' => $ids,
+                'fields' => ['ID', 'user_email', 'user_registered', 'roles']
+            ]);
 
+            $res = array_map(function ($user) {
+                $roles = get_user_meta($user->ID, 'wp_capabilities', true);
+                $role = array_keys($roles)[0];
 
-        $res = array_map(function ($user) {
-            $roles = get_user_meta($user->ID, 'wp_capabilities', true);
-            $role = array_keys($roles)[0];
-
-            return [
-                'id' => $user->ID,
-                'fullname' => get_user_meta($user->ID, 'fullname', true) ? get_user_meta($user->ID, 'fullname', true) : $user->user_email,
-                'email' => $user->user_email,
-                'registered_on' => $user->user_registered,
-                'role' => $role,
-                'is_deactivated' => get_user_meta($user->ID, 'is_deactivated', true) ? get_user_meta($user->ID, 'is_deactivated', true) : '0',
-                'is_deleted' => get_user_meta($user->ID, 'is_deleted', true) ? get_user_meta($user->ID, 'is_deleted', true) : '0',
-                'created_by' => get_user_meta($user->ID, 'created_by', true) ? get_user_meta($user->ID, 'created_by', true) : '0',
-            ];
-        }, $users);
-
-
-        return new WP_REST_Response($this->get_response_object(200, null, $res));
+                return [
+                    'id' => $user->ID,
+                    'fullname' => get_user_meta($user->ID, 'fullname', true) ? get_user_meta($user->ID, 'fullname', true) : $user->user_email,
+                    'email' => $user->user_email,
+                    'registered_on' => $user->user_registered,
+                    'role' => $role,
+                    'is_deactivated' => get_user_meta($user->ID, 'is_deactivated', true) ? get_user_meta($user->ID, 'is_deactivated', true) : '0',
+                    'is_deleted' => get_user_meta($user->ID, 'is_deleted', true) ? get_user_meta($user->ID, 'is_deleted', true) : '0',
+                    'created_by' => get_user_meta($user->ID, 'created_by', true) ? get_user_meta($user->ID, 'created_by', true) : '0',
+                ];
+            }, $users);
+            return new WP_REST_Response($this->get_response_object(200, null, $res));
+        }
+        return new WP_REST_Response($this->get_response_object(200, null, []));
     }
 
 

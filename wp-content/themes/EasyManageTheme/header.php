@@ -1,8 +1,6 @@
 <?php if (isset($_POST['logout'])) {
     $success = remove_token_cookie();
-    if ($success) {
-        wp_logout();
-    }
+    wp_logout();
 } ?>
 
 <!DOCTYPE html>

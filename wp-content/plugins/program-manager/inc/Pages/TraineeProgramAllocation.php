@@ -17,6 +17,20 @@ class TraineeProgramAllocation
         add_action('rest_api_init', [$this, 'register_routes']);
     }
 
+    public function get_response_object($code, $message, $data = null)
+    {
+        $res = ["code" => $code];
+
+        if (isset($message)) {
+            $res['message'] = $message;
+        }
+
+        if ($data !== null) {
+            $res['data'] = $data;
+        }
+        return $res;
+    }
+
     public function create_trainee_program_allocation_table()
     {
         global $wpdb;
@@ -61,9 +75,9 @@ class TraineeProgramAllocation
         ]);
 
         if (is_wp_error($res)) {
-            return new WP_REST_Response("Error registering to program", 500);
+            return new WP_REST_Response($this->get_response_object(500, "Error registering to program. " . $res->get_message()), 500);
         }
 
-        return new WP_REST_Response("Trainee Added To Program", 201);
+        return new WP_REST_Response($this->get_response_object(201, "Trainee Added To Program"), 201);
     }
 }

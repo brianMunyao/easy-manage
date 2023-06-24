@@ -90,6 +90,7 @@ get_header() ?>
         $trainer_has_program = false;
         $assigned_program = get_program_assignee(get_current_user_id());
         if (!is_response_error($assigned_program)) {
+            $assigned_program = $assigned_program->data;
             $trainer_has_program = true;
         }
 
@@ -117,10 +118,18 @@ get_header() ?>
             });
         }
     } else {
-        $dash_val = "WordPress Training";
+        $dash_val = "";
         $dash_label = "Current Cohort";
 
-        $projects = get_all_projects();
+        $my_trainer = get_single_employees_new(get_current_user_id())->data->created_by;
+        $assigned_program = get_program_assignee($my_trainer);
+
+        if (!is_response_error($assigned_program)) {
+            $assigned_program = $assigned_program->data;
+            $dash_val = $assigned_program->program_name;
+        }
+
+        $projects = get_trainees_projects(get_current_user_id());
         $projects_ongoing = array_filter($projects, function ($project) {
             return $project->project_done == 0;
         });
@@ -229,7 +238,7 @@ get_header() ?>
 
                         <?php
                         $i = 0;
-                        foreach ($latest_employees as $recent) {
+                        foreach (array_slice($latest_employees, 0, 6) as $recent) {
                         ?>
                             <tr class="table-c">
                                 <th style="width: 30px;"><?php echo ++$i . '.'; ?></th>

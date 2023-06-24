@@ -1,20 +1,19 @@
 <?php if (!is_user_logged_in()) wp_redirect(site_url('/login')) ?>
 
 <?php
-if (!is_user_p_manager()) {
-    wp_redirect(home_url());
-}
-if (!isset($_GET['id'])) {
-    wp_redirect(site_url('/employees'));
-}
+if (!is_user_p_manager()) wp_redirect(home_url());
+
+if (!isset($_GET['id'])) wp_redirect(site_url('/trainers'));
+
 $id = $_GET['id'];
 
 $user_info = get_single_employees_new($id);
-$assigned_cohort = get_program_assignee($id);
+if (is_response_error($user_info)) wp_redirect('/trainers');
 
-if (is_response_error($assigned_cohort)) {
-    $assigned_cohort = NULL;
-}
+$user_info = $user_info->data;
+
+$assigned_cohort = get_program_assignee($id);
+$assigned_cohort = $assigned_cohort ? $assigned_cohort->data : NULL;
 
 $fullname_error = $password_error = '';
 
@@ -86,7 +85,7 @@ get_header() ?>
                             <option value="" selected disabled hidden>Select a training</option>
                             <?php
                             $unassigned_programs = get_unassigned_programs_new(get_current_user_id());
-                            array_push($unassigned_programs, $assigned_cohort);
+                            if ($assigned_cohort) array_push($unassigned_programs, $assigned_cohort);
 
                             foreach ($unassigned_programs as $program) {
                             ?>

@@ -83,7 +83,7 @@ class ProjectRoutes
         $projects_table = $wpdb->prefix . 'projects';
 
         $sql = "CREATE TABLE IF NOT EXISTS $projects_table (
-            project_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            project_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
             project_name TEXT NOT NULL,
             project_category TEXT NOT NULL,
             project_description TEXT NOT NULL,
@@ -368,6 +368,9 @@ class ProjectRoutes
     public function get_available($pg_id)
     {
         $program_trainees = $this->get_program_trainees($pg_id);
+        $program_trainees = array_filter($program_trainees, function ($trainee) {
+            return $trainee['is_deactivated'] == 0 && $trainee['is_deleted'] == 0;
+        });
 
         global $wpdb;
         $allocation_table = $wpdb->prefix . 'project_trainees_allocation';
@@ -393,7 +396,9 @@ class ProjectRoutes
     public function get_available_trainees($request)
     {
         $pg_id = $request->get_param('pg_id');
-        return array_values($this->get_available($pg_id));
+        $res = array_values($this->get_available($pg_id));
+
+        return new WP_REST_Response($this->get_response_object(200, null, $res), 200);
     }
 
     public function allocate_trainee_to_project($project_id, $trainee_id)

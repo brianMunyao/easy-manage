@@ -10,9 +10,8 @@ if (isset($_GET['id'])) {
 
 
     $project = get_single_project_new($id);
-    if (is_response_error($project)) {
-        wp_redirect(site_url('/projects'));
-    }
+    if (is_response_error($project)) wp_redirect('/projects');
+    $project = $project->data;
 
     $tasks = get_tasks($id);
 
@@ -26,6 +25,7 @@ if (isset($_GET['id'])) {
 
     if (isset($_GET['task_id'])) {
         $opened_task = get_single_task($_GET['task_id']);
+        $opened_task = $opened_task->data;
     }
 } else {
     wp_redirect(site_url('/projects'));
@@ -297,9 +297,15 @@ get_header() ?>
             <div class="s-project-details">
                 <span>Actions:</span>
                 <div class="s-links">
-                    <form action="" method="post">
-                        <button type="submit" name="complete-project" class="btn-text color-success icon-text-link"><ion-icon name='checkmark-circle-outline'></ion-icon>Mark As Complete</button>
-                    </form>
+                    <?php
+                    if (is_user_trainee()) {
+                    ?>
+                        <form action="" method="post">
+                            <button type="submit" name="complete-project" class="btn-text color-success icon-text-link"><ion-icon name='checkmark-circle-outline'></ion-icon>Mark As Complete</button>
+                        </form>
+                    <?php
+                    }
+                    ?>
                     <?php if (is_user_trainer()) { ?>
                         <a href="<?php echo site_url('/projects/update-project?id=') . $project->project_id ?>" class="color-blue icon-text-link"><ion-icon name='create-outline'></ion-icon>Update</a>
                         <button type='submit' class="btn-text color-danger icon-text-link" name="delete-project"><ion-icon name='trash-outline'></ion-icon>Delete</button>

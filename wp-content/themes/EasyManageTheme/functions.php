@@ -599,7 +599,9 @@ function get_programs_new($pmanager_id)
         'headers' => $authHeaders
     ]);
     $res = wp_remote_retrieve_body($res);
-    return json_decode($res);
+    $res = json_decode($res);
+
+    return is_response_error($res) ? [] : $res->data;
 }
 function get_single_program_new($id)
 {

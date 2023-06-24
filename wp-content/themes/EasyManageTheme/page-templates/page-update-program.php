@@ -5,19 +5,15 @@
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
     $program = get_single_program_new($id);
-    if (!$program) {
-        wp_redirect(site_url('/programs'));
-    }
+    if (is_response_error($program)) wp_redirect('/programs');
+    $program = $program->data;
 } else {
     wp_redirect(site_url('/programs'));
 }
 
-$program_name_error = '';
-$description_error = '';
-$logo_error = '';
+$program_name_error = $description_error = $logo_error = '';
 
-$form_error = '';
-$form_success = '';
+$form_error = $form_success = '';
 
 if (isset($_POST['update-program'])) {
     $program_name = $_POST['program_name'];

@@ -5,12 +5,13 @@ if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
     $project = get_single_project_new($id);
+    if (is_response_error($project)) wp_redirect('/projects');
+    $project = $project->data;
 } else {
     wp_redirect(site_url('/projects'));
 }
 
-$form_error = '';
-$form_success = '';
+$form_error = $form_success = '';
 
 $project_name_error = $project_category_error = $project_description_error = $project_duedate_error = $project_assignees_error = '';
 
@@ -37,14 +38,6 @@ if (isset($_POST['update-project'])) {
     if (empty($project_name_error) && empty($project_category_error) && empty($project_description_error) && empty($project_duedate_error) && empty($project_assignees_error)) {
         $project_assignees = array_values($project_assignees);
 
-        // $project_name = $request['project_name'];
-        // $project_category = $request['project_category'];
-        // $project_description = $request['project_description'];
-        // $project_due_date = $request['project_due_date'];
-        // $pg_id = $request['project_program_id'];
-        // $project_id = $request['project_id'];
-        // $assigned_trainees = $request['project_assignees'];
-
         $result = update_project([
             'project_id' => $project->project_id,
             'project_name' => $project_name,
@@ -56,20 +49,11 @@ if (isset($_POST['update-project'])) {
         ]);
 
         if (is_response_error($result)) {
-            $form_error = $result->message ?? "Creation Failed";
+            $form_error = $result->message ?? "Update Failed";
         } else {
-            $form_success = "Successfully Created";
+            $form_success = "Successfully Updated";
         }
     }
-
-    // 'project_name' => $request['project_name'],
-    // 'project_category' => $request['project_category'],
-    // 'project_description' => $request['project_description'],
-    // 'project_due_date' => $request['project_due_date'],
-    // 'project_created_by' => $request['project_created_by'],
-    // 'project_program_id' => $request['project_program_id']
-
-
 }
 
 /**
@@ -108,11 +92,14 @@ get_header() ?>
                 if ($project->project_assignees) {
                     foreach (explode(",", $project->project_assignees) as $assignee) {
                         $user = get_single_employees_new($assignee);
-                        array_push($default_assignees, $assignee);
+                        if (!is_response_error($user)) {
+                            $user = $user->data;
 
-                        if (!in_array($user->id, array_column($available_assignees, 'id'))) {
+                            array_push($default_assignees, $assignee);
 
-                            array_push($available_assignees, $user);
+                            if (!in_array($user->id, array_column($available_assignees, 'id'))) {
+                                array_push($available_assignees, $user);
+                            }
                         }
                     }
                 }

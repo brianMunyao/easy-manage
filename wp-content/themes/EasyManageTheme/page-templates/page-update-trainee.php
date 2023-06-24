@@ -4,6 +4,8 @@
 $id = $_GET['id'];
 
 $user_info = get_single_employees_new($id);
+if (is_response_error($user_info)) wp_redirect('/trainees');
+$user_info = $user_info->data;
 
 $fullname_error = $password_error = '';
 $form_error = $form_success = '';

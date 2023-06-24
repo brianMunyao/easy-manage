@@ -1,16 +1,11 @@
 <?php if (!is_user_logged_in()) wp_redirect(site_url('/login')) ?>
 
 <?php
-if (!is_user_p_manager()) {
-    wp_redirect(home_url());
-}
-$fullname_error = '';
-$email_error = '';
-$password_error = '';
-$program_error = '';
+if (!is_user_p_manager()) wp_redirect(home_url());
 
-$form_error = '';
-$form_success = '';
+$fullname_error = $email_error = $password_error = $program_error = '';
+
+$form_error = $form_success = '';
 
 if (isset($_POST['create-trainer'])) {
     $fullname = $_POST['fullname'];
@@ -39,9 +34,10 @@ if (isset($_POST['create-trainer'])) {
         }
 
         if (is_response_error($result)) {
-            $form_error = $result->message ?? "Creation Failed";
+            $form_error = $result->message;
         } else {
-            $form_success = "Successfully Created";
+            $form_success = "Successfully created";
+            // do_action('move_to_previous_page');
         }
     }
 }

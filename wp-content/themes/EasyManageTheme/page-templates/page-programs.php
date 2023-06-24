@@ -1,9 +1,7 @@
 <?php if (!is_user_logged_in()) wp_redirect(site_url('/login')) ?>
 
 <?php
-if (!is_user_trainer() && !is_user_p_manager()) {
-    wp_redirect(home_url());
-}
+if (!is_user_trainer() && !is_user_p_manager()) wp_redirect(home_url());
 
 
 /**
@@ -73,7 +71,7 @@ get_header() ?>
                         </div>
                     </span>
                 </div>
-                <div>
+                <div style="flex:1">
                     <p class="program-title"><?php echo $program->program_name ?></p>
                     <p class="program-description"><?php echo $program->program_description ?></p>
                 </div>
@@ -83,6 +81,7 @@ get_header() ?>
                         <div>Trainer:</div>
                         <?php
                         $user = get_single_employees_new($program->program_assigned_to);
+                        $user = is_response_error($user) ? '' : $user->data;
                         echo $user->fullname ?? '--';
                         ?>
                     </div>

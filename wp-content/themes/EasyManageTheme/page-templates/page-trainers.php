@@ -1,9 +1,7 @@
 <?php if (!is_user_logged_in()) wp_redirect(site_url('/login')) ?>
 
 <?php
-if (!is_user_p_manager()) {
-    wp_redirect(home_url());
-}
+if (!is_user_p_manager()) wp_redirect(home_url());
 
 /**
  * 
