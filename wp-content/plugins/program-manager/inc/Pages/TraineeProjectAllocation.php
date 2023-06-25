@@ -6,7 +6,6 @@
 
 namespace Inc\Pages;
 
-use WP_Error;
 use WP_REST_Response;
 
 class TraineeProjectAllocation
@@ -20,18 +19,18 @@ class TraineeProjectAllocation
     public function create_trainee_project_allocation_table()
     {
         global $wpdb;
-        // $projects_table = $wpdb->prefix . 'projects';
-        // $trainers_table = $wpdb->prefix . 'trainers';
+        $projects_table = $wpdb->prefix . 'projects';
+        $users_table = $wpdb->prefix . 'users';
         $allocation_table = $wpdb->prefix . 'project_trainees_allocation';
 
         $sql = "CREATE TABLE IF NOT EXISTS $allocation_table (
                     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     project_id INT NOT NULL,
-                    trainee_id INT NOT NULL,
-                    assigned_on DATE NOT NULL DEFAULT CURRENT_DATE
+                    trainee_id BIGINT(20) UNSIGNED NOT NULL,
+                    assigned_on DATE NOT NULL DEFAULT CURRENT_DATE,
+                    CONSTRAINT FK_pr_alloc_trainee_id FOREIGN KEY (trainee_id) REFERENCES $users_table(ID),
+                    CONSTRAINT FK_pr_alloc_project_id FOREIGN KEY (project_id) REFERENCES $projects_table(project_id)
                 );";
-        // FOREIGN KEY (project_id) REFERENCES $projects_table (project_id),
-        // FOREIGN KEY (trainer_id) REFERENCES $trainers_table (trainer_id)
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
     }

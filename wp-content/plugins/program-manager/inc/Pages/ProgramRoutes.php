@@ -6,7 +6,6 @@
 
 namespace Inc\Pages;
 
-use WP_Error;
 use WP_REST_Response;
 
 class ProgramRoutes
@@ -20,19 +19,23 @@ class ProgramRoutes
     {
         global $wpdb;
         $table_name = $wpdb->prefix . 'programs';
+        $users_table = $wpdb->prefix . 'users';
 
         $sql = "CREATE TABLE IF NOT EXISTS $table_name (
-            program_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            program_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
             program_name TEXT NOT NULL,
             program_description TEXT NOT NULL,
             program_logo TEXT NOT NULL,
             program_assigned_to BIGINT(20) UNSIGNED,
-            program_created_by INT NOT NULL,
+            program_created_by BIGINT(20) UNSIGNED NOT NULL,
             program_created_on DATE NOT NULL DEFAULT CURRENT_DATE,
             program_done INT NOT NULL DEFAULT 0,
             program_start_date DATE NOT NULL DEFAULT CURRENT_DATE,
-            program_end_date DATE NOT NULL DEFAULT DATE_ADD(CURRENT_DATE(), INTERVAL 3 MONTH)
-        )";
+            program_end_date DATE NOT NULL DEFAULT DATE_ADD(CURRENT_DATE(), INTERVAL 3 MONTH),
+            CONSTRAINT FK_assignee FOREIGN KEY (program_assigned_to) REFERENCES $users_table(ID),
+            CONSTRAINT FK_created_by FOREIGN KEY (program_created_by) REFERENCES $users_table(ID)
+        );
+        ";
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
     }

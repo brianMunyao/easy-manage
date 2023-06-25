@@ -34,18 +34,18 @@ class TraineeProgramAllocation
     public function create_trainee_program_allocation_table()
     {
         global $wpdb;
-        // $programs_table = $wpdb->prefix . 'programs';
-        // $trainers_table = $wpdb->prefix . 'trainers';
+        $programs_table = $wpdb->prefix . 'programs';
+        $users_table = $wpdb->prefix . 'users';
         $allocation_table = $wpdb->prefix . 'program_trainees_allocation';
 
         $sql = "CREATE TABLE IF NOT EXISTS $allocation_table (
                     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     program_id INT NOT NULL,
-                    trainee_id INT NOT NULL,
-                    assigned_on DATE NOT NULL DEFAULT CURRENT_DATE
+                    trainee_id BIGINT(20) UNSIGNED NOT NULL,
+                    assigned_on DATE NOT NULL DEFAULT CURRENT_DATE,
+                    CONSTRAINT FK_trainee_id FOREIGN KEY (trainee_id) REFERENCES $users_table(ID),
+                    CONSTRAINT FK_program_id FOREIGN KEY (program_id) REFERENCES $programs_table(program_id)
                 );";
-        // FOREIGN KEY (program_id) REFERENCES $programs_table (program_id),
-        // FOREIGN KEY (trainer_id) REFERENCES $trainers_table (trainer_id)
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
     }

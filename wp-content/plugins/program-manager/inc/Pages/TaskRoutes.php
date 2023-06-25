@@ -88,14 +88,18 @@ class TaskRoutes
     {
         global $wpdb;
         $tasks_table = $wpdb->prefix . 'tasks';
+        $projects_table = $wpdb->prefix . 'projects';
+        $users_table = $wpdb->prefix . 'users';
 
         $sql = "CREATE TABLE IF NOT EXISTS $tasks_table (
             task_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
             task_name TEXT NOT NULL,
             task_project_id INT NOT NULL,
-            task_created_by INT NOT NULL,
+            task_created_by BIGINT(20) UNSIGNED NOT NULL,
             task_created_on DATE NOT NULL DEFAULT CURRENT_DATE,
-            task_done INT NOT NULL DEFAULT 0
+            task_done INT NOT NULL DEFAULT 0,
+            CONSTRAINT FK_task_project_id FOREIGN KEY (task_project_id) REFERENCES $projects_table(project_id),
+            CONSTRAINT FK_task_created_by FOREIGN KEY (task_created_by) REFERENCES $users_table(ID)
         )";
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);

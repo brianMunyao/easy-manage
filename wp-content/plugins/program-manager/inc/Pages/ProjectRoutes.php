@@ -81,9 +81,11 @@ class ProjectRoutes
     {
         global $wpdb;
         $projects_table = $wpdb->prefix . 'projects';
+        $users_table = $wpdb->prefix . 'users';
+        $programs_table = $wpdb->prefix . 'programs';
 
         $sql = "CREATE TABLE IF NOT EXISTS $projects_table (
-            project_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            project_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
             project_name TEXT NOT NULL,
             project_category TEXT NOT NULL,
             project_description TEXT NOT NULL,
@@ -91,7 +93,9 @@ class ProjectRoutes
             project_created_by BIGINT(20) UNSIGNED,
             project_program_id INT NOT NULL,
             project_created_on DATE NOT NULL DEFAULT CURRENT_DATE,
-            project_done INT NOT NULL DEFAULT 0
+            project_done INT NOT NULL DEFAULT 0,
+            CONSTRAINT FK_project_created_by FOREIGN KEY (project_created_by) REFERENCES $users_table(ID),
+            CONSTRAINT FK_project_program_id FOREIGN KEY (project_program_id) REFERENCES $programs_table(program_id)
         )";
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
