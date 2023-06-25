@@ -6,9 +6,10 @@
 
 namespace Inc\Pages;
 
+use Inc\Base\BaseController;
 use WP_REST_Response;
 
-class ProgramRoutes
+class ProgramRoutes extends BaseController
 {
     public function register()
     {
@@ -105,20 +106,6 @@ class ProgramRoutes
                 return current_user_can('publish_posts');
             }
         ]);
-    }
-
-    public function get_response_object($code, $message, $data = null)
-    {
-        $res = ["code" => $code];
-
-        if (isset($message)) {
-            $res['message'] = $message;
-        }
-
-        if ($data !== null) {
-            $res['data'] = $data;
-        }
-        return $res;
     }
 
     public function get_programs($request)

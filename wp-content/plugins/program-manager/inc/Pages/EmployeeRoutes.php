@@ -6,9 +6,10 @@
 
 namespace Inc\Pages;
 
+use Inc\Base\BaseController;
 use WP_REST_Response;
 
-class EmployeeRoutes
+class EmployeeRoutes extends BaseController
 {
     public $fields = ['ID', 'user_email', 'user_registered', 'roles'];
 
@@ -114,20 +115,6 @@ class EmployeeRoutes
             'is_deleted' => get_user_meta($user->ID, 'is_deleted', true) ? get_user_meta($user->ID, 'is_deleted', true) : '0',
             'created_by' => get_user_meta($user->ID, 'created_by', true) ? get_user_meta($user->ID, 'created_by', true) : '0',
         ];
-    }
-
-    public function get_response_object($code, $message, $data = null)
-    {
-        $res = ["code" => $code];
-
-        if (isset($message)) {
-            $res['message'] = $message;
-        }
-
-        if (isset($data)) {
-            $res['data'] = $data;
-        }
-        return $res;
     }
 
     public function get_employees($request)

@@ -7,8 +7,9 @@
 namespace Inc\Pages;
 
 use WP_REST_Response;
+use Inc\Base\BaseController;
 
-class TraineeProjectAllocation
+class TraineeProjectAllocation extends BaseController
 {
     public function register()
     {
@@ -44,22 +45,6 @@ class TraineeProjectAllocation
                 return current_user_can('read');
             }
         ]);
-    }
-
-    public function get_response_object($code, $message, $data = NULL)
-    {
-        $res = ["code" => $code];
-
-        if ($message) {
-            $res['message'] = $message;
-            return $res;
-        }
-
-        if ($data) {
-            $res['data'] = $data;
-            return $res;
-        }
-        return $res;
     }
 
     public function allocate_trainee($request)

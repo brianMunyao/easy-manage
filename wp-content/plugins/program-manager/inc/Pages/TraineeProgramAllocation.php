@@ -6,10 +6,10 @@
 
 namespace Inc\Pages;
 
-use WP_Error;
+use Inc\Base\BaseController;
 use WP_REST_Response;
 
-class TraineeProgramAllocation
+class TraineeProgramAllocation extends BaseController
 {
     public function register()
     {

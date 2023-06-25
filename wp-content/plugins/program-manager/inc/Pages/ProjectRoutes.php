@@ -6,10 +6,11 @@
 
 namespace Inc\Pages;
 
+use Inc\Base\BaseController;
 use WP_Error;
 use WP_REST_Response;
 
-class ProjectRoutes
+class ProjectRoutes extends BaseController
 {
     public function register()
     {
@@ -99,20 +100,6 @@ class ProjectRoutes
         )";
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
-    }
-
-    public function get_response_object($code, $message, $data = null)
-    {
-        $res = ["code" => $code];
-
-        if (isset($message)) {
-            $res['message'] = $message;
-        }
-
-        if ($data !== null) {
-            $res['data'] = $data;
-        }
-        return $res;
     }
 
     public function get_all_projects($request)

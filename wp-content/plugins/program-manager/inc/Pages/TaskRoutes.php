@@ -6,10 +6,10 @@
 
 namespace Inc\Pages;
 
-use WP_Error;
+use Inc\Base\BaseController;
 use WP_REST_Response;
 
-class TaskRoutes
+class TaskRoutes extends BaseController
 {
     public function register()
     {
@@ -68,20 +68,6 @@ class TaskRoutes
                 return current_user_can('read');
             }
         ]);
-    }
-
-    public function get_response_object($code, $message, $data = null)
-    {
-        $res = ["code" => $code];
-
-        if (isset($message)) {
-            $res['message'] = $message;
-        }
-
-        if ($data !== null) {
-            $res['data'] = $data;
-        }
-        return $res;
     }
 
     public function create_tasks_table()
