@@ -47,6 +47,25 @@ add_action('wp_logout', 'redirect_on_logout');
 // add_action('init', 'restrict_wp_admin_access');
 
 
+/**
+ * 
+ * 
+ * ===== SHORT CODES =====
+ * 
+ */
+
+
+function identicon_shortcode($attrs)
+{
+    $att = shortcode_atts(['str' => 'default'], $attrs);
+
+    $avatar = 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($att['str']))) . '?d=identicon';
+
+    return "<img src='$avatar' alt='avatar'>";
+}
+
+add_shortcode('identicon', 'identicon_shortcode');
+
 function search_bar_shortcode($attrs)
 {
     $att = shortcode_atts([

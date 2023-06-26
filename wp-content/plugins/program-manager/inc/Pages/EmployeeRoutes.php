@@ -107,7 +107,7 @@ class EmployeeRoutes extends BaseController
 
         return [
             'id' => $user->ID,
-            'fullname' => get_user_meta($user->ID, 'fullname', true) ? get_user_meta($user->ID, 'fullname', true) : $user->user_email,
+            'fullname' => get_user_meta($user->ID, 'fullname', true) ? ucwords(get_user_meta($user->ID, 'fullname', true)) : $user->user_email,
             'email' => $user->user_email,
             'registered_on' => $user->user_registered,
             'role' => $role,

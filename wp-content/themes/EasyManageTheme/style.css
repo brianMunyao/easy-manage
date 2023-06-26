@@ -207,8 +207,6 @@ table {
 }
 .table-h,
 .table-c {
-	/* display: flex;
-	align-items: center; */
 	padding: 10px;
 	border: 1px solid rgb(230, 230, 230);
 }
@@ -226,7 +224,7 @@ table {
 
 table th,
 table td {
-	padding: 10px;
+	padding: 13px 10px;
 	height: 50px;
 }
 
@@ -463,6 +461,33 @@ footer {
 }
 .form-info ion-icon {
 	transform: translateY(2px);
+}
+
+.icon-name-email {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+}
+.icon-name-email img {
+	height: 32px;
+	width: 32px;
+	border-radius: 30px;
+	border: 1px solid rgb(174, 174, 174);
+}
+.name-email {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.name-email *:last-child {
+	color: rgb(120, 120, 120);
+	font-size: 14px;
+}
+.name-email *:first-child {
+	color: inherit;
+	font-weight: 500;
+	font-size: 16px;
+	opacity: 0.9;
 }
 /***** Login Page *****/
 

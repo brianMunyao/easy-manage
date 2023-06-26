@@ -106,7 +106,18 @@ if (!is_response_error($assigned_program)) {
                 ?>
                     <tr class="table-c">
                         <td style="width: 30px"><?php echo ++$i; ?></td>
-                        <td class="name tr-flex"><?php echo $trainee->fullname ?></td>
+                        <td class="name">
+                            <div class="name-email">
+                                <?php
+                                if ($trainee->fullname != $trainee->email) {
+                                ?>
+                                    <p><?php echo $trainee->fullname ?></p>
+                                <?php
+                                } else
+                                ?>
+                                <p><?php echo $trainee->email ?></p>
+                            </div>
+                        </td>
                         <td><?php echo !$trainee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                         <td style="width:100px" class="actions">
                             <a href="<?php echo site_url('/trainees/update-trainee?id=') . $trainee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
@@ -164,7 +175,18 @@ if (!is_response_error($assigned_program)) {
                 ?>
                     <tr class="table-c">
                         <td style="width: 30px"><?php echo ++$i; ?></td>
-                        <td class="name tr-flex"><?php echo $trainee->fullname ?></td>
+                        <td class="name">
+                            <div class="name-email">
+                                <?php
+                                if ($trainee->fullname != $trainee->email) {
+                                ?>
+                                    <p><?php echo $trainee->fullname ?></p>
+                                <?php
+                                } else
+                                ?>
+                                <p><?php echo $trainee->email ?></p>
+                            </div>
+                        </td>
                         <td><?php echo !$trainee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                         <td style="width:100px" class="actions">
                             <a href="<?php echo site_url('/trainees/update-trainee?id=') . $trainee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>

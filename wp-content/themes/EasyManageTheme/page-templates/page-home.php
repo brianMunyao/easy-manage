@@ -225,8 +225,7 @@ get_header() ?>
                         <tr class="table-h">
                             <th style="width: 30px;">No.</th>
                             <th>Name</th>
-                            <!-- <th class="role">Role</th> -->
-                            <th class="created-on">Created On</th>
+                            <th>Created On</th>
                         </tr>
 
                         <?php if (count($latest_employees) == 0) { ?>
@@ -238,14 +237,23 @@ get_header() ?>
 
                         <?php
                         $i = 0;
-                        foreach (array_slice($latest_employees, 0, 6) as $recent) {
+                        foreach (array_slice($latest_employees, 0, 6) as $employee) {
                         ?>
                             <tr class="table-c">
-                                <th style="width: 30px;"><?php echo ++$i . '.'; ?></th>
-                                <td><?php echo $recent->fullname ?></td>
-                                <!-- <td class="role"><?php //echo $recent->role 
-                                                        ?></td> -->
-                                <td class="created-on"><?php echo date('F j', strtotime($recent->registered_on)) ?></td>
+                                <td style="width: 30px;"><?php echo ++$i; ?>.</th>
+                                <td>
+                                    <div class="name-email">
+                                        <?php
+                                        if ($employee->fullname != $employee->email) {
+                                        ?>
+                                            <p><?php echo $employee->fullname ?></p>
+                                        <?php
+                                        } else
+                                        ?>
+                                        <p><?php echo $employee->email ?></p>
+                                    </div>
+                                </td>
+                                <td><?php echo date('F jS, Y', strtotime($employee->registered_on)) ?></td>
                             </tr>
                         <?php
                         }

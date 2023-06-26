@@ -76,8 +76,19 @@ $programs = get_programs_new(get_current_user_id());
             ?>
                 <tr class="table-c">
                     <td style="width: 30px"><?php echo ++$i; ?>.</td>
-                    <td class="name tr-flex"><?php echo $trainer->fullname ?></td>
-                    <td class=""><?php echo count($filtered_programs) > 0 ? $filtered_programs[0]->program_name : '--' ?></td>
+                    <td class="name tr-flex">
+                        <div class="name-email">
+                            <?php
+                            if ($trainer->fullname != $trainer->email) {
+                            ?>
+                                <p><?php echo $trainer->fullname ?></p>
+                            <?php
+                            } else
+                            ?>
+                            <p><?php echo $trainer->email ?></p>
+                        </div>
+                    </td>
+                    <td><?php echo count($filtered_programs) > 0 ? $filtered_programs[0]->program_name : '--' ?></td>
                     <td><?php echo !$trainer->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                     <td style="width:100px" class="actions">
                         <a href="<?php echo site_url('/trainers/update-trainer?id=') . $trainer->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
@@ -132,12 +143,26 @@ $programs = get_programs_new(get_current_user_id());
 
             $i = 0;
             foreach ($inactive_trainers as $trainer) {
+                $filtered_programs = array_filter($programs, function ($prog) use ($trainer) {
+                    return $prog->program_assigned_to == $trainer->id;
+                }, ARRAY_FILTER_USE_BOTH);
+                $filtered_programs = array_values($filtered_programs);
             ?>
                 <tr class="table-c">
                     <td style="width: 30px"><?php echo ++$i; ?>.</td>
-                    <td class="name tr-flex"><?php echo $trainer->fullname ?></td>
-                    <td class=""><?php echo  'WordPress' //$trainer->stack 
-                                    ?></td>
+                    <td class="name tr-flex">
+                        <div class="name-email">
+                            <?php
+                            if ($trainer->fullname != $trainer->email) {
+                            ?>
+                                <p><?php echo $trainer->fullname ?></p>
+                            <?php
+                            } else
+                            ?>
+                            <p><?php echo $trainer->email ?></p>
+                        </div>
+                    </td>
+                    <td><?php echo count($filtered_programs) > 0 ? $filtered_programs[0]->program_name : '--' ?></td>
                     <td><?php echo !$trainer->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                     <td style="width:100px" class="actions">
                         <a href="<?php echo site_url('/trainers/update-trainer?id=') . $trainer->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>

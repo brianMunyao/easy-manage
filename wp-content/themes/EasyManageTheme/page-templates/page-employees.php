@@ -115,7 +115,18 @@ get_header() ?>
             ?>
                 <tr class="table-c">
                     <td style="width: 30px"><?php echo ++$i; ?></td>
-                    <td class="name tr-flex"><?php echo $employee->fullname ?></td>
+                    <td class="name tr-flex">
+                        <div class="name-email">
+                            <?php
+                            if ($employee->fullname != $employee->email) {
+                            ?>
+                                <p><?php echo $employee->fullname ?></p>
+                            <?php
+                            } else
+                            ?>
+                            <p><?php echo $employee->email ?></p>
+                        </div>
+                    </td>
                     <td><?php echo ucwords(str_replace('_', ' ', $employee->role)) ?></td>
                     <td><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                     <td style="width:100px" class="actions">
@@ -149,6 +160,7 @@ get_header() ?>
     </table>
 
     <div class="spacer"></div>
+    <div class="spacer"></div>
 
     <div class="table-h">
         <span class="color-danger">Inactive <?php echo $section_title ?> (<?php echo count($inactive_employees) ?>)</span>
@@ -176,7 +188,18 @@ get_header() ?>
             ?>
                 <tr class="table-c">
                     <td style="width: 30px"><?php echo ++$i; ?></td>
-                    <td class="name tr-flex"><?php echo $employee->fullname ?></td>
+                    <td class="name tr-flex">
+                        <div class="name-email">
+                            <?php
+                            if ($employee->fullname != $employee->email) {
+                            ?>
+                                <p><?php echo $employee->fullname ?></p>
+                            <?php
+                            } else
+                            ?>
+                            <p><?php echo $employee->email ?></p>
+                        </div>
+                    </td>
                     <td><?php echo ucwords(str_replace('_', ' ', $employee->role)) ?></td>
                     <td><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                     <td style="width:100px" class="actions">
@@ -209,6 +232,7 @@ get_header() ?>
     </table>
 
     <div class="spacer"></div>
+    <div class="spacer"></div>
 
     <div class="table-h">
         <span class="color-danger">Deleted <?php echo $section_title ?> (<?php echo count($deleted_employees) ?>)</span>
@@ -236,7 +260,18 @@ get_header() ?>
             ?>
                 <tr class="table-c">
                     <td style="width: 30px"><?php echo ++$i; ?></td>
-                    <td class="name tr-flex"><?php echo $employee->fullname ?></td>
+                    <td class="name tr-flex">
+                        <div class="name-email">
+                            <?php
+                            if ($employee->fullname != $employee->email) {
+                            ?>
+                                <p><?php echo $employee->fullname ?></p>
+                            <?php
+                            } else
+                            ?>
+                            <p><?php echo $employee->email ?></p>
+                        </div>
+                    </td>
                     <td><?php echo ucwords(str_replace('_', ' ', $employee->role)) ?></td>
                     <td><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                     <td style="width:100px" class="actions">

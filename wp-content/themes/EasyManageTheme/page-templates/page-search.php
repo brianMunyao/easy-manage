@@ -1,12 +1,10 @@
 <?php if (!is_user_logged_in()) wp_redirect(site_url('/login')) ?>
 
 <?php
-if (isset($_GET['q'])) {
-    $q = $_GET['q'];
-} else {
-    $q = "";
-}
+$q = isset($_GET['q']) ? $_GET['q'] : "";
+
 $employees = search_employees($q);
+
 /**
  * 
  * Template Name: Search Page Template
@@ -33,24 +31,21 @@ get_header() ?>
         </div>
         <div class="table-heading-bottom">
             <form action="<?php echo site_url('/search') ?>" method="get">
-                <?php echo do_shortcode('[search_bar placeholder="search" value="' . $q . '"]') ?>
+                <?php echo do_shortcode('[search_bar placeholder="Employee Search" value="' . $q . '"]') ?>
             </form>
         </div>
     </div>
 
 
     <div class="table-h">
-        <span><?php echo count($employees) ?> Result(s) found for "<?php echo $q ?>"</span>
+        <span><?php echo count($employees) . " result(s) found for " . $q ?></span>
     </div>
     <table style="width:100%">
-        <!-- <tr class="table-h">
-            <th colspan="5">Active Accounts</th>
-        </tr> -->
         <tr class="table-h">
             <th style="width: 30px">No.</th>
-            <th class="tr-flex">Name</th>
-            <th style="width:150px">Role</th>
-            <th style="width:80px;">Status</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Joined On</th>
         </tr>
 
         <?php if (count($employees) == 0) { ?>
@@ -63,10 +58,24 @@ get_header() ?>
             foreach ($employees as $employee) {
             ?>
                 <tr class="table-c">
-                    <td style="width: 30px"><?php echo ++$i; ?></td>
-                    <td class="name tr-flex"><?php echo $employee->fullname ?></td>
-                    <td style="width:150px"><?php echo ucwords(str_replace('_', ' ', $employee->role)) ?></td>
-                    <td style="width:80px;"><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
+                    <td style="width: 30px"><?php echo ++$i; ?>.</td>
+                    <td>
+                        <div class="icon-name-email">
+                            <?php echo do_shortcode("[identicon str=" . $employee->email . "]") ?>
+                            <div class="name-email">
+                                <?php
+                                if ($employee->fullname != $employee->email) {
+                                ?>
+                                    <p><?php echo $employee->fullname ?></p>
+                                <?php
+                                } else
+                                ?>
+                                <p><?php echo $employee->email ?></p>
+                            </div>
+                        </div>
+                    </td>
+                    <td><?php echo ucwords(str_replace('_', ' ', $employee->role)) ?></td>
+                    <td><?php echo date('F jS, Y', strtotime($employee->registered_on)) ?></td>
 
                 </tr>
         <?php
@@ -74,8 +83,6 @@ get_header() ?>
         }
         ?>
     </table>
-
 </div>
-
 
 <?php get_footer() ?>
