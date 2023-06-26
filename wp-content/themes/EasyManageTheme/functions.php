@@ -63,8 +63,8 @@ function identicon_shortcode($attrs)
 
     return "<img src='$avatar' alt='avatar'>";
 }
-
 add_shortcode('identicon', 'identicon_shortcode');
+
 
 function search_bar_shortcode($attrs)
 {
@@ -119,10 +119,12 @@ function dash_card_shortcode($attrs)
 
     return '
     <div class="dash-card">
-        <ion-icon name="' . $att['icon'] . '"></ion-icon>
+        <div class="icon">
+            <ion-icon name="' . $att['icon'] . '"></ion-icon>
+        </div>
 
-        <p class="dash-number">' . $att['value'] . '</p>
         <p class="dash-label">' . $att['label'] . '</p>
+        <p class="dash-number">' . $att['value'] . '</p>
     </div>
     ';
 }

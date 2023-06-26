@@ -212,7 +212,7 @@ table {
 }
 .table-h {
 	font-weight: 500;
-	background: rgb(247, 247, 247);
+	background: rgb(250, 250, 250);
 	color: rgb(83, 83, 83);
 	text-align: left;
 }
@@ -615,25 +615,37 @@ footer {
 }
 .dash-card {
 	padding: 20px;
-	border: 1px solid rgb(212, 212, 212);
+	/* border: 1px solid rgb(212, 212, 212); */
+	background: #076b8413;
 	border-radius: 10px;
 	min-height: 137px;
 	height: fit-content;
 }
-.dash-card ion-icon {
+.dash-card .icon {
+	width: 45px;
+	height: 45px;
+	border-radius: 15px;
+	background: #076b841c;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	margin-bottom: 20px;
-	font-size: 24px;
+}
+.dash-card ion-icon {
+	font-size: 20px;
 	color: var(--primary);
 }
 .dash-card .dash-number {
 	font-weight: 600;
-	font-size: 22px;
+	font-size: 25px;
+	/* margin-left: 10px; */
+	margin-top: 7px;
 }
 .dash-card .dash-label {
+	/* margin-left: 10px; */
 	font-size: 14px;
 	font-weight: 500;
-	margin-top: 5px;
-	color: rgb(158, 158, 158);
+	color: rgb(120, 120, 120);
 }
 .dash-bottom {
 	margin: 50px 0;

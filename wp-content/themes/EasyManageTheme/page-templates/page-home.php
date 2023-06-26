@@ -38,11 +38,11 @@ get_header() ?>
         $dash1_val = count($latest_employees);
         $dash1_label = "Total Employees";
 
-        $dash2_icon = 'people';
+        $dash2_icon = 'people-outline';
         $dash2_val = count(get_program_managers());
         $dash2_label = "Program Managers";
 
-        $dash3_icon = 'people';
+        $dash3_icon = 'people-outline';
         $dash3_val =  count(get_trainers_new());
         $dash3_label = "Trainers";
 
@@ -71,11 +71,11 @@ get_header() ?>
             $my_trainees = array_merge($my_trainees, $trainees);
         }
 
-        $dash2_icon = 'people';
+        $dash2_icon = 'people-outline';
         $dash2_val =  count($latest_employees);
         $dash2_label = "Trainers";
 
-        $dash3_icon = 'people';
+        $dash3_icon = 'people-outline';
         $dash3_val = count($my_trainees);
         $dash3_label = "Trainees";
 
