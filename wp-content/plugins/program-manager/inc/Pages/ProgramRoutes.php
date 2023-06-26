@@ -170,7 +170,6 @@ class ProgramRoutes extends BaseController
         $pg_id = $request->get_param('pg_id');
 
         global $wpdb;
-        // $table_name = $wpdb->prefix . 'programs';
         $allocation_table = $wpdb->prefix . 'program_trainees_allocation';
         $program_trainees = $wpdb->get_results("SELECT * FROM $allocation_table WHERE program_id=$pg_id");
 

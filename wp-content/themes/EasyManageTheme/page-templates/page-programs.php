@@ -86,10 +86,10 @@ get_header() ?>
                         ?>
                     </div>
                     <div>
-                        <div>Trainees:</div> TODO
+                        <div>Trainees:</div>
                         <?php
-                        // $trainees = get_trainees() 
-                        //TODO: work on this
+                        $trainees = get_trainees_in_program($program->program_id);
+                        echo count($trainees);
                         ?>
                     </div>
                 </div>
