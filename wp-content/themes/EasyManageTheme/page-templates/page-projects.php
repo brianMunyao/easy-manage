@@ -119,7 +119,7 @@ $completed = array_filter($projects, function ($project) {
                                 <div class="project-bottom">
                                     <span class="project-due">
                                         <ion-icon name='calendar-outline'></ion-icon>
-                                        Due: <?php echo $project->project_due_date  ?>
+                                        Due: <?php echo date('F jS', strtotime($project->project_due_date)) ?>
                                     </span>
 
                                     <div class="project-assignees">
@@ -187,7 +187,7 @@ $completed = array_filter($projects, function ($project) {
                                 <div class="project-bottom">
                                     <span class="project-due">
                                         <ion-icon name='calendar-outline'></ion-icon>
-                                        Due: <?php echo $project->project_due_date  ?>
+                                        Due: <?php echo date('F jS', strtotime($project->project_due_date)) ?>
                                     </span>
 
                                     <div class="project-assignees">

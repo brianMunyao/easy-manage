@@ -100,7 +100,7 @@ get_header() ?>
             <th style="width: 30px">No.</th>
             <th>Name</th>
             <th>Role</th>
-            <th style="width:80px;">Status</th>
+            <th>Status</th>
             <th style="width:100px">Actions</th>
         </tr>
 
@@ -117,7 +117,7 @@ get_header() ?>
                     <td style="width: 30px"><?php echo ++$i; ?></td>
                     <td class="name tr-flex"><?php echo $employee->fullname ?></td>
                     <td><?php echo ucwords(str_replace('_', ' ', $employee->role)) ?></td>
-                    <td style="width:80px;"><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
+                    <td><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                     <td style="width:100px" class="actions">
                         <?php if ($employee->role == 'program_manager') { ?>
                             <a href="<?php echo site_url('/employees/update-program-manager?id=') . $employee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
@@ -161,7 +161,7 @@ get_header() ?>
             <th style="width: 30px">No.</th>
             <th>Name</th>
             <th>Role </th>
-            <th style="width:80px;">Status</th>
+            <th>Status</th>
             <th style="width:100px">Actions</th>
         </tr>
 
@@ -178,7 +178,7 @@ get_header() ?>
                     <td style="width: 30px"><?php echo ++$i; ?></td>
                     <td class="name tr-flex"><?php echo $employee->fullname ?></td>
                     <td><?php echo ucwords(str_replace('_', ' ', $employee->role)) ?></td>
-                    <td style="width:80px;"><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
+                    <td><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                     <td style="width:100px" class="actions">
                         <?php if ($employee->role == 'program_manager') { ?>
                             <a href="<?php echo site_url('/employees/update-program-manager?id=') . $employee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
@@ -221,7 +221,7 @@ get_header() ?>
             <th style="width: 30px">No.</th>
             <th>Name</th>
             <th>Role</th>
-            <th style="width:80px;">Status</th>
+            <th>Status</th>
             <th style="width:100px">Actions</th>
         </tr>
 
@@ -238,7 +238,7 @@ get_header() ?>
                     <td style="width: 30px"><?php echo ++$i; ?></td>
                     <td class="name tr-flex"><?php echo $employee->fullname ?></td>
                     <td><?php echo ucwords(str_replace('_', ' ', $employee->role)) ?></td>
-                    <td style="width:80px;"><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
+                    <td><?php echo !$employee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
                     <td style="width:100px" class="actions">
                         <?php if ($employee->role == 'program_manager') { ?>
                             <a href="<?php echo site_url('/employees/update-program-manager?id=') . $employee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>

@@ -8,18 +8,16 @@ namespace Inc\Base;
 
 class BaseController
 {
-    public function get_response_object($code, $message, $data = NULL)
+    public function get_response_object($code, $message, $data = null)
     {
         $res = ["code" => $code];
 
-        if ($message) {
+        if (isset($message)) {
             $res['message'] = $message;
-            return $res;
         }
 
-        if ($data) {
+        if ($data !== null) {
             $res['data'] = $data;
-            return $res;
         }
         return $res;
     }

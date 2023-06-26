@@ -253,7 +253,7 @@ class EmployeeRoutes extends BaseController
         if (is_wp_error($result)) {
             return new WP_REST_Response($this->get_response_object(500, $result->get_error_message()), 500);
         }
-        return new WP_REST_Response($this->get_response_object(201, "User Created", $result), 201);
+        return new WP_REST_Response($this->get_response_object(201, "User $result Created", $result), 201);
     }
 
     public function get_user_token($request)
@@ -277,19 +277,26 @@ class EmployeeRoutes extends BaseController
 
         $user = get_user_by('email', $email);
         if ($user) {
-            $hashed_password = $user->user_pass;
+            $id = $user->ID;
+            $is_deactivated = get_user_meta($id, 'is_deactivated', true) ?? 0;
 
-            if (wp_check_password($password, $hashed_password)) {
-                $res = wp_remote_post("http://localhost/easy-manage/wp-json/jwt-auth/v1/token", [
-                    'method' => 'POST',
-                    'data_format' => 'body',
-                    'body' => ['username' => $email, 'password' => $password]
-                ]);
+            if (!$is_deactivated || $is_deactivated == 0) {
+                $hashed_password = $user->user_pass;
 
-                $res = wp_remote_retrieve_body($res);
-                $res =  json_decode($res);
+                if (wp_check_password($password, $hashed_password)) {
+                    $res = wp_remote_post("http://localhost/easy-manage/wp-json/jwt-auth/v1/token", [
+                        'method' => 'POST',
+                        'data_format' => 'body',
+                        'body' => ['username' => $email, 'password' => $password]
+                    ]);
 
-                return new WP_REST_Response($this->get_response_object(200, null, $res->token));
+                    $res = wp_remote_retrieve_body($res);
+                    $res =  json_decode($res);
+
+                    return new WP_REST_Response($this->get_response_object(200, null, $res->token));
+                }
+            } else {
+                return new WP_REST_Response($this->get_response_object(401, "Your account has been deactivated. Please contact support for further assistance."), 401);
             }
         }
         return new WP_REST_Response($this->get_response_object(404, "Invalid username or password"), 404);

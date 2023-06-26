@@ -147,7 +147,7 @@ if (isset($_POST['delete-task'])) {
 
     $res = delete_task($task_id);
 
-    if (is_response_error($res)) {
+    if ($res) {
         $form_error = $res->message ?? "Delete Failed";
     } else {
         $form_success = "Successfully Deleted";
@@ -263,11 +263,16 @@ get_header() ?>
                 $assignees = explode(",", $project->project_assignees);
                 foreach ($assignees as $assignee) {
                 ?>
-                    <div class="user-icon">
+                    <div class="user-icon-more">
                         <?php
                         $temp = get_user_by('id', (int)$assignee);
-                        $temp = get_user_meta($assignee, 'fullname', true);
-                        echo get_initials($temp);
+                        $temp_name = get_user_meta($assignee, 'fullname', true);
+
+                        $avatar = 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($temp->user_email))) . '?d=identicon';
+                        ?>
+                        <img src="<?php echo $avatar ?>" alt="avatar">
+                        <?php
+                        echo $temp_name;
                         ?>
                     </div>
                 <?php

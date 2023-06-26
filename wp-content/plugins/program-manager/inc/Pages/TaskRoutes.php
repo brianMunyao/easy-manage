@@ -7,6 +7,7 @@
 namespace Inc\Pages;
 
 use Inc\Base\BaseController;
+use Inc\Base\MailHandler;
 use WP_REST_Response;
 
 class TaskRoutes extends BaseController
@@ -93,6 +94,22 @@ class TaskRoutes extends BaseController
 
     public function get_project_tasks($request)
     {
+        // $mailHandler  = new MailHandler();
+        // $from = 'brianmunyao6@gmail.com';
+        // $to = 'brianmunyao6@gmail.com';
+        // $subject = 'Subject of the email';
+        // $body = 'Content of the email';
+
+        // $result = $mailHandler->sendEmail($from, $to, $subject, $body);
+        // if ($result) {
+        //     // Return a success response
+        //     http_response_code(200);
+        //     echo json_encode(['message' => 'Email sent successfully']);
+        // } else {
+        //     // Return an error response
+        //     http_response_code(500);
+        //     echo json_encode(['error' => 'Email could not be sent']);
+        // }
         $project_id = $request->get_param('project_id');
 
         global $wpdb;
@@ -218,10 +235,11 @@ class TaskRoutes extends BaseController
         global $wpdb;
         $tasks_table = $wpdb->prefix . 'tasks';
         $res = $wpdb->delete($tasks_table, ['task_id' => $task_id]);
+        // return $res;
 
-        if (is_wp_error($res) || $res == 0) {
+        if ($res == 0) {
             return new WP_REST_Response($this->get_response_object(500, "Error deleting task"), 500);
         }
-        return new WP_REST_Response($this->get_response_object(204, "Task Deleted Successfully"), 204);
+        return new WP_REST_Response($this->get_response_object(204, "Task Deleted Successfully", $res), 204);
     }
 }

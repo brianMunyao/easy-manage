@@ -71,7 +71,8 @@ $programs = get_programs_new(get_current_user_id());
             foreach ($active_trainers as $trainer) {
                 $filtered_programs = array_filter($programs, function ($prog) use ($trainer) {
                     return $prog->program_assigned_to == $trainer->id;
-                });
+                }, ARRAY_FILTER_USE_BOTH);
+                $filtered_programs = array_values($filtered_programs);
             ?>
                 <tr class="table-c">
                     <td style="width: 30px"><?php echo ++$i; ?>.</td>

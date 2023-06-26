@@ -17,20 +17,6 @@ class TraineeProgramAllocation extends BaseController
         add_action('rest_api_init', [$this, 'register_routes']);
     }
 
-    public function get_response_object($code, $message, $data = null)
-    {
-        $res = ["code" => $code];
-
-        if (isset($message)) {
-            $res['message'] = $message;
-        }
-
-        if ($data !== null) {
-            $res['data'] = $data;
-        }
-        return $res;
-    }
-
     public function create_trainee_program_allocation_table()
     {
         global $wpdb;

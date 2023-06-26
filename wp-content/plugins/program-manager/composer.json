@@ -12,5 +12,7 @@
 			"email": "brianmunyao6@gmail.com"
 		}
 	],
-	"require": {}
+	"require": {
+		"phpmailer/phpmailer": "^6.8"
+	}
 }

@@ -92,6 +92,13 @@ class ProgramRoutes extends BaseController
                 return current_user_can('publish_posts');
             }
         ]);
+        register_rest_route('api/v1', '/programs/unallocate/(?P<id>\d+)', [
+            'methods' => "PUT",
+            'callback' => [$this, 'unallocate_program'],
+            'permission_callback' => function () {
+                return current_user_can('publish_posts');
+            }
+        ]);
         register_rest_route('api/v1', '/programs/(?P<id>\d+)', [
             'methods' => "PUT",
             'callback' => [$this, 'update_program'],
@@ -206,6 +213,8 @@ class ProgramRoutes extends BaseController
         $program_name = $request['program_name'];
         $program_description = $request['program_description'];
         $program_logo = $request['program_logo'];
+        $program_start_date = $request['program_start_date'];
+        $program_end_date = $request['program_end_date'];
         $program_created_by = $request['program_created_by'];
 
         $missingParams = array();
@@ -222,6 +231,15 @@ class ProgramRoutes extends BaseController
         if (!isset($program_created_by)) {
             $missingParams[] = "program_created_by";
         }
+        if (!isset($program_start_date)) {
+            $missingParams[] = "program_start_date";
+        }
+        if (!isset($program_end_date)) {
+            $missingParams[] = "program_end_date";
+        }
+        if (!isset($program_created_by)) {
+            $missingParams[] = "program_created_by";
+        }
         if (!empty($missingParams)) {
             $missingParamsString = implode(", ", $missingParams);
             return new WP_REST_Response($this->get_response_object(400, "Missing parameters: " . $missingParamsString), 400);
@@ -232,7 +250,8 @@ class ProgramRoutes extends BaseController
             'program_name' => $program_name,
             'program_description' => $program_description,
             'program_logo' => $program_logo,
-            // 'program_assigned_to'=>$request['program_assigned_to'],
+            'program_start_date' => $program_start_date,
+            'program_end_date' => $program_end_date,
             'program_created_by' => $program_created_by
         ]);
 
@@ -292,6 +311,8 @@ class ProgramRoutes extends BaseController
         $program_name = $request['program_name'];
         $program_description = $request['program_description'];
         $program_logo = $request['program_logo'];
+        $program_start_date = $request['program_start_date'];
+        $program_end_date = $request['program_end_date'];
 
         $missingParams = array();
 
@@ -304,6 +325,12 @@ class ProgramRoutes extends BaseController
         if (!isset($program_logo)) {
             $missingParams[] = "program_logo";
         }
+        if (!isset($program_start_date)) {
+            $missingParams[] = "program_start_date";
+        }
+        if (!isset($program_end_date)) {
+            $missingParams[] = "program_end_date";
+        }
         if (!empty($missingParams)) {
             $missingParamsString = implode(", ", $missingParams);
             return new WP_REST_Response($this->get_response_object(400, "Missing parameters: " . $missingParamsString), 400);
@@ -313,10 +340,29 @@ class ProgramRoutes extends BaseController
             'program_name' => $program_name,
             'program_description' => $program_description,
             'program_logo' => $program_logo,
+            'program_start_date' => $program_start_date,
+            'program_end_date' => $program_end_date
         ], ['program_id' => $id]);
 
         if ($res > 0) {
             return new WP_REST_Response($this->get_response_object(200, "Program Updated Successfully"));
+        }
+        return new WP_REST_Response($this->get_response_object(500, "Error updating program"), 500);
+    }
+
+    public function unallocate_program($request)
+    {
+        $id = $request->get_param('id');
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'programs';
+
+        $res = $wpdb->update($table_name, [
+            'program_assigned_to' => NULL
+        ], ['program_assigned_to' => $id]);
+
+        if ($res > 0) {
+            return new WP_REST_Response($this->get_response_object(200, "Program Unallocated Successfully"));
         }
         return new WP_REST_Response($this->get_response_object(500, "Error updating program"), 500);
     }

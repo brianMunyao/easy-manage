@@ -309,7 +309,7 @@ function get_initials($name)
     $words = explode(' ', $name);
     $initials = '';
 
-    foreach ($words as $word) {
+    foreach (array_slice($words, 0, 2) as $word) {
         $initials .= strtoupper(substr($word, 0, 1));
     }
 
@@ -521,7 +521,7 @@ function get_program_managers()
     $program_managers = wp_remote_retrieve_body($res);
     $program_managers = json_decode($program_managers);
 
-    return is_response_error($program_managers) ? [] : $program_managers->data;
+    return is_response_error($program_managers) ? [] : $program_managers->data ?? [];
 }
 
 /**
@@ -548,7 +548,7 @@ function get_trainers_new($pm_id = null)
     $trainers = wp_remote_retrieve_body($res);
     $trainers =  json_decode($trainers);
 
-    return is_response_error($trainers) ? [] : $trainers->data;
+    return is_response_error($trainers) ? [] : $trainers->data ?? [];
 }
 
 /**
@@ -572,7 +572,7 @@ function get_trainees_new($trainer_id = NULL, $program_id = NULL)
     $trainees = wp_remote_retrieve_body($res);
     $trainees = json_decode($trainees);
 
-    return is_response_error($trainees) ? [] : $trainees->data;
+    return is_response_error($trainees) ? [] : $trainees->data ?? [];
 }
 
 /**
@@ -593,7 +593,7 @@ function get_employees_new()
     $employees = wp_remote_retrieve_body($res);
     $employees = json_decode($employees);
 
-    return is_response_error($employees) ? [] : $employees->data;
+    return is_response_error($employees) ? [] : $employees->data ?? [];
 }
 
 /**
@@ -635,7 +635,7 @@ function search_employees($q)
     $results = wp_remote_retrieve_body($res);
     $results = json_decode($results);
 
-    return is_response_error($results) ? [] : $results->data;
+    return is_response_error($results) ? [] : $results->data ?? [];
 }
 
 /**
@@ -657,7 +657,7 @@ function get_users_created_by($id)
     $users = wp_remote_retrieve_body($res);
     $users = json_decode($users);
 
-    return is_response_error($users) ? [] : $users->data;
+    return is_response_error($users) ? [] : $users->data ?? [];
 }
 
 /**
@@ -771,7 +771,7 @@ function get_programs_new($pmanager_id)
     $res = wp_remote_retrieve_body($res);
     $res = json_decode($res);
 
-    return is_response_error($res) ? [] : $res->data;
+    return is_response_error($res) ? [] : $res->data ?? [];
 }
 function get_single_program_new($id)
 {
@@ -824,7 +824,7 @@ function get_unassigned_programs_new($pmanager_id)
     $res = wp_remote_retrieve_body($res);
     $res = json_decode($res);
 
-    return is_response_error($res) ? [] : $res->data;
+    return is_response_error($res) ? [] : $res->data ?? [];
 }
 
 function allocate_program($trainer_id, $program_id)
@@ -839,6 +839,20 @@ function allocate_program($trainer_id, $program_id)
             "trainer_id" => $trainer_id,
             "program_id" => $program_id
         ],
+        'headers' => $authHeaders
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+function unallocate_program($trainer_id)
+{
+    global $base_url;
+    global $authHeaders;
+
+    $res = wp_remote_post($base_url . "/programs/unallocate/" . $trainer_id, [
+        'method' => 'PUT',
+        'data_format' => 'body',
         'headers' => $authHeaders
     ]);
 
@@ -880,7 +894,7 @@ function get_all_projects($trainer_id = NULL)
     $projects = wp_remote_retrieve_body($res);
     $projects = json_decode($projects);
 
-    return is_response_error($projects) ? [] : $projects->data;
+    return is_response_error($projects) ? [] : $projects->data ?? [];
 }
 
 function get_single_project_new($p_id)
@@ -929,7 +943,7 @@ function get_trainees_in_program($program_id)
     $trainees = wp_remote_retrieve_body($res);
     $trainees = json_decode($trainees);
 
-    return is_response_error($trainees) ? [] : $trainees->data;
+    return is_response_error($trainees) ? [] : $trainees->data ?? [];
 }
 function get_trainees_projects($trainee_id)
 {
@@ -944,7 +958,7 @@ function get_trainees_projects($trainee_id)
     $projects = wp_remote_retrieve_body($res);
     $projects = json_decode($projects);
 
-    return is_response_error($projects) ? [] : $projects->data;
+    return is_response_error($projects) ? [] : $projects->data ?? [];
 }
 
 function create_project($project)
@@ -992,7 +1006,7 @@ function get_available_trainees($program_id)
     $res = wp_remote_retrieve_body($res);
     $res = json_decode($res);
 
-    return is_response_error($res) ? [] : $res->data;
+    return is_response_error($res) ? [] : $res->data ?? [];
 }
 
 function complete_project($project_id)
@@ -1036,7 +1050,7 @@ function get_tasks($project_id)
     $res = wp_remote_retrieve_body($res);
     $res = json_decode($res);
 
-    return is_response_error($res) ? [] : $res->data;
+    return is_response_error($res) ? [] : $res->data ?? [];
 }
 function get_single_task($task_id)
 {

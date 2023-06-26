@@ -29,6 +29,7 @@ if (isset($_POST['update-trainer'])) {
     $password_error = validate_password_custom($password);
 
     if (empty($fullname_error)  && empty($password_error)) {
+        unallocate_program($user_info->id);
         $result = update_employee_new([
             'id' => $user_info->id,
             'fullname' => $fullname,

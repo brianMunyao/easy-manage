@@ -110,26 +110,6 @@ get_header() ?>
                     <p class="form-error color-danger"><?php echo $project_assignees_error ?></p>
                 </div>
 
-
-                <!--  -->
-
-                <!-- <input type="text" name="assignees" id='assignees' value=""> -->
-
-                <!-- <div class="input-con">
-                    <label for="assignee-picker">Pick Assignee</label>
-                    <select name="assignee-picker" id="assignee-picker" multiple>
-                        <option value="" selected disabled hidden style="color: red">Select An Assignee</option>
-
-                        <option value="1">1,</option>
-                        <option value="2df">2bnm,</option>
-                        <option value="3df">3bnm,</option>
-                    </select>
-                    <p class="error select-error"><?php //echo $select_error 
-                                                    ?></p>
-                </div> -->
-
-
-
                 <button type="submit" class="app-btn primary-btn" name="create-project">Create</button>
             </div>
         </form>
@@ -137,63 +117,3 @@ get_header() ?>
 </div>
 
 <?php get_footer() ?>
-
-<?php
-
-echo "<script>
-    let available_trainees = " . json_encode($available_assignees) . ";
-    </script>";
-
-?>
-<!-- <script>
-    let select = document.getElementById('assignee-picker');
-    const assigneesInput = document.getElementById('assignees');
-
-
-    const removeAllOptions = () => {
-        let options = select.options;
-        console.log(options)
-
-        Array.from(options).forEach((opt, i) => {
-            if (!opt.disabled) select.remove(i)
-        })
-    }
-
-    const addAllOptions = (list) => {
-        console.log('addAllOptions', list)
-        list.forEach(assign => {
-            let option = document.createElement('option');
-
-            // option.id = assign.name
-            option.value = assign.id;
-            option.text = assign.name;
-            option.disabled = assign.disabled
-            select.appendChild(option);
-        });
-    }
-    removeAllOptions();
-    addAllOptions(available_trainees);
-
-    select.addEventListener('change', (e) => {
-        let selectedOption = select.value;
-        let temp_assignees = assigneesInput.value
-        if (!String(temp_assignees).split(',').includes(selectedOption)) {
-            temp_assignees += selectedOption + ',';
-
-            available_trainees = available_trainees.map((trainee, i) => {
-                return {
-                    ...trainee,
-                    disabled: String(trainee.id) === selectedOption
-                }
-            });
-            // available_trainees = available_trainees.filter(t => String(t.id) !== selectedOption);
-            // console.log(available_trainees)
-            removeAllOptions();
-            addAllOptions(available_trainees);
-            assigneesInput.value = temp_assignees;
-        } else {
-            document.querySelector('.select-error').innerHTML = 'User already inserted';
-
-        }
-    })
-</script> -->

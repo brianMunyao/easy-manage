@@ -881,6 +881,15 @@ table .created-on {
 	align-items: flex-start;
 	justify-content: space-between;
 }
+.start-end-date {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+}
+.start-end-date .input-con {
+	width: 100%;
+	overflow: hidden;
+}
 
 /***** End Programs *****/
 
