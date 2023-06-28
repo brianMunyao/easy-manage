@@ -60,20 +60,12 @@ $completed = array_filter($projects, function ($project) {
                 <h4>Projects</h4>
 
                 <div>
-                    <!-- <form action="" method="get">
-                    <?php // echo do_shortcode('[search_bar placeholder="search"]') 
-                    ?>
-                </form> -->
                     <?php if (is_user_trainer()) { ?>
                         <a href="<?php echo site_url('/projects/create-project'); ?>"><button class="app-btn secondary-btn"><ion-icon name='add'></ion-icon> Add Project</button></a>
                     <?php } ?>
                 </div>
             </div>
             <div class="table-heading-bottom">
-                <!-- <form action="" method="get">
-                <?php // echo do_shortcode('[search_bar placeholder="search"]') 
-                ?>
-            </form> -->
             </div>
         </div>
 
@@ -94,13 +86,12 @@ $completed = array_filter($projects, function ($project) {
                 ?>
                     <a href="<?php echo site_url('/projects/project?id=') . $project->project_id ?>">
                         <div class="project">
+                            <div class="project-category" style="background: <?php echo string_to_hex_color($project->project_category) ?>;">
+                                <?php echo $project->project_category ?>
+                            </div>
                             <p class="project-title">
                                 <?php echo $project->project_name ?>
                             </p>
-
-                            <div class="project-category">
-                                <?php echo $project->project_category ?>
-                            </div>
 
                             <div class="project-progress-con">
                                 <div class="project-progress">
@@ -124,17 +115,27 @@ $completed = array_filter($projects, function ($project) {
 
                                     <div class="project-assignees">
                                         <?php
-                                        $assignees = explode(",", $project->project_assignees);
-                                        foreach ($assignees as $assignee) {
+                                        $assignees = $project->project_assignees ? explode(",", $project->project_assignees) : [];
+
+                                        if (count($assignees) == 0) {
                                         ?>
-                                            <div class="user-icon">
-                                                <?php
-                                                $temp = get_user_by('id', (int)$assignee);
-                                                $temp = get_user_meta($assignee, 'fullname', true);
-                                                echo get_initials($temp);
-                                                ?>
+                                            <div class="circle-error" style="width:30px;height:30px;font-size: 16px;bottom:5px;right:10px" title="Project has no assignee">
+                                                <ion-icon name="alert-circle-outline"></ion-icon>
                                             </div>
+                                            <?php
+                                        } else {
+
+                                            foreach ($assignees as $assignee) {
+                                            ?>
+                                                <div class="user-icon">
+                                                    <?php
+                                                    $temp = get_user_by('id', (int)$assignee);
+                                                    $temp = get_user_meta($assignee, 'fullname', true);
+                                                    echo get_initials($temp);
+                                                    ?>
+                                                </div>
                                         <?php
+                                            }
                                         }
                                         ?>
                                     </div>
@@ -165,13 +166,16 @@ $completed = array_filter($projects, function ($project) {
                 ?>
                     <a href="<?php echo site_url('/projects/project?id=') . $project->project_id ?>">
                         <div class="project">
-                            <p class="project-title">
-                                <?php echo $project->project_name ?>
-                            </p>
 
                             <div class="project-category">
                                 <?php echo $project->project_category ?>
                             </div>
+
+                            <p class="project-title">
+                                <?php echo $project->project_name ?>
+                            </p>
+
+
 
                             <div class="project-progress-con">
                                 <div class="project-progress">
@@ -191,7 +195,30 @@ $completed = array_filter($projects, function ($project) {
                                     </span>
 
                                     <div class="project-assignees">
-                                        <div class="user-icon">BK</div>
+                                        <?php
+                                        $assignees = $project->project_assignees ? explode(",", $project->project_assignees) : [];
+
+                                        if (count($assignees) == 0) {
+                                        ?>
+                                            <div class="circle-error" style="width:30px;height:30px;font-size: 16px;bottom:5px;right:10px" title="Program has no trainer">
+                                                <ion-icon name="alert-circle-outline"></ion-icon>
+                                            </div>
+                                            <?php
+                                        } else {
+
+                                            foreach ($assignees as $assignee) {
+                                            ?>
+                                                <div class="user-icon">
+                                                    <?php
+                                                    $temp = get_user_by('id', (int)$assignee);
+                                                    $temp = get_user_meta($assignee, 'fullname', true);
+                                                    echo get_initials($temp);
+                                                    ?>
+                                                </div>
+                                        <?php
+                                            }
+                                        }
+                                        ?>
                                     </div>
                                 </div>
                             </div>

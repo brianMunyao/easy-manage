@@ -7,6 +7,7 @@
 namespace Inc\Pages;
 
 use Inc\Base\BaseController;
+use Inc\Utils\MailHandler;
 use WP_Error;
 use WP_REST_Response;
 
@@ -240,6 +241,33 @@ class ProjectRoutes extends BaseController
 
             foreach ($project_assignees as $assigned) {
                 $this->allocate_trainee_to_project($project_id, $assigned);
+                // try {
+
+                //     $user = get_user_by('ID', $assigned);
+                //     $fullname = get_user_meta($assigned, 'fullname', true);
+
+                //     $mailHandler = new MailHandler();
+                //     $email_res = $mailHandler->sendEmail(
+                //         $user->user_email,
+                //         "Project Assignment - $project_name",
+                //         "
+                //     Dear $fullname,
+
+                //     We are excited to inform you that you have been assigned to a new project! Here are the details:
+
+                //     Project Name: $project_name
+                //     Due Date: " . date('F jS, Y', strtotime($project_due_date)) . "
+                //     Project Description: $project_description
+
+                //     Good Luck!
+
+                //     Regards,
+                //     Management.
+                //     "
+                //     );
+                // } catch (\Throwable $e) {
+                //     return $e;
+                // }
             }
             return new WP_REST_Response($this->get_response_object(201, "Project Created Successfully", $project_id), 201);
         }
@@ -442,7 +470,7 @@ class ProjectRoutes extends BaseController
         if (is_wp_error($res)) {
             return new WP_REST_Response($this->get_response_object(500, "Error completing tasks"), 500);
         }
-        return new WP_REST_Response($this->get_response_object(204, "Project Completed Sucessfully"), 204);
+        return new WP_REST_Response($this->get_response_object(200, "Project Completed Sucessfully"), 200);
     }
     public function delete_project($request)
     {
@@ -451,14 +479,17 @@ class ProjectRoutes extends BaseController
         global $wpdb;
         $projects_table = $wpdb->prefix . 'projects';
 
-        $res = $wpdb->delete($projects_table, ['project_id' => $project_id]);
-
-        if (is_wp_error($res)) {
-            return new WP_REST_Response($this->get_response_object(400, "Error deleting project from project"), 400);
-        } else {
+        try {
             $this->unallocate_trainees_from_project($project_id);
-        }
+            $res = $wpdb->delete($projects_table, ['project_id' => $project_id]);
+            if (is_wp_error($res)) {
+                throw new \Exception("Error Processing Request", 1);
 
-        return new WP_REST_Response($this->get_response_object(204, "Project Deleted", $project_id), 204);
+                return new WP_REST_Response($this->get_response_object(400, "Error deleting project from project"), 400);
+            }
+            return new WP_REST_Response($this->get_response_object(200, "Project Deleted", $project_id), 200);
+        } catch (\Throwable $e) {
+            return new WP_REST_Response($this->get_response_object(400, "Error deleting project from project. " . $e->getMessage()), 400);
+        }
     }
 }

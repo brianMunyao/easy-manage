@@ -1,7 +1,7 @@
 <?php if (!is_user_logged_in()) wp_redirect(site_url('/login')) ?>
 
 <?php
-if (!is_user_admin_custom())     wp_redirect(home_url());
+if (!is_user_admin_custom()) wp_redirect(home_url());
 
 if (!isset($_GET['id'])) wp_redirect(site_url('/employees'));
 $id = $_GET['id'];
@@ -40,6 +40,7 @@ if (isset($_POST['update-pm'])) {
             $form_error = "Update Failed";
         } else {
             $form_success = "Successfully updated";
+            do_action('move_to_employees');
         }
     }
 }

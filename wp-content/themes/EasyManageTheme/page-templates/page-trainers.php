@@ -36,7 +36,7 @@ $programs = get_programs_new(get_current_user_id());
 
             <div>
                 <form action="" method="get">
-                    <?php echo do_shortcode('[search_bar placeholder="search"]') ?>
+                    <?php echo do_shortcode('[search_bar placeholder="Employee Search"]') ?>
                 </form>
                 <a href="<?php echo site_url('/employees/create-trainer'); ?>"><button class="app-btn secondary-btn"><ion-icon name='add'></ion-icon> Add Trainer</button></a>
             </div>

@@ -19,7 +19,7 @@ if (isset($_POST['create-program'])) {
     $start_date_error = empty($start_date) ? 'Field required' : '';
     $end_date_error = empty($end_date) ? 'Field required' : '';
 
-    if (empty($program_name_error) && empty($description_error) && empty($logo_error)) {
+    if (empty($program_name_error) && empty($description_error) && empty($logo_error) && empty($start_date_error) && empty($end_date_error)) {
         $result  = create_program_new([
             'program_name' =>  $program_name,
             'program_description' =>  $description,
@@ -31,9 +31,9 @@ if (isset($_POST['create-program'])) {
         ]);
 
         if (is_response_error($result)) {
-            $form_error = "Creation Failed";
+            $form_error = $result->message ?? "Creation Failed";
         } else {
-            $form_success = "Successfully created";
+            $form_success = $result->message ?? "Successfully created";
         }
     }
 }
@@ -70,7 +70,7 @@ get_header() ?>
                 <p class="error"><?php echo $form_error ?></p>
                 <p class="success"><?php echo $form_success ?></p>
 
-                <?php echo do_shortcode('[input_con name="program_name" label="Program Name" error="' . $program_name_error . '" placeholder="E.g. Angular Training" value="' . $curr_program_name . '"]') ?>
+                <?php echo do_shortcode('[input_con name="program_name" label="Program Name" error="' . $program_name_error . '" placeholder="E.g. Angular or React.js" value="' . $curr_program_name . '"]') ?>
                 <?php echo do_shortcode('[input_con name="description" label="Program Description" error="' . $description_error . '" placeholder="Brief 10 word explanation about the program"  value="' . $curr_description . '"]') ?>
                 <?php echo do_shortcode('[input_con name="logo" label="Logo URL" error="' . $logo_error . '" placeholder="E.g. Link to a good angular logo" input_type="url"  value="' . $curr_logo . '"]') ?>
 

@@ -57,19 +57,11 @@ if (!is_response_error($assigned_program)) {
                 <h4>Trainees</h4>
 
                 <div>
-                    <!-- <form action="" method="get">
-                    <?php // echo do_shortcode('[search_bar placeholder="search"]') 
-                    ?>
-                </form> -->
+
                     <a href="<?php echo site_url('/trainees/create-trainee'); ?>"><button class="app-btn secondary-btn"><ion-icon name='add'></ion-icon> Add Trainee</button></a>
                 </div>
             </div>
-            <div class="table-heading-bottom">
-                <!-- <form action="" method="get">
-                <?php // echo do_shortcode('[search_bar placeholder="search"]') 
-                ?>
-            </form> -->
-            </div>
+            <div class="table-heading-bottom"></div>
         </div>
 
         <?php
@@ -92,6 +84,7 @@ if (!is_response_error($assigned_program)) {
                 <th style="width: 30px">No.</th>
                 <th>Name</th>
                 <th>Status</th>
+                <th>Projects</th>
                 <th style="width:100px">Actions</th>
             </tr>
 
@@ -100,7 +93,6 @@ if (!is_response_error($assigned_program)) {
                     <td class="empty-row" colspan="5">No Active Trainees</td>
                 </tr>
                 <?php } else {
-
                 $i = 0;
                 foreach ($active_trainees as $trainee) {
                 ?>
@@ -119,6 +111,15 @@ if (!is_response_error($assigned_program)) {
                             </div>
                         </td>
                         <td><?php echo !$trainee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
+                        <td>
+                            <?php
+                            $trainee_projects = get_trainees_projects($trainee->id);
+                            $ongoing = array_filter($trainee_projects, function ($project) {
+                                return $project->project_done == 0;
+                            });
+                            echo count($trainee_projects);
+                            ?>
+                        </td>
                         <td style="width:100px" class="actions">
                             <a href="<?php echo site_url('/trainees/update-trainee?id=') . $trainee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
                             <span class="list-actions">
@@ -151,6 +152,7 @@ if (!is_response_error($assigned_program)) {
         </table>
 
         <div class="spacer"></div>
+        <div class="spacer"></div>
 
         <div class="table-h">
             <span class="color-danger">Inactive Trainees (<?php echo count($inactive_trainees) ?>)</span>
@@ -161,6 +163,7 @@ if (!is_response_error($assigned_program)) {
                 <th style="width: 30px">No.</th>
                 <th>Name</th>
                 <th>Status</th>
+                <th>Projects</th>
                 <th style="width:100px">Actions</th>
             </tr>
 
@@ -188,6 +191,15 @@ if (!is_response_error($assigned_program)) {
                             </div>
                         </td>
                         <td><?php echo !$trainee->is_deactivated ? "<span class='status-active'>Active</span>" : "<span class='status-inactive'>Inactive</span>" ?></td>
+                        <td>
+                            <?php
+                            $trainee_projects = get_trainees_projects($trainee->id);
+                            $ongoing = array_filter($trainee_projects, function ($project) {
+                                return $project->project_done == 0;
+                            });
+                            echo count($trainee_projects);
+                            ?>
+                        </td>
                         <td style="width:100px" class="actions">
                             <a href="<?php echo site_url('/trainees/update-trainee?id=') . $trainee->id  ?>"><ion-icon name='create' class="color-blue"></ion-icon></a>
                             <span class="list-actions">

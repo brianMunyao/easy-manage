@@ -23,19 +23,10 @@ get_header() ?>
             <h4>Programs</h4>
 
             <div>
-                <!-- <form action="" method="get">
-                    <?php // echo do_shortcode('[search_bar placeholder="search"]') 
-                    ?>
-                </form> -->
                 <a href="<?php echo site_url('/programs/create-program'); ?>"><button class="app-btn secondary-btn"><ion-icon name='add'></ion-icon> Add Program</button></a>
             </div>
         </div>
-        <div class="table-heading-bottom">
-            <!-- <form action="" method="get">
-                <?php // echo do_shortcode('[search_bar placeholder="search"]') 
-                ?>
-            </form> -->
-        </div>
+        <div class="table-heading-bottom"></div>
     </div>
 
 
@@ -52,6 +43,8 @@ get_header() ?>
     <div class="programs-list">
         <?php
         foreach ($programs as $program) {
+            $program_trainer = get_single_employees_new($program->program_assigned_to);
+            $program_trainer = is_response_error($program_trainer) ? '' : $program_trainer->data;
         ?>
             <div class="program">
                 <div class="program-top">
@@ -79,11 +72,7 @@ get_header() ?>
                 <div class="program-more">
                     <div>
                         <div>Trainer:</div>
-                        <?php
-                        $user = get_single_employees_new($program->program_assigned_to);
-                        $user = is_response_error($user) ? '' : $user->data;
-                        echo $user->fullname ?? '--';
-                        ?>
+                        <?php echo $user->fullname ?? '--'; ?>
                     </div>
                     <div>
                         <div>Trainees:</div>
@@ -93,16 +82,17 @@ get_header() ?>
                         ?>
                     </div>
                 </div>
+
+                <?php if (empty($program_trainer)) { ?>
+                    <div class="circle-error" title="Program has no trainer">
+                        <ion-icon name="alert-circle-outline"></ion-icon>
+                    </div>
+                <?php } ?>
             </div>
         <?php
         }
         ?>
     </div>
-
-
-
-
-
 </div>
 
 <?php get_footer() ?>

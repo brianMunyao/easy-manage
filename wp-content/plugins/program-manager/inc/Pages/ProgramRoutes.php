@@ -149,7 +149,7 @@ class ProgramRoutes extends BaseController
         $program = $wpdb->get_row("SELECT * FROM $table_name WHERE program_assigned_to=$trainer_id");
 
         if (!$program) {
-            return new WP_REST_Response($this->get_response_object(204, "Trainer Not Assigned A Program"), 204);
+            return new WP_REST_Response($this->get_response_object(200, "Trainer Not Assigned A Program"), 200);
         }
         return new WP_REST_Response($this->get_response_object(200, null, $program));
     }
@@ -244,6 +244,10 @@ class ProgramRoutes extends BaseController
             return new WP_REST_Response($this->get_response_object(400, "Missing parameters: " . $missingParamsString), 400);
         }
 
+        $program_exists = $wpdb->get_var("SELECT program_name FROM wp_programs WHERE program_name LIKE '%$program_name%'");
+        if ($program_exists) {
+            return new WP_REST_Response($this->get_response_object(409, "Program already exists."), 409);
+        }
 
         $res = $wpdb->insert($table_name, [
             'program_name' => $program_name,
@@ -375,6 +379,6 @@ class ProgramRoutes extends BaseController
 
         $res = $wpdb->delete($programs_table, ['program_id' => $program_id]);
 
-        return new WP_REST_Response($this->get_response_object(204, "Program Deleted", $program_id), 204);
+        return new WP_REST_Response($this->get_response_object(200, "Program Deleted", $program_id), 200);
     }
 }

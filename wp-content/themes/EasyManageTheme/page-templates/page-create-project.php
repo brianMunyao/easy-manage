@@ -95,6 +95,9 @@ get_header() ?>
                         } else {
                             $curr_project_assignees = [];
                         }
+                        echo count($available_assignees) == 0 ? "<p style='font-style:italic; opacity: 0.8' class='color-danger'>All trainees have max number of projects.</p>" : '';
+
+
                         foreach ($available_assignees as $assignee) {
                         ?>
                             <label for="<?php echo $assignee->id ?>" class="trainees-option">

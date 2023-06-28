@@ -62,24 +62,33 @@
 	background: #dc354644;
 	color: var(--danger);
 }
+.projects-page {
+	background: rgb(250, 250, 250);
+}
 .projects-list {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, 250px);
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 	grid-auto-rows: auto;
 	padding: 20px 10px 50px;
-	gap: 20px;
+	gap: 25px;
 }
 .projects-list .project {
-	background: #dbf6fd;
+	position: relative;
+	border: 1.5px solid rgb(240, 240, 240);
+	background: #fff;
+	box-shadow: 1px 1px 10px rgba(200, 200, 200, 0.187);
 	padding: 17px;
 	border-radius: 7px;
-	display: flex;
-	flex-direction: column;
+	display: grid;
+	grid-template-rows: 30px 1fr 20px auto;
 	gap: 20px;
 	transition: all 0.1s linear;
+	height: 100%;
+	width: 100%;
+	max-width: 300px;
 }
 .projects-list .project:hover {
-	transform: scale(1.03);
+	transform: scale(1.02);
 }
 
 .projects-list .project .project-title {
@@ -87,15 +96,17 @@
 	font-size: 17px;
 	line-height: 25px;
 	letter-spacing: 0.2px;
+	margin: auto 0;
+	flex: 1;
 }
 .projects-list .project .project-category {
-	background: #076b8444;
+	background: var(--primary);
+	color: #fff;
 	width: fit-content;
-	padding: 4px 10px;
+	padding: 6px 12px;
 	font-size: 14px;
 	font-weight: 500;
 	border-radius: 30px;
-	border: 1px solid rgba(7, 107, 132, 0.7);
 }
 .projects-list .project-progress-con {
 	display: flex;
@@ -103,11 +114,11 @@
 	gap: 8px;
 }
 .projects-list .project-progress-con .project-progress {
-	background: #fff;
+	background: #efefef;
 	flex: 1;
 	height: 10px;
 	width: 100%;
-	border: 1px solid #95e5f9;
+	/* border: 1px solid #95e5f9; */
 	border-radius: 10px;
 }
 .projects-list .project-progress-con .project-progress > div {
@@ -123,7 +134,10 @@
 
 .projects-list .project-assignees {
 	display: flex;
-	gap: 5px;
+	gap: -10px;
+}
+.projects-list .project-assignees .user-icon:not(:first-child) {
+	margin-left: -10px;
 }
 .projects-list .project-bottom-con {
 	display: flex;

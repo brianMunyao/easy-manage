@@ -7,6 +7,7 @@
 namespace Inc\Pages;
 
 use Inc\Base\BaseController;
+use Inc\Utils\MailHandler;
 use WP_REST_Response;
 
 class EmployeeRoutes extends BaseController
@@ -127,6 +128,34 @@ class EmployeeRoutes extends BaseController
         } else {
             $roles = ['program_manager', 'trainer', 'trainee'];
         }
+
+        // try {
+
+        //     $user = get_user_by('ID', $assigned);
+        //     $fullname = get_user_meta($assigned, 'fullname', true);
+
+        //     $mailHandler = new MailHandler();
+        //     $email_res = $mailHandler->sendEmail(
+        //         "myspamstuff9@gmail.com",
+        //         "Project Assignment -",
+        //         "
+        //             Dear Spammy,
+
+        //             We are excited to inform you that you have been assigned to a new project! Here are the details:
+
+        //             Project Name: 
+        //             Due Date: 
+        //             Project Description: 
+
+        //             Good Luck!
+
+        //             Regards,
+        //             Management.
+        //             "
+        //     );
+        // } catch (\Throwable $e) {
+        //     return $e;
+        // }
 
         $users = get_users([
             'role__in' => $roles,

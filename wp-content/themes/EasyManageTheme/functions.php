@@ -338,6 +338,19 @@ function get_initials($name)
 }
 
 /**
+ * Returns a hex color code of a given string
+ * 
+ * @param string $str The string to convert to a color
+ * @return string The hex color code
+ */
+function string_to_hex_color($str)
+{
+    $code = dechex(crc32(strtolower($str)));
+    $code = substr($code, 0, 6);
+    return "#" . $code;
+}
+
+/**
  * 
  * 
  * ===== Input Validation Functions =====
@@ -1165,20 +1178,44 @@ function delete_task($task_id)
  * 
  */
 
-function on_project_delete()
+function move_to_projects()
 {
     wp_redirect(site_url('/projects'));
     exit();
 }
-add_action('on_project_delete', 'on_project_delete');
+add_action('move_to_projects', 'move_to_projects');
 
-// function move_to_previous_page()
-// {
-//     wp_redirect(wp_get_referer());
-//     exit();
-// }
+function move_to_employees()
+{
+    wp_redirect(site_url('/employees'));
+    exit();
+}
 
-// add_action('move_to_previous_page', 'move_to_previous_page');
+add_action('move_to_employees', 'move_to_employees');
+
+function move_to_programs()
+{
+    wp_redirect(site_url('/programs'));
+    exit();
+}
+
+add_action('move_to_programs', 'move_to_programs');
+
+function move_to_trainers()
+{
+    wp_redirect(site_url('/trainers'));
+    exit();
+}
+
+add_action('move_to_trainers', 'move_to_trainers');
+
+function move_to_trainees()
+{
+    wp_redirect(site_url('/trainees'));
+    exit();
+}
+
+add_action('move_to_trainees', 'move_to_trainees');
 
 
 /**

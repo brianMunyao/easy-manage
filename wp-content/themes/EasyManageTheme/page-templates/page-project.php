@@ -35,9 +35,10 @@ if (isset($_POST['complete-project'])) {
     $res = complete_project($id);
 
     if (is_response_error($res)) {
+        var_dump($res);
         $form_error = $res->message ?? "Update Failed";
     } else {
-        $form_success = "Successfully Updated";
+        $form_success = $res->message ?? "Successfully Updated";
     }
 
     do_action('on_project_delete');
@@ -48,10 +49,10 @@ if (isset($_POST['delete-project'])) {
     if (is_response_error($res)) {
         $form_error = $res->message ?? "Deletion Failed";
     } else {
-        $form_success = "Successfully Deleted";
+        $form_success =  $res->message ?? "Successfully Deleted";
     }
 
-    do_action('on_project_delete');
+    do_action('move_to_projects');
 }
 
 if (isset($_POST['add-task'])) {
@@ -66,7 +67,7 @@ if (isset($_POST['add-task'])) {
     if (is_response_error($res)) {
         $form_error = $res->message ?? "Creation Failed";
     } else {
-        $form_success = "Successfully Created";
+        $form_success =  $res->message ?? "Successfully Created";
 
         $tasks = get_tasks($id);
 
@@ -89,7 +90,7 @@ if (isset($_POST['update-task'])) {
     if (is_response_error($res)) {
         $form_error = $res->message ?? "Update Failed";
     } else {
-        $form_success = "Successfully Updated";
+        $form_success =  $res->message ?? "Successfully Updated";
         $tasks = get_tasks($id);
 
         $ongoing = array_filter($tasks, function ($task) {
@@ -111,7 +112,7 @@ if (isset($_POST['check-task'])) {
     if (is_response_error($res)) {
         $form_error = $res->message ?? "Update Failed";
     } else {
-        $form_success = "Successfully Updated";
+        $form_success = $res->message ?? "Successfully Updated";
         $tasks = get_tasks($id);
 
         $ongoing = array_filter($tasks, function ($task) {
@@ -131,7 +132,7 @@ if (isset($_POST['uncheck-task'])) {
     if (is_response_error($res)) {
         $form_error = $res->message ?? "Update Failed";
     } else {
-        $form_success = "Successfully Updated";
+        $form_success = $res->message ?? "Successfully Updated";
         $tasks = get_tasks($id);
 
         $ongoing = array_filter($tasks, function ($task) {
@@ -150,7 +151,7 @@ if (isset($_POST['delete-task'])) {
     if ($res) {
         $form_error = $res->message ?? "Delete Failed";
     } else {
-        $form_success = "Successfully Deleted";
+        $form_success = $res->message ?? "Successfully Deleted";
         $tasks = get_tasks($id);
 
         $ongoing = array_filter($tasks, function ($task) {
@@ -260,7 +261,8 @@ get_header() ?>
             <span>Assignees:</span>
             <div>
                 <?php
-                $assignees = explode(",", $project->project_assignees);
+                $assignees = $project->project_assignees ? explode(",", $project->project_assignees) : [];
+                echo count($assignees) == 0 ? '<span class="color-danger">Not assigned</span>' : '';
                 foreach ($assignees as $assignee) {
                 ?>
                     <div class="user-icon-more">
@@ -304,10 +306,21 @@ get_header() ?>
                 <div class="s-links">
                     <?php
                     if (is_user_trainee()) {
+                        if ($project->project_done == 0) {
                     ?>
-                        <form action="" method="post">
-                            <button type="submit" name="complete-project" class="btn-text color-success icon-text-link"><ion-icon name='checkmark-circle-outline'></ion-icon>Mark As Complete</button>
-                        </form>
+                            <form action="" method="post">
+                                <button type="submit" name="complete-project" class="btn-text color-success icon-text-link"><ion-icon name='checkmark-circle-outline'></ion-icon>Mark As Complete</button>
+                            </form>
+                        <?php
+                        } else {
+                        ?>
+
+                            <span class="color-success">Project Completed</span>
+
+                        <?php
+                        }
+                        ?>
+
                     <?php
                     }
                     ?>
