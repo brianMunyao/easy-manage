@@ -4,7 +4,7 @@
  * @package ProgramManager
  */
 
-namespace Inc\Pages;
+namespace Inc\Routes;
 
 use WP_REST_Response;
 use Inc\Base\BaseController;

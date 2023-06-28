@@ -4,7 +4,7 @@
  * @package ProgramManager
  */
 
-namespace Inc\Pages;
+namespace Inc\Utils;
 
 class RoleManager
 {

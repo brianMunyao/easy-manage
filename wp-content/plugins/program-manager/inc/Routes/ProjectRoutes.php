@@ -4,7 +4,7 @@
  * @packagejectnager
  */
 
-namespace Inc\Pages;
+namespace Inc\Routes;
 
 use Inc\Base\BaseController;
 use Inc\Utils\MailHandler;
@@ -172,7 +172,7 @@ class ProjectRoutes extends BaseController
 
     public function create_project($request)
     {
-        $project_name = $request['project_name'];
+        $project_name = $request['prboject_name'];
         $project_category = $request['project_category'];
         $project_description = $request['project_description'];
         $project_due_date = $request['project_due_date'];

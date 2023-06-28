@@ -4,7 +4,7 @@
  * @package ProgramManager
  */
 
-namespace Inc\Pages;
+namespace Inc\Routes;
 
 use Inc\Base\BaseController;
 use Inc\Utils\MailHandler;

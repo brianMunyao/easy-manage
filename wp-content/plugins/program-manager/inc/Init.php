@@ -6,13 +6,13 @@
 
 namespace Inc;
 
-use Inc\Pages\EmployeeRoutes;
-use Inc\Pages\RoleManager;
-use Inc\Pages\ProgramRoutes;
-use Inc\Pages\ProjectRoutes;
-use Inc\Pages\TaskRoutes;
-use Inc\Pages\TraineeProgramAllocation;
-use Inc\Pages\TraineeProjectAllocation;
+use Inc\Routes\EmployeeRoutes;
+use Inc\Utils\RoleManager;
+use Inc\Routes\ProgramRoutes;
+use Inc\Routes\ProjectRoutes;
+use Inc\Routes\TaskRoutes;
+use Inc\Routes\TraineeProgramAllocation;
+use Inc\Routes\TraineeProjectAllocation;
 
 class Init
 {
