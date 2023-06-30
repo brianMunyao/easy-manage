@@ -35,13 +35,13 @@ if (isset($_POST['complete-project'])) {
     $res = complete_project($id);
 
     if (is_response_error($res)) {
-        var_dump($res);
         $form_error = $res->message ?? "Update Failed";
     } else {
         $form_success = $res->message ?? "Successfully Updated";
+        $project = get_single_project_new($id);
+        if (is_response_error($project)) wp_redirect('/projects');
+        $project = $project->data;
     }
-
-    do_action('on_project_delete');
 }
 if (isset($_POST['delete-project'])) {
     $res = delete_project($id);
@@ -133,6 +133,7 @@ if (isset($_POST['uncheck-task'])) {
         $form_error = $res->message ?? "Update Failed";
     } else {
         $form_success = $res->message ?? "Successfully Updated";
+
         $tasks = get_tasks($id);
 
         $ongoing = array_filter($tasks, function ($task) {
@@ -148,7 +149,7 @@ if (isset($_POST['delete-task'])) {
 
     $res = delete_task($task_id);
 
-    if ($res) {
+    if (is_response_error($res)) {
         $form_error = $res->message ?? "Delete Failed";
     } else {
         $form_success = $res->message ?? "Successfully Deleted";
@@ -160,6 +161,19 @@ if (isset($_POST['delete-task'])) {
         $completed = array_filter($tasks, function ($task) {
             return $task->task_done == 1;
         });
+    }
+}
+
+if (isset($_POST['give-remark'])) {
+    $project_id = $_POST['project-id'];
+    $remark = $_POST['remark'];
+
+    if (!empty(trim($remark))) {
+        $res = add_remark($project_id, [
+            'remark_desc' => $remark,
+            'remark_created_by' => get_current_user_id(),
+            'remark_project_id' => $project_id
+        ]);
     }
 }
 
@@ -205,43 +219,71 @@ get_header() ?>
             modalInner.addEventListener('click', (e) => e.stopPropagation())
         })
 
-        const addTaskBtn = document.querySelector('.add-task-btn');
-        const addTaskModal = document.querySelector('.add-task-modal');
-        const addTaskClose = document.querySelector('.add-task-close');
+        try {
+            const addTaskBtn = document.querySelector('.add-task-btn');
+            const addTaskModal = document.querySelector('.add-task-modal');
+            const addTaskClose = document.querySelector('.add-task-close');
 
-        addTaskBtn.addEventListener('click', () => {
-            addTaskModal.style.display = 'flex';
-            stopBodyScroll();
-        })
-        addTaskClose.addEventListener('click', () => {
-            addTaskModal.style.display = 'none';
-            restoreBodyScroll();
-        })
-        addTaskModal.addEventListener('click', () => {
-            addTaskModal.style.display = 'none';
-            restoreBodyScroll();
-        })
+            addTaskBtn.addEventListener('click', () => {
+                addTaskModal.style.display = 'flex';
+                stopBodyScroll();
+            })
+            addTaskClose.addEventListener('click', () => {
+                addTaskModal.style.display = 'none';
+                restoreBodyScroll();
+            })
+            addTaskModal.addEventListener('click', () => {
+                addTaskModal.style.display = 'none';
+                restoreBodyScroll();
+            })
+        } catch (e) {
+            console.log(e)
+        }
 
+        try {
+            const updateTaskBtn = document.querySelector('.update-task-btn');
+            const updateTaskModal = document.querySelector('.update-task-modal');
+            const updateTaskClose = document.querySelector('.update-task-close');
 
-        const updateTaskBtn = document.querySelector('.update-task-btn');
-        const updateTaskModal = document.querySelector('.update-task-modal');
-        const updateTaskClose = document.querySelector('.update-task-close');
+            updateTaskBtn.addEventListener('click', () => {
+                updateTaskModal.style.display = 'flex';
+                stopBodyScroll();
+                openUpdateTaskModal();
+            })
+            updateTaskClose.addEventListener('click', () => {
+                updateTaskModal.style.display = 'none';
+                restoreBodyScroll();
+                closeUpdateTaskModal();
+            })
+            updateTaskModal.addEventListener('click', () => {
+                updateTaskModal.style.display = 'none';
+                restoreBodyScroll();
+                closeUpdateTaskModal();
+            })
+        } catch (e) {
+            console.log(e)
+        }
 
-        updateTaskBtn.addEventListener('click', () => {
-            updateTaskModal.style.display = 'flex';
-            stopBodyScroll();
-            openUpdateTaskModal();
-        })
-        updateTaskClose.addEventListener('click', () => {
-            updateTaskModal.style.display = 'none';
-            restoreBodyScroll();
-            closeUpdateTaskModal();
-        })
-        updateTaskModal.addEventListener('click', () => {
-            updateTaskModal.style.display = 'none';
-            restoreBodyScroll();
-            closeUpdateTaskModal();
-        })
+        try {
+            const giveRemarkBtn = document.querySelector('.give-remark-btn');
+            const giveRemarkModal = document.querySelector('.give-remark-modal');
+            const giveRemarkClose = document.querySelector('.give-remark-close');
+
+            giveRemarkBtn.addEventListener('click', () => {
+                giveRemarkModal.style.display = 'flex';
+                stopBodyScroll();
+            })
+            giveRemarkClose.addEventListener('click', () => {
+                giveRemarkModal.style.display = 'none';
+                restoreBodyScroll();
+            })
+            giveRemarkModal.addEventListener('click', () => {
+                giveRemarkModal.style.display = 'none';
+                restoreBodyScroll();
+            })
+        } catch (e) {
+            console.log(e)
+        }
     }
 </script>
 
@@ -273,9 +315,7 @@ get_header() ?>
                         $avatar = 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($temp->user_email))) . '?d=identicon';
                         ?>
                         <img src="<?php echo $avatar ?>" alt="avatar">
-                        <?php
-                        echo $temp_name;
-                        ?>
+                        <?php echo $temp_name; ?>
                     </div>
                 <?php
                 }
@@ -294,43 +334,59 @@ get_header() ?>
                 <?php echo $project->project_category ?>
             </div>
         </div>
-        <div class="s-project-details" style="align-items: flex-start;">
+        <div class="s-project-details">
             <span>Description:</span>
             <div>
                 <?php echo $project->project_description ?>
             </div>
         </div>
-        <form action="" method="post">
-            <div class="s-project-details">
-                <span>Actions:</span>
-                <div class="s-links">
-                    <?php
-                    if (is_user_trainee()) {
-                        if ($project->project_done == 0) {
-                    ?>
-                            <form action="" method="post">
-                                <button type="submit" name="complete-project" class="btn-text color-success icon-text-link"><ion-icon name='checkmark-circle-outline'></ion-icon>Mark As Complete</button>
-                            </form>
+
+        <?php if ((is_user_trainer()) || (is_user_trainee() && $project->project_done == 0)) { ?>
+            <form action="" method="post">
+                <div class="s-project-details">
+                    <span>Actions:</span>
+                    <div class="s-links">
                         <?php
-                        } else {
+                        if (is_user_trainee()) {
                         ?>
-
-                            <span class="color-success">Project Completed</span>
-
+                            <form action="" method="post">
+                                <button type="submit" name="complete-project" class="btn-text color-success icon-text-link"><ion-icon name="paper-plane-outline"></ion-icon>Submit For Review</button>
+                            </form>
                         <?php
                         }
                         ?>
 
-                    <?php
-                    }
-                    ?>
-                    <?php if (is_user_trainer()) { ?>
-                        <a href="<?php echo site_url('/projects/update-project?id=') . $project->project_id ?>" class="color-blue icon-text-link"><ion-icon name='create-outline'></ion-icon>Update</a>
-                        <button type='submit' class="btn-text color-danger icon-text-link" name="delete-project"><ion-icon name='trash-outline'></ion-icon>Delete</button>
-                    <?php } ?>
+                        <?php if (is_user_trainer()) { ?>
+                            <a href="<?php echo site_url('/projects/update-project?id=') . $project->project_id ?>" class="color-blue icon-text-link"><ion-icon name='create-outline'></ion-icon>Update</a>
+                            <button type='submit' class="btn-text color-danger icon-text-link" name="delete-project"><ion-icon name='trash-outline'></ion-icon>Delete</button>
+                        <?php } ?>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        <?php } ?>
+
+        <?php if ($project->project_done == 1) {
+            $remark = get_project_remark($project->project_id);
+            if (is_response_error($remark)) {
+                // review has not been made yet
+                if (is_user_trainee()) {
+        ?>
+                    <span class="color-warning" style="display:flex;align-items:center;gap:6px"><ion-icon name="hourglass-outline"></ion-icon>Awaiting Trainer Review</span>
+                <?php } else { ?>
+                    <div class="app-btn secondary-btn give-remark-btn" style="width:fit-content;cursor:pointer">Give Remark</div>
+                <?php } ?>
+
+            <?php } else { ?>
+                <i>
+                    <div class="s-project-details">
+                        <span>Remark:</span>
+                        <div class="s-links">
+                            <?php echo $remark->data->remark_desc ?>
+                        </div>
+                    </div>
+                </i>
+            <?php } ?>
+        <?php } ?>
     </div>
 
 
@@ -339,23 +395,15 @@ get_header() ?>
 
     <div class="table-heading">
         <div class="table-heading-top">
-            <h3>Task</h3>
+            <h3>Project Tasks</h3>
 
             <div>
-                <!-- <form action="" method="get">
-                    <?php // echo do_shortcode('[search_bar placeholder="search"]') 
-                    ?>
-                </form> -->
-                <?php if (is_user_trainee()) { ?>
+                <?php if (is_user_trainee() && $project->project_done == 0) { ?>
                     <button class="app-btn secondary-btn add-task-btn"><ion-icon name='add'></ion-icon> Add Task</button>
                 <?php } ?>
             </div>
         </div>
         <div class="table-heading-bottom">
-            <!-- <form action="" method="get">
-                <?php // echo do_shortcode('[search_bar placeholder="search"]') 
-                ?>
-            </form> -->
         </div>
     </div>
 
@@ -369,14 +417,22 @@ get_header() ?>
     <?php } else { ?>
         <div class="tasks-list">
             <?php
+            $i = 1;
             foreach ($ongoing as $task) {
+                $task_name = (is_user_trainer() ? $i++ . ". " : '') . $task->task_name;
             ?>
                 <div class="task">
-                    <form action="" method="post">
-                        <input type="hidden" name="task-id" value="<?php echo $task->task_id ?>">
-                        <button name="check-task" type="submit" class="btn-text"><ion-icon name="square-outline" style="color:grey"></ion-icon></button>
-                    </form>
-                    <p class="task-name"><?php echo $task->task_name ?></p>
+                    <?php
+                    if (is_user_trainee()) {
+                    ?>
+                        <form action="" method="post">
+                            <input type="hidden" name="task-id" value="<?php echo $task->task_id ?>">
+                            <button name="check-task" type="submit" class="btn-text"><ion-icon name="square-outline" style="color:grey"></ion-icon></button>
+                        </form>
+                    <?php
+                    }
+                    ?>
+                    <p class="task-name"><?php echo $task_name; ?></p>
 
                     <?php if (is_user_trainee()) { ?>
                         <div class="task-options">
@@ -405,14 +461,22 @@ get_header() ?>
     <?php } else { ?>
         <div class="tasks-list">
             <?php
+            $i = 1;
             foreach ($completed as $task) {
+                $task_name = (is_user_trainer() ? $i++ . ". " : '') . $task->task_name;
             ?>
                 <div class="task">
-                    <form action="" method="post">
-                        <input type="hidden" name="task-id" value="<?php echo $task->task_id ?>">
-                        <button name="uncheck-task" type="submit" class="btn-text"><ion-icon name="checkbox" style="color:grey"></ion-icon></button>
-                    </form>
-                    <p class="task-name"><?php echo $task->task_name ?></p>
+                    <?php
+                    if (is_user_trainee()) {
+                    ?>
+                        <form action="" method="post">
+                            <input type="hidden" name="task-id" value="<?php echo $task->task_id ?>">
+                            <button name="uncheck-task" type="submit" class="btn-text"><ion-icon name="checkbox" style="color:grey"></ion-icon></button>
+                        </form>
+                    <?php
+                    }
+                    ?>
+                    <p class="task-name"><?php echo $task_name ?></p>
 
                     <?php if (is_user_trainee()) { ?>
                         <div class="task-options">
@@ -475,5 +539,31 @@ get_header() ?>
         </div>
     </div>
 </form>
+
+<?php
+if (is_user_trainer()) {
+?>
+    <form action="" method="post">
+        <div class="modal give-remark-modal">
+            <div class="modal-inner" style="display:flex;flex-direction:column; gap: 15px;">
+                <div class="modal-top">
+                    <h3>Add Remark</h3>
+                    <ion-icon name='close-circle-outline' class="give-remark-close"></ion-icon>
+                </div>
+
+                <div class="modal-content">
+                    <input type="hidden" name="project-id" value="<?php echo $project->project_id ?>">
+                    <?php echo do_shortcode('[input_con name="remark" label="Remark" error="" placeholder="Enter project remarks" value=""]')
+                    ?>
+                </div>
+
+                <button type="submit" class="app-btn primary-btn" style="width: 100%" name="give-remark">Give Remark</button>
+
+            </div>
+        </div>
+    </form>
+<?php
+}
+?>
 
 <?php get_footer() ?>

@@ -119,10 +119,10 @@ select:focus {
 	justify-content: center;
 }
 .user-icon {
-	width: 30px;
-	height: 30px;
+	width: 33px;
+	height: 33px;
 	border-radius: 30px;
-	font-weight: 500;
+	font-weight: 600;
 	font-size: 13px;
 	background: rgb(220, 220, 220);
 	border: 1.5px solid #fff;
@@ -723,12 +723,25 @@ table .created-on {
 	flex-direction: column;
 	justify-content: space-around;
 }
-.overview-brief .overview-row {
-	display: none;
+
+.overview-brief .overview-hr {
+	display: flex;
+	justify-content: space-between;
+}
+.overview-brief .overview-hr .overview-row {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+.overview-brief .overview-hr .overview-row > span {
+	font-weight: 600;
+	margin-top: 10px;
+}
+.overview-brief .overview-hr .overview-row:last-child {
+	align-items: flex-end;
 }
 .overview-brief .overview-row-h {
-	display: block;
-	border-bottom: 1.5px solid rgba(203, 203, 203, 0);
+	display: none;
 }
 
 /***** End Homepage *****/

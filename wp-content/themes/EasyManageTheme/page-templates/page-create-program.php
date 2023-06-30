@@ -34,6 +34,7 @@ if (isset($_POST['create-program'])) {
             $form_error = $result->message ?? "Creation Failed";
         } else {
             $form_success = $result->message ?? "Successfully created";
+            do_action('move_to_programs');
         }
     }
 }

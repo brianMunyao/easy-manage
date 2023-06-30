@@ -41,6 +41,7 @@ if (isset($_POST['create-trainee'])) {
                     $form_error = $result->message ?? "Creation Failed";
                 } else {
                     $form_success = "Successfully Created";
+                    do_action('move_to_trainees');
                 }
             } else {
                 $form_error = $result->message ?? "Creation Failed";

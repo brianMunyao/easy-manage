@@ -52,6 +52,7 @@ if (isset($_POST['update-project'])) {
             $form_error = $result->message ?? "Update Failed";
         } else {
             $form_success = "Successfully Updated";
+            do_action('move_to_projects');
         }
     }
 }

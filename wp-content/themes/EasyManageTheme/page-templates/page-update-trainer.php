@@ -13,7 +13,7 @@ if (is_response_error($user_info)) wp_redirect('/trainers');
 $user_info = $user_info->data;
 
 $assigned_cohort = get_program_assignee($id);
-$assigned_cohort = $assigned_cohort ? $assigned_cohort->data : NULL;
+$assigned_cohort = property_exists($assigned_cohort, 'data') ? $assigned_cohort->data : NULL;
 
 $fullname_error = $password_error = '';
 
@@ -44,6 +44,7 @@ if (isset($_POST['update-trainer'])) {
             $form_error = $result->message;
         } else {
             $form_success = "Successfully updated";
+            do_action('move_to_trainers');
         }
     }
 }

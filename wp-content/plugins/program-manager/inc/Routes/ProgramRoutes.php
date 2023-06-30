@@ -227,9 +227,6 @@ class ProgramRoutes extends BaseController
         if (!isset($program_logo)) {
             $missingParams[] = "program_logo";
         }
-        if (!isset($program_created_by)) {
-            $missingParams[] = "program_created_by";
-        }
         if (!isset($program_start_date)) {
             $missingParams[] = "program_start_date";
         }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @packagejectnager
+ * @package ProgramManager
  */
 
 namespace Inc\Routes;
@@ -70,6 +70,13 @@ class ProjectRoutes extends BaseController
                 return current_user_can('read');
             }
         ]);
+        register_rest_route('api/v1', '/projects/program/(?P<program_id>\d+)', [
+            'methods' => "GET",
+            'callback' => [$this, 'get_program_projects'],
+            'permission_callback' => function () {
+                return current_user_can('read');
+            }
+        ]);
         register_rest_route('api/v1', '/projects/(?P<project_id>\d+)', [
             'methods' => "DELETE",
             'callback' => [$this, 'delete_project'],
@@ -128,9 +135,9 @@ class ProjectRoutes extends BaseController
         return new WP_REST_Response($this->get_response_object(200, null, $projects));
     }
 
-    public function get_trainee_projects($request)
+    public function get_program_projects($request)
     {
-        $trainee_id = $request->get_param('trainee_id');
+        $program_id = $request->get_param('program_id');
 
         global $wpdb;
 
@@ -142,9 +149,31 @@ class ProjectRoutes extends BaseController
             LEFT JOIN
                 wp_project_trainees_allocation ON wp_projects.project_id = wp_project_trainees_allocation.project_id
             WHERE
-            wp_project_trainees_allocation.trainee_id = $trainee_id
+                project_program_id = $program_id
             GROUP BY
                 wp_projects.project_id;"));
+
+        return new WP_REST_Response($this->get_response_object(200, null, $projects));
+    }
+
+    public function get_trainee_projects($request)
+    {
+        $trainee_id = $request->get_param('trainee_id');
+
+        global $wpdb;
+        $program_id = $wpdb->get_var("SELECT program_id FROM wp_program_trainees_allocation WHERE trainee_id=$trainee_id");
+
+        $projects = $wpdb->get_results($wpdb->prepare("SELECT * FROM (SELECT
+        wp_projects.*,
+        GROUP_CONCAT(trainee_id) AS project_assignees
+          FROM
+        wp_projects
+          LEFT JOIN
+        wp_project_trainees_allocation ON wp_projects.project_id = wp_project_trainees_allocation.project_id
+          WHERE
+        project_program_id = $program_id
+          GROUP BY
+        wp_projects.project_id) AS sub  WHERE project_assignees LIKE '%$trainee_id%';"));
 
         return new WP_REST_Response($this->get_response_object(200, null, $projects));
     }
@@ -172,7 +201,7 @@ class ProjectRoutes extends BaseController
 
     public function create_project($request)
     {
-        $project_name = $request['prboject_name'];
+        $project_name = $request['project_name'];
         $project_category = $request['project_category'];
         $project_description = $request['project_description'];
         $project_due_date = $request['project_due_date'];
@@ -379,6 +408,9 @@ class ProjectRoutes extends BaseController
             ];
         }, $users);
 
+        $res = array_filter($res, function ($user) use ($ids) {
+            return in_array($user['id'], $ids);
+        });
 
         return $res;
     }
@@ -470,7 +502,7 @@ class ProjectRoutes extends BaseController
         if (is_wp_error($res)) {
             return new WP_REST_Response($this->get_response_object(500, "Error completing tasks"), 500);
         }
-        return new WP_REST_Response($this->get_response_object(200, "Project Completed Sucessfully"), 200);
+        return new WP_REST_Response($this->get_response_object(200, "Project Submitted Sucessfully"), 200);
     }
     public function delete_project($request)
     {
@@ -478,9 +510,13 @@ class ProjectRoutes extends BaseController
 
         global $wpdb;
         $projects_table = $wpdb->prefix . 'projects';
+        $tasks_table = $wpdb->prefix . 'tasks';
+        $remarks_table = $wpdb->prefix . 'remarks';
 
         try {
             $this->unallocate_trainees_from_project($project_id);
+            $res = $wpdb->delete($remarks_table, ['remark_project_id' => $project_id]);
+            $res = $wpdb->delete($tasks_table, ['task_project_id' => $project_id]);
             $res = $wpdb->delete($projects_table, ['project_id' => $project_id]);
             if (is_wp_error($res)) {
                 throw new \Exception("Error Processing Request", 1);

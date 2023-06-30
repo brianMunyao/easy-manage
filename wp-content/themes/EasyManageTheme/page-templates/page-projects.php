@@ -23,6 +23,7 @@ if (is_user_trainer()) {
 
     $projects = get_all_projects(get_current_user_id());
 } else {
+
     $projects = get_trainees_projects(get_current_user_id());
 }
 $ongoing = array_filter($projects, function ($project) {
@@ -69,12 +70,12 @@ $completed = array_filter($projects, function ($project) {
             </div>
         </div>
 
-        <div class="table-h">
-            <span class="color-success">Active Projects (<?php echo count($ongoing) ?>)</span>
+        <div class="table-h" style="background: #fff;">
+            <span class="color-success">Ongoing Projects (<?php echo count($ongoing) ?>)</span>
         </div>
 
         <?php if (count($ongoing) == 0) { ?>
-            <div class="empty-list">No Active Projects</div>
+            <div class="empty-list">No Ongoing Projects</div>
         <?php } else { ?>
             <div class="projects-list">
                 <?php
@@ -96,12 +97,12 @@ $completed = array_filter($projects, function ($project) {
                             <div class="project-progress-con">
                                 <div class="project-progress">
                                     <div style="width: <?php echo calculate_percentage($completed_tasks, $project_tasks)
-                                                        ?>;"></div>
+                                                        ?>;background: <?php echo string_to_hex_color($project->project_category) ?>;"></div>
                                 </div>
 
 
-                                <div><?php echo calculate_percentage($completed_tasks, $project_tasks)
-                                        ?></div>
+                                <div style="color: <?php echo string_to_hex_color($project->project_category) ?>;"><?php echo calculate_percentage($completed_tasks, $project_tasks)
+                                                                                                                    ?></div>
                             </div>
 
                             <div class="project-bottom-con">
@@ -150,7 +151,7 @@ $completed = array_filter($projects, function ($project) {
         <?php } ?>
 
 
-        <div class="table-h">
+        <div class="table-h" style="background: #fff;">
             <span class="color-error">Completed Projects (<?php echo count($completed) ?>)</span>
         </div>
         <?php if (count($completed) == 0) { ?>
@@ -166,23 +167,22 @@ $completed = array_filter($projects, function ($project) {
                 ?>
                     <a href="<?php echo site_url('/projects/project?id=') . $project->project_id ?>">
                         <div class="project">
-
-                            <div class="project-category">
+                            <div class="project-category" style="background: <?php echo string_to_hex_color($project->project_category) ?>;">
                                 <?php echo $project->project_category ?>
                             </div>
-
                             <p class="project-title">
                                 <?php echo $project->project_name ?>
                             </p>
 
-
-
                             <div class="project-progress-con">
                                 <div class="project-progress">
-                                    <div style="width: <?php echo calculate_percentage($completed_tasks, $project_tasks) ?>;"></div>
+                                    <div style="width: <?php echo calculate_percentage($completed_tasks, $project_tasks)
+                                                        ?>;background: <?php echo string_to_hex_color($project->project_category) ?>;"></div>
                                 </div>
 
-                                <div><?php echo calculate_percentage($completed_tasks, $project_tasks) ?></div>
+
+                                <div style="color: <?php echo string_to_hex_color($project->project_category) ?>;"><?php echo calculate_percentage($completed_tasks, $project_tasks)
+                                                                                                                    ?></div>
                             </div>
 
                             <div class="project-bottom-con">
@@ -200,7 +200,7 @@ $completed = array_filter($projects, function ($project) {
 
                                         if (count($assignees) == 0) {
                                         ?>
-                                            <div class="circle-error" style="width:30px;height:30px;font-size: 16px;bottom:5px;right:10px" title="Program has no trainer">
+                                            <div class="circle-error" style="width:30px;height:30px;font-size: 16px;bottom:5px;right:10px" title="Project has no assignee">
                                                 <ion-icon name="alert-circle-outline"></ion-icon>
                                             </div>
                                             <?php

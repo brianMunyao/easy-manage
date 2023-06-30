@@ -43,6 +43,7 @@ if (isset($_POST['update-program'])) {
             $form_error = $result->message ?? "Update Failed";
         } else {
             $form_success = "Successfully Updated";
+            do_action('move_to_programs');
         }
     }
 }

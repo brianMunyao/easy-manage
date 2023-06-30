@@ -7,7 +7,6 @@ $project_name_error = $project_category_error = $project_description_error = $pr
 $assigned_program = get_program_assignee(get_current_user_id());
 if (is_response_error($assigned_program)) wp_redirect('/projects');
 $assigned_program = $assigned_program->data;
-
 $available_assignees = get_available_trainees($assigned_program->program_id);
 
 if (isset($_POST['create-project'])) {
@@ -45,6 +44,7 @@ if (isset($_POST['create-project'])) {
             $form_error = $result->message ?? "Creation Failed";
         } else {
             $form_success = "Successfully Created";
+            do_action('move_to_projects');
         }
     }
 }
@@ -95,7 +95,7 @@ get_header() ?>
                         } else {
                             $curr_project_assignees = [];
                         }
-                        echo count($available_assignees) == 0 ? "<p style='font-style:italic; opacity: 0.8' class='color-danger'>All trainees have max number of projects.</p>" : '';
+                        echo count($available_assignees) == 0 ? "<p style='font-style:italic; opacity: 0.8' class='color-danger'>No available trainees.</p>" : '';
 
 
                         foreach ($available_assignees as $assignee) {

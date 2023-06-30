@@ -27,17 +27,17 @@ if (isset($_POST['create-trainer'])) {
             'is_deactivated' => 0,
             'is_deleted' => 0,
             'created_by' => get_current_user_id()
-        ], $program);
+        ]);
 
-        if (is_numeric($result) && !empty($program)) {
-            $result = allocate_program($result, $program);
+        if (!is_response_error($result) && !empty($program)) {
+            $result = allocate_program($result->data, $program);
         }
 
         if (is_response_error($result)) {
             $form_error = $result->message;
         } else {
             $form_success = "Successfully created";
-            // do_action('move_to_previous_page');
+            do_action('move_to_trainers');
         }
     }
 }

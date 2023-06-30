@@ -109,7 +109,7 @@ get_header() ?>
             // $dash2_val =  count(get_trainees_new());
             // $dash2_label = "Active Trainees";
 
-            $projects = get_all_projects();
+            $projects = get_program_projects($assigned_program->program_id);
             $projects_ongoing = array_filter($projects, function ($project) {
                 return $project->project_done == 0;
             });
@@ -189,19 +189,21 @@ get_header() ?>
                             <span class="title">Total</span>
                             <span class="value"><?php echo count($projects) ?></span>
                         </div>
-                        <div class="overview-row">
-                            <div>
-                                <div class="dot bg-primary"></div>
-                                <span class="title">Completed</span>
+                        <div class="overview-hr">
+                            <div class="overview-row">
+                                <div>
+                                    <div class="dot bg-primary"></div>
+                                    <span class="title">Completed</span>
+                                </div>
+                                <span class="value"><?php echo count($projects) - count($projects_ongoing) ?></span>
                             </div>
-                            <span class="value"><?php echo count($projects) - count($projects_ongoing) ?></span>
-                        </div>
-                        <div class="overview-row">
-                            <div>
-                                <div class="dot bg-secondary"></div>
-                                <span class="title">Ongoing</span>
+                            <div class="overview-row">
+                                <div>
+                                    <div class="dot bg-secondary"></div>
+                                    <span class="title">Ongoing</span>
+                                </div>
+                                <span class="value"><?php echo count($projects_ongoing) ?></span>
                             </div>
-                            <span class="value"><?php echo count($projects_ongoing) ?></span>
                         </div>
                     </div>
                 </div>
@@ -265,7 +267,7 @@ get_header() ?>
             ?>
 
             <?php
-            if (is_user_admin_custom() || is_user_p_manager()) {
+            if (is_user_admin_custom()) {
             ?>
                 <div class="overview">
                     <p class="overview-title">Projects Status</p>

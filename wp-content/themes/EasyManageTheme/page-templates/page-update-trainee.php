@@ -27,9 +27,10 @@ if (isset($_POST['update-trainee'])) {
 
 
         if (is_response_error($result)) {
-            $form_error = $result->message;
+            $form_error = $result->message ?? "Account Creation Failed. Try Again Later";
         } else {
             $form_success = "Successfully updated";
+            do_action('move_to_trainees');
         }
     }
 }

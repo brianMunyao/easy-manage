@@ -26,10 +26,11 @@ if (isset($_POST['create-pm'])) {
             'created_by' => get_current_user_id()
         ]);
         if (is_response_error($result)) {
-            $form_error = $result->message;
+            $form_error = $result->message ?? "Account Creation Failed";
+            var_dump($result);
         } else {
             $form_success = "Successfully created";
-            // do_action('move_to_previous_page');
+            do_action('move_to_employees');
         }
     }
 }

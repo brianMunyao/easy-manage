@@ -37,14 +37,14 @@ function redirect_on_logout()
 }
 add_action('wp_logout', 'redirect_on_logout');
 
-// function restrict_wp_admin_access()
-// {
-//     if (is_admin() && !current_user_can('administrator') && !wp_doing_ajax()) {
-//         wp_redirect(home_url());
-//         exit;
-//     }
-// }
-// add_action('init', 'restrict_wp_admin_access');
+function restrict_wp_admin_access()
+{
+    if (is_admin() && !current_user_can('administrator') && !wp_doing_ajax()) {
+        wp_redirect(home_url());
+        exit;
+    }
+}
+add_action('init', 'restrict_wp_admin_access');
 
 
 /**
@@ -931,6 +931,23 @@ function get_all_projects($trainer_id = NULL)
     return is_response_error($projects) ? [] : $projects->data ?? [];
 }
 
+function get_program_projects($program_id)
+{
+    global $authHeaders;
+    global $base_url;
+
+
+    $res = wp_remote_get($base_url . "/projects/program/" . $program_id, [
+        'method' => 'GET',
+        'headers' => $authHeaders
+    ]);
+
+    $projects = wp_remote_retrieve_body($res);
+    $projects = json_decode($projects);
+
+    return is_response_error($projects) ? [] : $projects->data ?? [];
+}
+
 function get_single_project_new($p_id)
 {
     global $base_url;
@@ -984,7 +1001,7 @@ function get_trainees_projects($trainee_id)
     global $base_url;
     global $authHeaders;
 
-    $res = wp_remote_get($base_url . "/projects/trainees/" . $trainee_id, [
+    $res = wp_remote_get($base_url . "/projects/trainees/$trainee_id", [
         'method' => 'GET',
         'headers' => $authHeaders
     ]);
@@ -1171,6 +1188,36 @@ function delete_task($task_id)
     return json_decode($res);
 }
 
+function get_project_remark($project_id)
+{
+    global $base_url;
+    global $authHeaders;
+
+    $res = wp_remote_get($base_url . "/remarks/" . $project_id, [
+        'method' => 'GET',
+        'headers' => $authHeaders
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
+function add_remark($project_id, $remark)
+{
+    global $base_url;
+    global $authHeaders;
+
+    $res = wp_remote_post($base_url . "/remarks/" . $project_id, [
+        'method' => 'POST',
+        'data_format' => 'body',
+        'body' => $remark,
+        'headers' => $authHeaders
+    ]);
+
+    $res = wp_remote_retrieve_body($res);
+    return json_decode($res);
+}
+
 /**
  * 
  *
@@ -1229,28 +1276,32 @@ add_action('move_to_trainees', 'move_to_trainees');
  * Checks the number of login attempts for a user and returns an error message if the maximum number of attempts has been reached.
  *
  * @param mixed $user
- * @param string $username
- * @param string $password
  * @return mixed|WP_Error
  */
-function check_login_attempts($user, $username, $password)
+function check_attempted_login($user, $username, $password)
 {
-    $attempted_login = get_transient('attempted_login');
-    $max_attempts = 3;
-    $transient_timeout = get_option('_transient_timeout_attempted_login');
+    $transient_name = 'attempted_login';
+    $login_attempts = 3;
 
-    if ($attempted_login && $attempted_login['tried'] >= $max_attempts) {
-        $time_left = calculate_time_left($transient_timeout);
+    $attempted_login_data = get_transient($transient_name);
 
-        $error_message = 'Too many attempts. Try again in ' . $time_left;
+    if ($attempted_login_data) {
+        $trials = $attempted_login_data['tried'];
+        if ($trials >= $login_attempts) {
 
-        return new WP_Error('too_many_tried', $error_message);
+            $until = get_option('_transient_timeout_' . $transient_name);
+
+            return new WP_Error('too_many_tried', sprintf(
+                __('<strong>ERROR</strong>: Too many login attempts, try again in %s.'),
+                time_left($until)
+            ));
+        }
     }
 
     return $user;
 }
 
-add_filter('authenticate', 'check_login_attempts', 30, 3);
+add_filter('authenticate', 'check_attempted_login', 30, 3);
 
 /**
  * Increments the login attempts for a given username.
@@ -1258,19 +1309,21 @@ add_filter('authenticate', 'check_login_attempts', 30, 3);
  * @param string $username The username for which to increment the login attempts.
  * @return void
  */
-function increment_login_attempts($username)
+function login_failed($username)
 {
-    $attempted_login = get_transient('attempted_login') ?: ['tried' => 0];
-    $max_attempts = 3;
-    $expiration_time = 60;
+    $transient_name = 'attempted_login';
+    $login_attempts = 3;
+    $time_blocked = 1 * 60;
 
-    $attempted_login['tried']++;
-    if ($attempted_login['tried'] <= $max_attempts) {
-        set_transient('attempted_login', $attempted_login, $expiration_time);
+    $attempted_login_data = get_transient($transient_name) ?: array('tried' => 0);
+    $attempted_login_data['tried']++;
+
+    if ($attempted_login_data['tried'] <= $login_attempts) {
+        set_transient($transient_name, $attempted_login_data, $time_blocked);
     }
 }
 
-add_action('wp_login_failed', 'increment_login_attempts', 10, 1);
+add_action('wp_login_failed', 'login_failed', 10, 1);
 
 /**
  * Calculates the time left between the given timestamp and the current time.
@@ -1278,32 +1331,114 @@ add_action('wp_login_failed', 'increment_login_attempts', 10, 1);
  * @param int $timestamp The timestamp to calculate the time left from.
  * @return string|null Returns a string representing the time left or null if the difference is zero.
  */
-function calculate_time_left($timestamp)
+function time_left($timestamp)
 {
-    $periods = [
-        "second" => 60,
-        "minute" => 60,
-        "hour" => 24,
-        "day" => 7,
-        "week" => 4.35,
-        "month" => 12
-    ];
+    $periods = array("second", "minute", "hour", "day", "week", "month", "year");
+    $lengths = array(60, 60, 24, 7, 4.35, 12);
 
-    $currentTimestamp = time();
-    $difference = abs($currentTimestamp - $timestamp);
-    $periodKeys = array_keys($periods);
-    $periodCount = count($periods);
+    $difference = abs(time() - $timestamp);
+    $i = 0;
 
-    for ($i = 0; $i < $periodCount && $difference >= $periods[$periodKeys[$i]]; $i++) {
-        $difference /= $periods[$periodKeys[$i]];
+    while ($difference >= $lengths[$i] && $i < count($lengths) - 1) {
+        $difference /= $lengths[$i];
+        $i++;
     }
 
     $difference = round($difference);
-    $period = $periodKeys[$i];
+    $period = $periods[$i];
 
     if ($difference !== 1) {
         $period .= "s";
     }
 
-    return ($difference !== 0) ? "$difference $period" : null;
+    return "$difference $period";
 }
+
+
+// global $allowed_attempts;
+// $allowed_attempts = 3; //5;
+
+// global $time_blocked;
+// $time_blocked = 1 * 60; // 2 mins (180 seconds) blocked
+
+// global $transient_name;
+// $transient_name = 'attempts';
+
+// global $trials;
+// $trials = 'trials';
+
+/**
+ * Checks the number of login attempts for a user and returns an error message if the maximum number of attempts has been reached.
+ *
+ * @param mixed $user
+ * @return mixed|WP_Error
+ */
+// function check_attempts($user)
+// {
+//     global $transient_name;
+//     global $trials;
+//     global $allowed_attempts;
+
+//     $transient = get_transient($transient_name);
+//     if ($transient) {
+//         $user_trials = $transient[$trials];
+//         if ($transient[$trials] >= $allowed_attempts) {
+//             $till = get_option('_transient_timeout_' . 'attempted_login');
+//             return new WP_Error('login_error', "Too many attempts. Try again in " . convert_seconds($till));
+//         }
+//         return new WP_Error('login_error', "Wrong password. " . $allowed_attempts - $user_trials . " trials remaining");
+//     }
+
+//     return $user;
+// }
+
+// add_filter('authenticate', 'check_attempts', 30, 3);
+
+
+/**
+ * Increments the login attempts for a given username.
+ *
+ * @param string $username The username for which to increment the login attempts.
+ * @return void
+ */
+// function login_failure()
+// {
+//     global $allowed_attempts;
+//     global $time_blocked;
+//     global $transient_name;
+//     global $trials;
+
+//     $transient = get_transient($transient_name);
+
+//     if ($transient) {
+//         $transient_data = $transient;
+//         $transient_data[$trials]++;
+
+//         if ($transient_data[$trials] <= $allowed_attempts) {
+//             set_transient($transient_name, $transient_data, $time_blocked);
+//         } else {
+//             set_transient($transient_name, [$trials => 1], $time_blocked);
+//         }
+//     }
+// }
+
+// add_action('wp_login_failed', 'login_failure', 10, 1);
+
+/**
+ * Calculates the time left between the given timestamp and the current time.
+ *
+ * @param int $timestamp The timestamp to calculate the time left from.
+ * @return string|null Returns a string representing the time left or null if the difference is zero.
+ */
+// function convert_seconds($seconds)
+// {
+//     $seconds = abs(time() - $seconds);
+//     if ($seconds < 60) {
+//         return $seconds . " seconds";
+//     } else {
+//         $minutes = floor($seconds / 60);
+//         $remaining_seconds = $seconds % 60;
+
+//         return $minutes . " minutes " . ($remaining_seconds > 0 ? " and " . $remaining_seconds . " seconds" : "");
+//     }
+// }

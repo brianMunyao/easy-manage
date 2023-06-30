@@ -1,0 +1,5 @@
+{
+    "require": {
+        "mailslurp/mailslurp-client-php": "^15.17"
+    }
+}

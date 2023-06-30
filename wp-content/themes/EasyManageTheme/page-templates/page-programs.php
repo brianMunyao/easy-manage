@@ -72,7 +72,7 @@ get_header() ?>
                 <div class="program-more">
                     <div>
                         <div>Trainer:</div>
-                        <?php echo $user->fullname ?? '--'; ?>
+                        <?php echo $program_trainer->fullname ?? '--'; ?>
                     </div>
                     <div>
                         <div>Trainees:</div>

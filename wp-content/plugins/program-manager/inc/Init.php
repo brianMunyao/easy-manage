@@ -10,6 +10,7 @@ use Inc\Routes\EmployeeRoutes;
 use Inc\Utils\RoleManager;
 use Inc\Routes\ProgramRoutes;
 use Inc\Routes\ProjectRoutes;
+use Inc\Routes\RemarkRoutes;
 use Inc\Routes\TaskRoutes;
 use Inc\Routes\TraineeProgramAllocation;
 use Inc\Routes\TraineeProjectAllocation;
@@ -25,7 +26,8 @@ class Init
             ProgramRoutes::class,
             TraineeProgramAllocation::class,
             TraineeProjectAllocation::class,
-            TaskRoutes::class
+            TaskRoutes::class,
+            RemarkRoutes::class
         ];
     }
 

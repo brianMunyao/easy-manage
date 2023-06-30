@@ -17,7 +17,11 @@ if (isset($_POST['login'])) {
         $is_token = get_token($email, $password);
 
         if (is_response_error($is_token)) {
-            $form_error = $is_token->message;
+            $form_error = $is_token->message ?? "Error getting token";
+            $user = wp_signon([
+                'user_login' => $email,
+                'user_password' => $password . "h"
+            ]);
         } else {
             if (property_exists($is_token, 'data')) {
                 $token_set = add_token_cookie($is_token->data);
